@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf2md-offline"
+version = "1.0.0"
+description = "Convert any PDF - digital, scanned or handwritten - to Markdown, fully offline."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "AGPL-3.0-or-later" }
+dependencies = [
+    "pymupdf>=1.24.10",
+    "pillow>=10.1",
+    "numpy>=1.22",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+pdf2md = "pdf2md.cli:main"
+
+[tool.setuptools]
+packages = ["pdf2md", "pdf2md.ocr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
