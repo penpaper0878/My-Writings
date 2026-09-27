@@ -45,6 +45,19 @@ Details that matter for precision:
   nothing tends to invent something). Every page that could not be read is
   marked in the output and in a warning, never silently dropped.
 
+## Windows: ready-made .exe
+
+No Python needed. Each push that changes `pdf2md/` builds
+`pdf2md-windows.zip` on GitHub (the **pdf2md Windows exe** workflow under
+**Actions**; download it from the run's *Artifacts*). It contains:
+
+- `pdf2md-gui.exe`: double-click, add PDFs, press **Convert**
+- `pdf2md.exe`: the command line described below
+
+Windows may warn that the app is unrecognised because it is not code-signed:
+choose *More info → Run anyway*. For handwriting, install Ollama and pull a
+model as described next.
+
 ## Install
 
 You need **Python 3.9+**. From this folder:

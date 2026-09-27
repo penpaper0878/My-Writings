@@ -1,0 +1,28 @@
+pdf2md for Windows - PDF to Markdown, offline
+==============================================
+
+pdf2md-gui.exe   Double-click. Add PDFs, press Convert. The .md file is saved
+                 next to each PDF (or in the folder you choose).
+
+pdf2md.exe       The same from a Command Prompt, e.g.
+                     pdf2md.exe notes.pdf --lang guj+eng
+                     pdf2md.exe --help
+
+Typed PDFs work straight away.
+
+For scanned pages and HANDWRITTEN notes, install a local vision model once:
+  1. Install Ollama from https://ollama.com
+  2. Open a Command Prompt and run:   ollama pull qwen3-vl:8b-instruct
+     (about 6 GB, one time; 16 GB RAM recommended)
+  3. Press "Check setup" in pdf2md-gui (or run: pdf2md.exe --check)
+After that, nothing needs the internet. Your PDFs never leave this computer.
+
+Printed scans without Ollama: install Tesseract from
+https://github.com/UB-Mannheim/tesseract/wiki (tick extra languages such as
+Hindi or Gujarati in the installer). pdf2md finds it automatically.
+
+Windows SmartScreen may warn that the app is "unrecognised" because it is not
+code-signed: click "More info" -> "Run anyway".
+
+In the result, search for [?] and [illegible]: those are the words the model
+was unsure of. See README.md for all options.

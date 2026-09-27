@@ -1,0 +1,67 @@
+name: pdf2md Windows exe
+
+# Builds pdf2md.exe (command line) and pdf2md-gui.exe (window) on Windows.
+# Download them from the run's "Artifacts" section.
+on:
+  push:
+    paths:
+      - "pdf2md/**"
+      - ".github/workflows/pdf2md-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: pdf2md
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: python -m pip install ".[test]" pyinstaller
+
+      - name: Test
+        run: python -m pytest -q
+
+      - name: Build pdf2md.exe (command line)
+        run: >
+          pyinstaller --noconfirm --onefile --console --name pdf2md
+          --paths . --collect-submodules pdf2md --collect-all pymupdf
+          packaging/cli_entry.py
+
+      - name: Build pdf2md-gui.exe (window)
+        run: >
+          pyinstaller --noconfirm --onefile --windowed --name pdf2md-gui
+          --paths . --collect-submodules pdf2md --collect-all pymupdf
+          packaging/gui_entry.py
+
+      - name: Smoke-test the exe
+        run: |
+          python -c "import sys; sys.path.insert(0, 'tests'); import samples, pathlib; samples.digital_pdf(pathlib.Path('smoke.pdf'))"
+          ./dist/pdf2md.exe --version
+          ./dist/pdf2md.exe smoke.pdf -o smoke_out/smoke.md --no-cache
+          head -1 smoke_out/smoke.md | grep -q "^# Quarterly Notes"
+          test -f smoke_out/smoke_assets/page003-img1.png
+          ./dist/pdf2md.exe --check || true
+          test -f dist/pdf2md-gui.exe
+
+      - name: Package
+        run: |
+          mkdir -p pdf2md-windows
+          cp dist/pdf2md.exe dist/pdf2md-gui.exe README.md pdf2md-windows/
+          cp packaging/WINDOWS.txt pdf2md-windows/READ-ME-FIRST.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdf2md-windows
+          path: pdf2md/pdf2md-windows/
+          retention-days: 90
