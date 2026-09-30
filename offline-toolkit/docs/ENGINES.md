@@ -1,10 +1,10 @@
 # Bundled components and licenses
 
-Status: Phase 0 proposal. Python package versions are the latest on PyPI as of 2026-09-30. CLI engine versions get pinned (URL + SHA-256) in `scripts/engines.lock.json` at Phase 5, using the latest stable release at build time. The minimum versions listed here are the ones whose features the toolkit relies on.
+Status: Phase 0, **Lite bundle, personal use** (decisions D1–D2, confirmed 2026-09-30). Python package versions are the latest on PyPI as of 2026-09-30. CLI engine versions get pinned (URL + SHA-256) in `scripts/engines.lock.json` at Phase 5, using the latest stable release at build time. The minimum versions listed here are the ones whose features the toolkit relies on.
 
-Sizes are rough figures for Windows x64, unpacked. **Total ≈ 2.2–2.6 GB installed, ≈ 0.9–1.2 GB download.**
+Sizes are rough figures for Windows x64, unpacked. **Total ≈ 1.5–1.9 GB installed, ≈ 0.6–0.8 GB download.** The Lite bundle leaves out LaMa (≈ 200 MB), IS-Net (≈ 170 MB), the CJK fonts (≈ 130 MB) and switches Tesseract from `tessdata_best` to `tessdata_fast` (≈ 210 MB less).
 
-⚠️ = copyleft that matters when you **redistribute** the app (see §3). Personal use on your own machines is unaffected by any of these licenses.
+⚠️ = copyleft that would matter only if the app were **redistributed** (see §3). This build is for personal use (D1), so none of these flags require any action.
 
 ## 1. Runtimes and CLI engines
 
@@ -41,7 +41,7 @@ Sizes are rough figures for Windows x64, unpacked. **Total ≈ 2.2–2.6 GB inst
 | numpy | 2.4.x (2.5 needs 3.12) | BSD-3 | Arrays | |
 | Pillow | 12.3 | MIT-CMU (bundles libjpeg-turbo, libwebp, LittleCMS MIT, zlib) | Image I/O, JPEG/WEBP/PNG encoders, ICC | |
 | pi-heif | 1.4 | BSD-3; wheel bundles **libheif, libde265 (LGPL-3.0)** | HEIC decode only (no x265 encoder, so no GPL-2.0 code) | LGPL: shipped as separate replaceable DLLs ✔ |
-| opencv-contrib-python-headless | 5.0 | Apache-2.0; wheel bundles FFmpeg (LGPL-2.1) | Deskew, denoise, shapes, inpaint (Telea), guided filter | LGPL DLL ✔ |
+| opencv-contrib-python-headless | 5.0 | Apache-2.0; wheel bundles FFmpeg (LGPL-2.1) | Deskew, denoise, shapes, inpainting (Telea, xphoto FSR), GrabCut cut-outs, guided filter | LGPL DLL ✔ |
 | onnxruntime | 1.30 (DirectML variant 1.24, optional GPU) | MIT | Runs all ONNX models | |
 | mediapipe | 1.0.1 | Apache-2.0 | Face Landmarker, selfie segmenter | |
 | rapidocr | 3.9 | Apache-2.0 | PP-OCR via ONNX Runtime | |
@@ -63,7 +63,9 @@ Sizes are rough figures for Windows x64, unpacked. **Total ≈ 2.2–2.6 GB inst
 | charset-normalizer | 3.5 | MIT | TXT encoding detection | |
 | psutil, jsonschema | 7.2 / 4.26 | BSD-3 / MIT | Process/socket audit, schema validation | |
 
-## 3. Copyleft summary — what matters if you redistribute
+## 3. Copyleft — only matters if you ever redistribute
+
+**Personal use only (D1): nothing in this table requires action.** GPL, AGPL and LGPL obligations apply when you give the app to someone else. Running it yourself, on as many of your own machines as you like, triggers none of them. The table is kept so the picture is clear if that ever changes.
 
 | Component | License | Linked how | What you must do when distributing | Risk |
 |---|---|---|---|---|
@@ -76,17 +78,9 @@ Sizes are rough figures for Windows x64, unpacked. **Total ≈ 2.2–2.6 GB inst
 | img2pdf | LGPL-3.0 | Python module (replaceable file) | Ship the license | Low |
 | LibreOffice, pikepdf, OCRmyPDF | MPL-2.0 | Separate process / library | Ship licenses, plus source of any MPL files we modify (none planned) | Low |
 
-**Recommendation (decision D1).** License the toolkit's own code **AGPL-3.0-or-later**. Every component above is then compatible, and you can share the installer or publish it freely, as long as the source stays available (e.g. on GitHub). Phase 5 generates `THIRD_PARTY_NOTICES.txt`, a `licenses/` folder and a `SOURCES.txt` listing where each GPL/AGPL/LGPL component's corresponding source can be downloaded.
+If you ever do share it, the simplest path is to license the toolkit's own code AGPL-3.0-or-later and publish the source. The alternatives are Artifex commercial licences, or replacing PyMuPDF/pdf2docx with pypdfium2 + pikepdf, which makes PDF → editable DOCX clearly worse.
 
-## 4. If you need closed-source distribution without buying licences
-
-| Replace | With | Cost |
-|---|---|---|
-| PyMuPDF (extract/render/SVG) | pypdfium2 (render, text) + pikepdf (structure) + our own SVG writer | More code. PDF→SVG with real text becomes weaker. |
-| pdf2docx | LibreOffice `writer_pdf_import` only | **PDF → editable DOCX gets clearly worse** (per-line frames instead of paragraphs) |
-| Ghostscript | No clean permissive replacement for PDF→PDF/A. LibreOffice PDF/A export still covers Office sources. | PDF→PDF/A, image→PDF/A and HTML→PDF/A would need an Artifex licence, or would be dropped |
-
-## 5. Considered and **not** bundled
+## 4. Considered and **not** bundled
 
 | Component | License | Why not |
 |---|---|---|
@@ -96,34 +90,36 @@ Sizes are rough figures for Windows x64, unpacked. **Total ≈ 2.2–2.6 GB inst
 | Poppler | GPL-2.0/3.0 | Duplicates PyMuPDF/pypdfium2. |
 | PaddlePaddle runtime | Apache-2.0 | ~1 GB with Windows install problems. The same PP-OCR models run on ONNX Runtime via RapidOCR. |
 | ultralytics YOLO, DocLayout-YOLO | **AGPL-3.0** | PP-DocLayout (Apache-2.0) does the same job |
-| BRIA RMBG 1.4 / 2.0 | **CC BY-NC 4.0** (non-commercial) | IS-Net / MODNet (Apache-2.0) instead |
+| BRIA RMBG 1.4 / 2.0 | **CC BY-NC 4.0** (non-commercial) | MODNet (Apache-2.0) + OpenCV GrabCut instead |
 | InsightFace models | Non-commercial | MediaPipe (Apache-2.0) instead |
 | ebooklib | AGPL-3.0 | EPUB is read with zipfile + lxml, and written by Pandoc |
+| LaMa inpainting | Apache-2.0 | **Lite bundle (D2).** OpenCV Telea + `xphoto` FSR instead (weaker on text over photos) |
+| IS-Net (DIS) cut-outs | Apache-2.0 | **Lite bundle (D2).** MODNet for people + OpenCV GrabCut for objects |
+| Noto Sans CJK (SC/TC/JP/KR) | OFL-1.1 | **Lite bundle (D2).** CJK text uses the fonts Windows already ships |
+| Tesseract `tessdata_best`; chi_sim/chi_tra/jpn/kor models; PP-OCR Japanese/Korean packs | Apache-2.0 | **Lite bundle (D2).** `tessdata_fast` for the kept languages; the default PP-OCR model still reads Chinese |
 
-## 6. AI models (all run offline through ONNX Runtime or MediaPipe; SHA-256 pinned)
+## 5. AI models (all run offline through ONNX Runtime or MediaPipe; SHA-256 pinned)
 
 | Model | License | Module | Size |
 |---|---|---|---|
-| PP-OCR (v4/v5) detection + recognition + angle; multilingual recognition packs | Apache-2.0 | 2, 3, 4 | ≈ 20 MB + ≈ 10 MB per script pack |
-| Tesseract `tessdata_best` (eng, hin, mar, san, ben, guj, pan, tam, tel, kan, mal, ori, urd, ara, heb, chi_sim, chi_tra, jpn, kor; configurable) | Apache-2.0 | 2, 3 | ≈ 250 MB (`tessdata_fast` ≈ 40 MB for Lite) |
+| PP-OCR (v4/v5) detection + recognition (English + Chinese) + angle | Apache-2.0 | 2, 3, 4 | ≈ 20 MB |
+| Tesseract `tessdata_fast` (eng, hin, mar, san, ben, guj, pan, tam, tel, kan, mal, ori, urd, ara, heb; configurable) | Apache-2.0 | 2, 3 | ≈ 35 MB |
 | PP-DocLayout (via RapidLayout) | Apache-2.0 | 2, 3 | ≈ 10–40 MB |
 | SLANet+ table structure (via RapidTable) | Apache-2.0 | 2, 3 | ≈ 10 MB |
-| LaMa inpainting (ONNX export) | Apache-2.0 | 3 | ≈ 200 MB |
 | Real-ESRGAN `realesr-general-x4v3` | BSD-3-Clause | 3, 4 | ≈ 5 MB |
 | MODNet photographic portrait matting | Apache-2.0 | 4 | ≈ 25 MB |
-| IS-Net (DIS) general-use | Apache-2.0 | 3 | ≈ 170 MB |
 | MediaPipe Face Landmarker, Selfie Segmenter | Apache-2.0 | 4 | ≈ 5 MB |
 
-## 7. Fonts and colour
+## 6. Fonts and colour
 
 | Asset | License | Purpose |
 |---|---|---|
-| Noto Sans/Serif + Devanagari, Bengali, Gujarati, Gurmukhi, Kannada, Malayalam, Oriya, Tamil, Telugu, Sinhala, Naskh Arabic, Hebrew, Thai; Noto Sans CJK SC/TC/JP/KR (Regular + Bold) | OFL-1.1 | UI, fallback for every conversion, Unicode coverage (≈ 150 MB with CJK) |
+| Noto Sans/Serif + Devanagari, Bengali, Gujarati, Gurmukhi, Kannada, Malayalam, Oriya, Tamil, Telugu, Sinhala, Naskh Arabic, Hebrew, Thai (no CJK, see D2) | OFL-1.1 | UI, fallback for every conversion, Unicode coverage (≈ 60 MB) |
 | Liberation Sans/Serif/Mono (Arial / Times New Roman / Courier New metrics) | OFL-1.1 | LibreOffice metric-compatible substitution |
 | Carlito (Calibri metrics), Caladea (Cambria metrics), Gelasio (Georgia metrics) | OFL-1.1 / Apache-2.0 / OFL-1.1 | Same |
 | ~40 design families for Module 3 font matching (e.g. Roboto, Open Sans, Lato, Montserrat, Poppins, Inter, Oswald, Playfair Display, Merriweather, EB Garamond, Cinzel, Great Vibes, Dancing Script, Bebas Neue, Mukta, Hind, Baloo 2) | OFL-1.1 / Apache-2.0 | Closest-font mapping; the list lives in `fonts.json` and is editable |
 | sRGB ICC **v2** profile (Compact-ICC-Profiles) | CC0-1.0 | PDF/A OutputIntent (v2 works for PDF/A-1, 2 and 3) and the optional JPEG embed |
 
-## 8. Build-time only (not shipped)
+## 7. Build-time only (not shipped)
 
 electron-builder (MIT), NSIS (zlib), lessmsi (MIT: unpacks the LibreOffice MSI), 7-Zip (LGPL-2.1: unpacks the Ghostscript installer), jlink (part of the JDK: trims the JRE).

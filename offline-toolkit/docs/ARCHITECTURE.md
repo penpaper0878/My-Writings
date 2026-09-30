@@ -1,6 +1,6 @@
 # Offline Toolkit — Phase 0: architecture
 
-Status: **proposal for your confirmation**. No module code is written yet. The Module 2 route planner is written and tested, because the conversion matrix is generated from it (see [CONVERSION_MATRIX.md](CONVERSION_MATRIX.md)).
+Status: **decisions confirmed on 2026-09-30** (§0); waiting for "continue" to start Phase 1. No module code is written yet. The Module 2 route planner is written and tested, because the conversion matrix is generated from it (see [CONVERSION_MATRIX.md](CONVERSION_MATRIX.md)).
 
 Companion documents:
 
@@ -9,15 +9,15 @@ Companion documents:
 
 ---
 
-## 0. Decisions I need from you before Phase 1
+## 0. Decisions (confirmed 2026-09-30)
 
-| # | Question | My recommendation |
+| # | Decision | What it changes |
 |---|---|---|
-| D1 | **License.** PyMuPDF (PDF extraction, rendering, pdf2docx) and Ghostscript (PDF/A) are **AGPL-3.0**. Anyone who distributes the app must also offer its source code under AGPL terms. | License the toolkit's own code **AGPL-3.0-or-later**. That is free, and everything bundled is compatible with it. If you ever need closed-source or commercial distribution, buy Artifex licenses for both, or accept the swap in ENGINES.md §4 (noticeably weaker PDF→DOCX). |
-| D2 | **Install size.** The full offline bundle (LibreOffice, Python + AI models, JRE + veraPDF, fonts including CJK) is about **2.2–2.6 GB installed**, with a **0.9–1.2 GB** download. | Ship **Full** as the default. A **Lite** build profile (no LaMa inpainting, no IS-Net cut-outs, no CJK fonts, fewer OCR languages) is about 1.6 GB and is a one-line change in `build/profiles.json`. |
-| D3 | **Passport preset "4.5×3.5 cm".** Read as height×width, this is the same paper size as "35×45 mm". Indian forms usually write it as 3.5 cm × 4.5 cm (W×H). | Presets always store width and height explicitly. I'll keep "India 3.5×4.5 cm" as its own named preset, because its head-size and background rules differ from the Schengen/UK 35×45 mm spec. Tell me if you meant 45 mm wide × 35 mm tall. |
-| D4 | **Repository.** This repo (`instatements`) holds an unrelated PWA. Everything for the toolkit lives under `offline-toolkit/`, and the existing site is untouched. | Fine for now. If you'd prefer a dedicated repository, create it and I'll move the folder. |
-| D5 | **Windows builds.** This session runs in a Linux container, and several download hosts (LibreOffice, Pandoc, veraPDF sites, GitHub release assets, Hugging Face) are blocked here. | I'll build and test on Linux with the same engines (installed from apt/PyPI/Maven here). Windows installers and Windows tests run through a GitHub Actions workflow (`windows-latest`) that I'll write. Each phase reports which tests actually ran where. |
+| D1 | **Personal use only.** The app will not be redistributed. | PyMuPDF and Ghostscript (both AGPL-3.0) stay: copyleft obligations only apply when you distribute. No project license is added; the README says "personal use, not for redistribution". Third-party license texts still ship inside the app, which is harmless. If you ever want to share the app, revisit [ENGINES.md §3](ENGINES.md#3-copyleft--only-matters-if-you-ever-redistribute). |
+| D2 | **Lite bundle only.** No LaMa, no IS-Net, no Chinese/Japanese/Korean (CJK) fonts, fewer OCR languages. | About **1.5–1.9 GB installed, 0.6–0.8 GB download** (ENGINES.md). Module 3 text removal uses classical OpenCV inpainting (§8 step 4). Module 3 cut-outs use MODNet for people and OpenCV GrabCut for other objects (§8 step 5). CJK text relies on the fonts Windows already ships (§11). Tesseract uses the compact `tessdata_fast` models, with no Japanese or Korean OCR. There is a single build, so no full/lite switch is needed. |
+| D3 | **No separate "4.5×3.5 cm" passport preset.** | It is the same size as 35×45 mm, so there is one preset labelled "35×45 mm (3.5×4.5 cm)". |
+| D4 | **Separate repository.** | The toolkit moves to its own repository, with this folder as its root and its history kept. The move is pending: GitHub would not let me create the repository from this session, so you need to create it first. |
+| D5 | **Windows builds come from CI** (information, not a choice). This session runs in a Linux container, and several download hosts (LibreOffice, Pandoc, veraPDF sites, GitHub release assets, Hugging Face) are blocked here. | I build and test on Linux with the same engines (from apt/PyPI/Maven here). Windows installers and Windows tests run through a GitHub Actions workflow (`windows-latest`) that I'll write. Each phase reports which tests actually ran where. |
 
 Python stays on **3.11** as you asked. Every dependency has 3.11 wheels today. numpy is pinned to 2.4.x because numpy 2.5 requires 3.12. Moving to 3.12 later is a one-line change.
 
@@ -52,9 +52,9 @@ React renderer (sandboxed, no Node, CSP: connect-src 'none')
 | OCR | **RapidOCR** (PaddleOCR PP-OCR models running on ONNX Runtime) + **Tesseract 5** | Same PaddleOCR models without the ~1 GB PaddlePaddle framework and its Windows install problems. Tesseract covers Indic, Arabic, Hebrew and 100+ other languages. Languages are chosen per job, and each language maps to an engine in `ocr-languages.json`. |
 | Face / landmarks | **MediaPipe Face Landmarker** (478 points incl. iris) | As requested. |
 | Portrait matting | **MODNet** ONNX (+ guided-filter refinement) | Cleaner hair edges than MediaPipe's selfie segmenter. The segmenter stays as the fast preview mask. |
-| Cut-outs (Module 3) | **IS-Net (DIS) general-use** ONNX | Apache-2.0. BRIA RMBG is *not* used: its license is non-commercial. |
+| Cut-outs (Module 3) | **MODNet** for photos of people + **OpenCV GrabCut** for other objects | Lite bundle (D2): no general-purpose cut-out model. MODNet is already bundled for Module 4. GrabCut is classical (no model) and starts from the photo's box. The restore/erase brush from Module 4 fixes edges. BRIA RMBG would never be used anyway: its license is non-commercial. |
 | Layout / tables | **RapidLayout** (PP-DocLayout) + **RapidTable** (SLANet+) ONNX | Apache-2.0. YOLO-based layout models (ultralytics, DocLayout-YOLO) are **AGPL** and are avoided. |
-| Inpainting | **LaMa** ONNX (tiled 512 px) + OpenCV Telea fallback | Telea is used for small or flat-background regions (fast). LaMa handles textured backgrounds. |
+| Inpainting | **OpenCV** Telea + `xphoto` FSR (Frequency Selective Reconstruction) | Lite bundle (D2): LaMa is not bundled. Telea handles thin strokes on flat or gradient backgrounds. FSR handles textured ones. Both are classical, need no model and run in well under a second per text region. Text over photos is the weak case; the editor lets you touch it up. |
 | Super-resolution | **Real-ESRGAN general-x4v3** ONNX (tiled) | BSD-3. Small (~5 MB) and fast enough on CPU. |
 | Vectorising | **vtracer** (MIT, colour) | Instead of potrace: potrace is GPL and black-and-white only. |
 | PDF engine | **PyMuPDF** (extract, render, SVG), **pikepdf** (structure, metadata, lossless image copy), **pypdfium2** (independent extractor used only for verification) | Poppler is **not bundled**: PyMuPDF covers rendering and extraction, and dropping Poppler removes a GPL component. Verification uses a *different* PDF library from the conversion, so a bug in one cannot hide itself. |
@@ -102,7 +102,7 @@ flowchart LR
 ```
 
 - **Workers.** A pool of 1–3 processes, sized as `min(cores − 1, (freeRAM − 1.5 GB) / 1.2 GB)`. Each has a lazy import policy, so a worker that only resizes images never loads PyMuPDF or ONNX Runtime. An idle worker sits at about 120 MB.
-- **AI slot.** Only one model-heavy task (OCR, LaMa, MODNet, IS-Net, Real-ESRGAN) runs at a time, machine-wide. Models unload after 2 minutes idle. ONNX Runtime runs with `enable_cpu_mem_arena=False` for the big models, and intra-op threads are capped at the physical core count.
+- **AI slot.** Only one model-heavy task (OCR + layout, MODNet, Real-ESRGAN) runs at a time, machine-wide. Models unload after 2 minutes idle. ONNX Runtime runs with `enable_cpu_mem_arena=False` for the big models, and intra-op threads are capped at the physical core count.
 - **Chromium engine.** The worker asks main (via a reverse RPC) to render an HTML/SVG file to PDF. Main loads it in a hidden, sandboxed `BrowserWindow` with JavaScript off by default and every non-`file:`/`otk:` request blocked. It then calls `printToPDF` (`generateTaggedPDF`, `generateDocumentOutline`) and writes the result into the job folder.
 - **Child-process hygiene.** On Windows the worker creates a Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` via ctypes. Cancelling a job, or a worker crashing, kills LibreOffice, Ghostscript and the rest with it, so no orphaned `soffice.exe` is left behind. On macOS and Linux, process groups plus `killpg` do the same.
 
@@ -133,7 +133,7 @@ flowchart LR
 - **Job journal.** `jobs/<id>/journal.json` records the plan, inputs (path, size, SHA-256) and each finished step (output path + SHA-256).
   - **Resume** re-runs only the unfinished steps. A batch resumes at the first unfinished file.
   - **Cancel** kills the worker's Job Object for that job, marks the job *cancelled* and keeps the finished outputs.
-- **Scheduler.** Each job declares an estimated peak RAM. For example, LibreOffice ≈ 350 MB, LaMa tile ≈ 1.1 GB, a 50 MP RGBA image ≈ 200 MB per copy. Jobs start only while the total stays under `freeRAM − 1.5 GB`, which keeps an 8 GB laptop responsive.
+- **Scheduler.** Each job declares an estimated peak RAM. For example, LibreOffice ≈ 350 MB, OCR + layout ≈ 600 MB, Real-ESRGAN tile ≈ 500 MB, a 50 MP RGBA image ≈ 200 MB per copy. Jobs start only while the total stays under `freeRAM − 1.5 GB`, which keeps an 8 GB laptop responsive.
 - **Large images.**
   - Previews decode via `Image.draft()` (JPEG DCT scaling) or `reduce()`.
   - `MAX_IMAGE_PIXELS` is raised to 300 MP with a clear error beyond that.
@@ -244,7 +244,12 @@ Each check ends as **pass**, **expected change** (a loss the pre-flight warned a
 ### 7.5 OCR
 
 - **Scanned-page detection** runs per page: no text layer, and a full-page image covering more than 90% of the page.
-- **Languages** are chosen per job (multi-select, remembered). `ocr-languages.json` maps each language to an engine and model, e.g. Latin/CJK → RapidOCR and Devanagari/Tamil/Arabic/Hebrew → Tesseract `tessdata_best`. You can force either engine.
+- **Languages** are chosen per job (multi-select, remembered). `ocr-languages.json` maps each language to an engine and model. For example, English and other Latin-script languages go to RapidOCR, and Devanagari/Tamil/Arabic/Hebrew go to Tesseract `tessdata_fast`. You can force either engine.
+- **Lite language set** (D2):
+  - RapidOCR's default PP-OCR model reads English and Chinese.
+  - Tesseract `tessdata_fast` covers eng, hin, mar, san, ben, guj, pan, tam, tel, kan, mal, ori, urd, ara and heb.
+  - Japanese and Korean OCR are not bundled.
+  - To add a language, drop its `.traineddata` file into `models/tessdata/` and add one line to `ocr-languages.json`.
 - **Searchable PDF output** uses OCRmyPDF with `--output-type pdf --optimize 0`, so the page images stay byte-identical.
 - **Confidence.** Words below the threshold (default 0.80) are flagged in the report. Module 3 highlights them in its editor.
 
@@ -280,8 +285,11 @@ Each check ends as **pass**, **expected change** (a loss the pre-flight warned a
    - **Style estimates.** Colour comes from a k-means split between ink and background. Size comes from cap height and x-height. Weight comes from stroke width, italic from shear, and alignment and line spacing from the box geometry.
    - **Font matching.** Each word is rendered in every candidate bundled font using the same text, with HarfBuzz shaping via uharfbuzz. Candidates are scored by IoU and chamfer distance against the binarised crop, and the top 3 are offered.
    - **Low confidence.** Words below the threshold are outlined in amber.
-4. **Text removal.** The mask is the text pixels inside word boxes, dilated by 2 px. It is filled with OpenCV Telea for flat backgrounds or LaMa (512-px tiles around each region only) for textured ones. The result becomes the clean background layer.
-5. **Photos** become cropped image layers at original resolution. Optional IS-Net cut-outs give an alpha channel.
+4. **Text removal.** The mask is the text pixels inside word boxes, dilated by 2 px. The background texture around each region picks the method: OpenCV Telea for flat or gradient backgrounds, OpenCV `xphoto` FSR for textured ones. The result becomes the clean background layer. Inpainting sits behind a small interface, so a learned inpainter could be added later without touching the rest of the pipeline.
+5. **Photos** become cropped image layers at original resolution. Optional cut-outs give an alpha channel:
+   - **People:** MODNet (the same model as Module 4).
+   - **Other objects:** OpenCV GrabCut, starting from the photo's box.
+   - **Touch-up:** a restore/erase brush fixes the edges.
 6. **Graphics** (icons, logos) are vectorised with vtracer into SVG path layers, with recolour handled per fill group. Detected shapes become native shapes carrying fill, stroke and corner radius.
 7. **Tables.** RapidTable produces the structure and cell boxes, OCR fills the text, and the result is a native table object with merged cells.
 
@@ -306,7 +314,15 @@ Each check ends as **pass**, **expected change** (a loss the pre-flight warned a
 - **Editable HTML:** absolutely positioned `contenteditable` blocks with local `@font-face`.
 - The `.otkd` project itself.
 
-The **Known limits** panel lists what reconstruction cannot do well: handwriting; decorative, script and heavily distorted fonts; text on curves; complex gradients, textures and transparency; tightly overlapping elements. Everything the automation misses can be fixed by hand in the editor.
+The **Known limits** panel lists what reconstruction cannot do well:
+
+- handwriting;
+- decorative, script and heavily distorted fonts, and CJK fonts (none are bundled);
+- text on curves;
+- complex gradients, textures and transparency;
+- tightly overlapping elements;
+- text over photos, where classical inpainting can leave smudges;
+- cut-outs of non-person objects with fine or hairy edges. Everything the automation misses can be fixed by hand in the editor.
 
 ---
 
@@ -319,6 +335,7 @@ The **Known limits** panel lists what reconstruction cannot do well: handwriting
 3. **Size and enhance.** Four parts:
    - **Specs** come from `presets/passport-specs.json`. Each spec holds width, height, unit and DPI; head height (min/max); eye-line band; crown reference (`hair` or `skull`, as rules differ); background colours; and the rule source and date. Presets are editable and you can add your own.
      - During Phase 4 I will check each preset against the issuing authority's current published rules, recording the URL and date checked. Any preset I cannot confirm from a primary source stays marked **unverified** in the UI.
+     - Shipped sizes: 35×45 mm (labelled "35×45 mm (3.5×4.5 cm)", see D3), 2×2 in, 33×48 mm, 50×70 mm, 25×35 mm, 3×4 cm, plus Custom.
      - Exact pixel sizes are shown with their rounding. For example, 35×45 mm at 300 DPI is 413×531 px (−0.03 / −0.04 mm). The US 2×2 in preset is defined in inches, which gives exactly 600×600 px, not in millimetres (51 mm would give 602 px).
    - **Face.** MediaPipe landmarks give the eye centres (iris), chin and midline. The crown is the top of the segmentation mask within the face column (hair) or an estimate from the forehead landmark (skull). Auto-fit scales and places the photo so head height hits the middle of the allowed range and the eye line sits in its band. It also proposes a straighten angle from the eye tilt.
      - **Guides:** overlay lines for head top, eye line, chin and centre, plus the allowed head-height range.
@@ -371,6 +388,7 @@ The app gives compliance *hints*. It cannot promise that an authority will accep
   - App: Ctrl+L event log, F1 help. A shortcuts sheet is available with `?`.
 - **Unicode.**
   - The UI font is Noto Sans with per-script Noto fallbacks, loaded locally through `@font-face`.
+  - **CJK text uses operating-system fonts** (D2). Windows 10/11 ship Microsoft YaHei, Yu Gothic and Malgun Gothic by default, and Chromium and LibreOffice fall back to them. Pre-flight checks every character in a document against the bundled and system fonts. If some characters have no font, it warns before converting, and verification flags any missing-glyph boxes in the output.
   - User text uses `dir="auto"`, and the layout uses logical CSS properties.
   - File names in any script round-trip correctly. Engines work on ASCII-named copies (§7.2), and the original names are restored on output.
 
@@ -396,7 +414,6 @@ offline-toolkit/
 ├─ electron-builder.yml          # NSIS per-user + portable ZIP (Windows), AppImage/zip (Linux), dmg/zip (macOS)
 ├─ tsconfig.json
 ├─ build/
-│  ├─ profiles.json              # full / lite bundle contents
 │  ├─ icons/
 │  └─ nsis/                      # installer tweaks (per-user, no elevation)
 ├─ src/
@@ -493,8 +510,8 @@ Each phase ends with a results table: what ran, where, pass/fail counts, and eve
 - **Build process.**
   - `scripts/fetch_engines.py` downloads the exact versions in `engines.lock.json` and verifies their SHA-256. **The build needs the internet once; the built app never does.**
   - The LibreOffice MSI is unpacked with `lessmsi`, and the Ghostscript NSIS installer with 7-Zip. The JRE is trimmed with `jlink`.
-- **Licence files.** `THIRD_PARTY_NOTICES.txt` is generated. A `licenses/` folder ships the full licence texts, and a `SOURCES.txt` gives the corresponding-source locations for the GPL, AGPL and LGPL components (ENGINES.md §3).
-- **Code signing** is optional. Without a certificate, Windows SmartScreen shows "unknown publisher" on first run. The README will explain this and how to add a certificate.
+- **Licence files.** `THIRD_PARTY_NOTICES.txt` is generated, and a `licenses/` folder ships the full licence texts. No source-offer bundle is needed for personal use (D1).
+- **No code signing** (personal use). On first run, Windows SmartScreen may say "Windows protected your PC". Choose *More info → Run anyway* once. The README will show this with a screenshot.
 
 ---
 
@@ -507,6 +524,7 @@ Each phase ends with a results table: what ran, where, pass/fail counts, and eve
 - **Not supported:** EPUB with DRM, and PDFs with certificate (not password) security.
 - **HTML needing the internet** renders without its remote CSS, JS and images. Each blocked URL is listed in the report.
 - **PDF/A-1b and transparency.** PDF/A-1b cannot hold transparency, so flattening may turn some regions into images. The report names the pages.
+- **CJK text** depends on the fonts installed on the computer (D2). Missing glyphs are warned about before converting and flagged after.
 - **Module 3 and Module 4 limits:** see §8 and §9.
 
 ---
@@ -514,5 +532,5 @@ Each phase ends with a results table: what ran, where, pass/fail counts, and eve
 ## 17. What I can and cannot verify from this environment
 
 - **Available here:** Python 3.11, Node 22, Java 21 and LibreOffice 24.2 (preinstalled). From apt: Pandoc 3.1, Ghostscript 10.02, Tesseract 5.3. PyPI and npm work. Maven Central works (veraPDF). Google's model storage appears reachable (MediaPipe models).
-- **Blocked here:** downloads from documentfoundation.org, pandoc.org, verapdf.org, GitHub release assets, Hugging Face and ModelScope. Some ONNX models (LaMa, MODNet, IS-Net, Real-ESRGAN, layout/table models) may therefore not be fetchable in this session. Where that happens, those tests will be written and marked **not run here**, to run in CI or on your machine with `scripts/fetch_engines.py`.
+- **Blocked here:** downloads from documentfoundation.org, pandoc.org, verapdf.org, GitHub release assets, Hugging Face and ModelScope. Some ONNX models (MODNet, Real-ESRGAN, layout/table models) may therefore not be fetchable in this session. Where that happens, those tests will be written and marked **not run here**, to run in CI or on your machine with `scripts/fetch_engines.py`.
 - **No Windows machine here.** Windows-specific behaviour (Job Objects, NSIS, firewall offline test) is exercised only by the CI workflow.

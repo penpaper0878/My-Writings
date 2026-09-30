@@ -1,6 +1,6 @@
 # Offline Toolkit
 
-A fully offline desktop app (Electron + React + TypeScript, with Python workers and bundled engines) with four modules:
+A fully offline desktop app for **personal use (not for redistribution)** (Electron + React + TypeScript, with Python workers and bundled engines) with four modules:
 
 1. **Image resizer and compressor**: exact pixels or physical size at any DPI, and a target file-size range.
 2. **Universal document converter**: PDF, PDF/A-1b/2b/3b, DOCX/DOC, XLSX/XLS, PPTX/PPT, HTML, TXT, EPUB, PNG, JPEG and SVG in every direction, with a verification report for every job.
@@ -11,7 +11,7 @@ A fully offline desktop app (Electron + React + TypeScript, with Python workers 
 
 | Phase | State |
 |---|---|
-| 0: architecture, engines, conversion matrix | **Awaiting your confirmation** |
+| 0: architecture, engines, conversion matrix | **Done**: decisions confirmed 2026-09-30 (personal use, Lite bundle) |
 | 1: Module 1 | not started |
 | 2: Module 2 | not started (route planner done) |
 | 3: Module 3 | not started |
@@ -20,7 +20,7 @@ A fully offline desktop app (Electron + React + TypeScript, with Python workers 
 
 ## Phase 0 documents
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, process model, offline guarantee, module designs, folder structure, tests, packaging, known limits, **and the decisions I need from you (§0)**.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, process model, offline guarantee, module designs, folder structure, tests, packaging, known limits, and the confirmed decisions (§0).
 - [docs/ENGINES.md](docs/ENGINES.md): every bundled component with its license and GPL/AGPL flags.
 - [docs/CONVERSION_MATRIX.md](docs/CONVERSION_MATRIX.md): every source × target pair in Module 2, with the engine chain for each fidelity mode and its potential losses. It is generated from `resources/defaults/conversion/*.json` by the real planner.
 
