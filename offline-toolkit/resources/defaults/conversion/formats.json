@@ -1,0 +1,103 @@
+{
+  "$comment": "Format catalogue for the document converter (Module 2). Editable: the planner validates this file on load and falls back to the shipped copy if it is invalid. caps = what the format can hold: full (content and structure kept) | partial (content kept as plain text or appearance only, structure lost) | none (cannot be stored). sourceCaps overrides caps when the format is read as a source (e.g. text in a scan is recoverable only by OCR). transit=false means routes may start or end here but never pass through (stops detours such as PDF -> TXT -> HTML or HTML -> XLSX -> PDF/A). normalizeTo lets a legacy source pass through its modern equivalent (DOC -> DOCX -> ...). targetModes lists the fidelity modes that mean something for this target; a target with only 'exact' ignores the mode switch.",
+  "features": {
+    "text":            { "label": "Text",                "visual": true },
+    "fonts":           { "label": "Fonts",               "visual": true },
+    "images":          { "label": "Images",              "visual": true },
+    "vector":          { "label": "Vector graphics",     "visual": true },
+    "tables":          { "label": "Table structure",     "visual": true },
+    "merged_cells":    { "label": "Merged cells",        "visual": true },
+    "formulas":        { "label": "Formulas",            "visual": false },
+    "number_formats":  { "label": "Number formats",      "visual": true },
+    "hyperlinks":      { "label": "Hyperlinks",          "visual": false },
+    "bookmarks":       { "label": "Bookmarks/TOC",       "visual": false },
+    "headers_footers": { "label": "Headers/footers",     "visual": true },
+    "footnotes":       { "label": "Footnotes",           "visual": true },
+    "slide_notes":     { "label": "Speaker notes",       "visual": false },
+    "metadata":        { "label": "Metadata",            "visual": false },
+    "attachments":     { "label": "Attachments",         "visual": false }
+  },
+  "formats": {
+    "pdf": {
+      "short": "PDF", "label": "PDF", "ext": [".pdf"], "roles": ["source", "target"], "transit": true, "targetModes": ["exact"],
+      "caps": { "text": "full", "fonts": "full", "images": "full", "vector": "full", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "full" }
+    },
+    "pdf_scanned": {
+      "short": "Scanned PDF", "label": "Scanned PDF", "ext": [".pdf"], "roles": ["source"], "transit": true, "detected": true,
+      "note": "Any PDF or PDF/A whose pages are images without a text layer. Detected per page at load time; routes below apply to those pages.",
+      "caps": { "text": "partial", "fonts": "none", "images": "full", "vector": "none", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "none", "hyperlinks": "partial", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "none", "metadata": "full", "attachments": "full" }
+    },
+    "pdfa1b": {
+      "short": "PDF/A-1b", "label": "PDF/A-1b", "ext": [".pdf"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact"], "validate": "verapdf:1b",
+      "caps": { "text": "full", "fonts": "full", "images": "full", "vector": "full", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "none" }
+    },
+    "pdfa2b": {
+      "short": "PDF/A-2b", "label": "PDF/A-2b", "ext": [".pdf"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact"], "validate": "verapdf:2b",
+      "caps": { "text": "full", "fonts": "full", "images": "full", "vector": "full", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "partial" }
+    },
+    "pdfa3b": {
+      "short": "PDF/A-3b", "label": "PDF/A-3b", "ext": [".pdf"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact"], "validate": "verapdf:3b",
+      "caps": { "text": "full", "fonts": "full", "images": "full", "vector": "full", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "full" }
+    },
+    "docx": {
+      "short": "DOCX", "label": "Word (DOCX)", "ext": [".docx", ".docm", ".dotx"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "partial", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "full", "footnotes": "full", "slide_notes": "partial", "metadata": "full", "attachments": "partial" }
+    },
+    "doc": {
+      "short": "DOC", "label": "Word 97-2003 (DOC)", "ext": [".doc", ".dot"], "roles": ["source"], "transit": false, "normalizeTo": "docx",
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "partial", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "full", "footnotes": "full", "slide_notes": "partial", "metadata": "full", "attachments": "partial" }
+    },
+    "xlsx": {
+      "short": "XLSX", "label": "Excel (XLSX)", "ext": [".xlsx", ".xlsm", ".xltx"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "partial", "images": "partial", "vector": "partial", "tables": "full", "merged_cells": "full", "formulas": "full", "number_formats": "full", "hyperlinks": "full", "bookmarks": "none", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "partial" }
+    },
+    "xls": {
+      "short": "XLS", "label": "Excel 97-2003 (XLS)", "ext": [".xls", ".xlt"], "roles": ["source"], "transit": false, "normalizeTo": "xlsx",
+      "caps": { "text": "full", "fonts": "partial", "images": "partial", "vector": "partial", "tables": "full", "merged_cells": "full", "formulas": "full", "number_formats": "full", "hyperlinks": "full", "bookmarks": "none", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "partial" }
+    },
+    "pptx": {
+      "short": "PPTX", "label": "PowerPoint (PPTX)", "ext": [".pptx", ".pptm", ".potx", ".ppsx"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "full", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "partial", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "full", "metadata": "full", "attachments": "partial" }
+    },
+    "ppt": {
+      "short": "PPT", "label": "PowerPoint 97-2003 (PPT)", "ext": [".ppt", ".pps", ".pot"], "roles": ["source"], "transit": false, "normalizeTo": "pptx",
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "full", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "partial", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "full", "metadata": "full", "attachments": "partial" }
+    },
+    "html": {
+      "short": "HTML", "label": "HTML", "ext": [".html", ".htm", ".xhtml"], "roles": ["source", "target"], "transit": true, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "full", "tables": "full", "merged_cells": "full", "formulas": "partial", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "none", "footnotes": "partial", "slide_notes": "partial", "metadata": "partial", "attachments": "none" }
+    },
+    "txt": {
+      "short": "TXT", "label": "Plain text (TXT)", "ext": [".txt", ".text"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact"],
+      "caps": { "text": "full", "fonts": "none", "images": "none", "vector": "none", "tables": "partial", "merged_cells": "none", "formulas": "none", "number_formats": "partial", "hyperlinks": "partial", "bookmarks": "none", "headers_footers": "none", "footnotes": "partial", "slide_notes": "partial", "metadata": "none", "attachments": "none" }
+    },
+    "epub": {
+      "short": "EPUB", "label": "EPUB", "ext": [".epub"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "full", "images": "full", "vector": "full", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "none", "footnotes": "full", "slide_notes": "partial", "metadata": "full", "attachments": "none" }
+    },
+    "png": {
+      "short": "PNG", "label": "PNG", "ext": [".png"], "roles": ["source", "target"], "transit": true, "targetModes": ["exact"], "pixels": true,
+      "caps": { "text": "none", "fonts": "none", "images": "full", "vector": "none", "tables": "none", "merged_cells": "none", "formulas": "none", "number_formats": "none", "hyperlinks": "none", "bookmarks": "none", "headers_footers": "none", "footnotes": "none", "slide_notes": "none", "metadata": "partial", "attachments": "none" },
+      "sourceCaps": { "text": "partial", "tables": "partial", "merged_cells": "partial", "headers_footers": "partial", "footnotes": "partial" }
+    },
+    "jpeg": {
+      "short": "JPEG", "label": "JPEG", "ext": [".jpg", ".jpeg", ".jpe", ".jfif"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact"], "pixels": true,
+      "caps": { "text": "none", "fonts": "none", "images": "full", "vector": "none", "tables": "none", "merged_cells": "none", "formulas": "none", "number_formats": "none", "hyperlinks": "none", "bookmarks": "none", "headers_footers": "none", "footnotes": "none", "slide_notes": "none", "metadata": "partial", "attachments": "none" },
+      "sourceCaps": { "text": "partial", "tables": "partial", "merged_cells": "partial", "headers_footers": "partial", "footnotes": "partial" }
+    },
+    "svg": {
+      "short": "SVG", "label": "SVG", "ext": [".svg", ".svgz"], "roles": ["source", "target"], "transit": false, "targetModes": ["exact", "editable"],
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "full", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "none", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "none", "metadata": "partial", "attachments": "none" }
+    },
+    "docmodel": {
+      "short": "docmodel", "label": "Document model (internal)", "ext": [], "roles": ["internal"], "transit": true,
+      "note": "Positioned text spans with styles, images (original streams), vector drawings, tables, links and outline, extracted from a born-digital PDF. Shared with Module 3.",
+      "caps": { "text": "full", "fonts": "partial", "images": "full", "vector": "full", "tables": "full", "merged_cells": "full", "formulas": "none", "number_formats": "partial", "hyperlinks": "full", "bookmarks": "full", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "partial", "metadata": "full", "attachments": "none" }
+    },
+    "ocrmodel": {
+      "short": "ocrmodel", "label": "OCR model (internal)", "ext": [], "roles": ["internal"], "transit": true,
+      "note": "Page images plus OCR words with boxes and confidence, layout regions and table structure. Shared with Module 3.",
+      "caps": { "text": "partial", "fonts": "partial", "images": "full", "vector": "partial", "tables": "partial", "merged_cells": "partial", "formulas": "none", "number_formats": "partial", "hyperlinks": "none", "bookmarks": "none", "headers_footers": "partial", "footnotes": "partial", "slide_notes": "none", "metadata": "partial", "attachments": "none" }
+    }
+  }
+}
