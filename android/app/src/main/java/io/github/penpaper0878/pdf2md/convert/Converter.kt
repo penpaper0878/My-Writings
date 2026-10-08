@@ -114,7 +114,7 @@ class Converter(
         val r: PageReader = when (settings.reader) {
             Reader.PHONE -> try {
                 if (models.status() != ModelStore.Status.Ready) throw EngineUnavailable("the AI model is not downloaded yet")
-                val m = LocalModel(models.modelFile, models.mmprojFile, models.nativeLibDir, cancelled) { detail(it) }
+                val m = LocalModel(models.modelFile, models.mmprojFile, models.nativeLibDir, cancelled, status = { detail(it) })
                 report(Progress(0, 0, "Loading the AI model…"))
                 m.open()
                 readerName = m.description
