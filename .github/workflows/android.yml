@@ -1,7 +1,8 @@
 name: pdf2md Android app
 
-# Builds the APK and tests it on an Android emulator. Download the APK from the
-# run's "Artifacts" section (pdf2md-android).
+# Builds the APK and tests it on an Android emulator, including the on-phone
+# AI model. Download the APK from the run's "Artifacts" section
+# (pdf2md-android).
 on:
   push:
     paths:
@@ -12,10 +13,44 @@ on:
 permissions:
   contents: read
 
+env:
+  MODEL_CACHE_KEY: qwen3vl-2b-instruct-q4km-mmproj-q8-v1
+
 jobs:
-  build:
+  model:
+    # The app's on-phone reader (the same C++ code) built for Linux and run
+    # with the real model on a handwritten page.
+    name: On-phone reader with the real model
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch llama.cpp
+        run: android/tools/fetch_llama.sh
+
+      - uses: actions/cache@v4
+        with:
+          path: models
+          key: ${{ env.MODEL_CACHE_KEY }}
+
+      - name: Download the AI model
+        run: android/tools/fetch_model.sh models
+
+      - name: Build the reader
+        run: |
+          cmake -S android/native-test -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j4 --target probe
+
+      - name: Read a handwritten page, cut off, retry and cancel
+        run: |
+          python3 -c "import json; print(json.load(open('android/core/src/test/resources/parity-ocr/ocr.json'))['prompts'][0]['prompt'], end='')" > prompt.txt
+          build/bin/probe models/Qwen3VL-2B-Instruct-Q4_K_M.gguf models/mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf \
+            android/native-test/handwritten-note.png prompt.txt android/native-test/handwritten-note.txt 4
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     defaults:
       run:
         working-directory: android
@@ -32,8 +67,34 @@ jobs:
       - name: Engine tests (parity with the desktop tool)
         run: ./gradlew --no-daemon -p core test
 
-      - name: Build the APK and the on-device tests
-        run: ./gradlew --no-daemon :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest
+      - name: Fetch llama.cpp
+        run: tools/fetch_llama.sh
+
+      - name: Android NDK and CMake
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358" "cmake;3.31.6" > /dev/null'
+
+      - name: Build the APK for phones
+        run: ./gradlew --no-daemon -Ppdf2md.abis=arm64-v8a :app:assembleRelease
+
+      - name: Check the APK carries the on-phone AI engine
+        run: |
+          unzip -l app/build/outputs/apk/release/app-arm64-v8a-release.apk > apk.txt
+          grep "lib/arm64-v8a/" apk.txt
+          for lib in libpdf2md_llm.so libmtmd.so libllama.so libggml.so libggml-base.so libc++_shared.so \
+                     libggml-cpu-android_armv8.0_1.so libggml-cpu-android_armv8.2_1.so libggml-cpu-android_armv8.6_1.so; do
+            grep -q "lib/arm64-v8a/$lib" apk.txt || { echo "missing $lib"; exit 1; }
+          done
+
+      - name: Build the emulator APK and the on-device tests
+        run: ./gradlew --no-daemon -Ppdf2md.abis=x86_64 :app:assembleDebug :app:assembleDebugAndroidTest
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: models
+          key: ${{ env.MODEL_CACHE_KEY }}
+
+      - name: Download the AI model
+        run: tools/fetch_model.sh ../models
 
       - name: Enable KVM for the emulator
         run: |
@@ -41,18 +102,22 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: On-device tests (Android 14 emulator)
+      - name: On-device tests (Android 14 emulator, with the AI model)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
           target: google_apis
-          ram-size: 4096M
-          disk-size: 6G
+          cores: 4
+          ram-size: 6144M
+          disk-size: 8G
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           working-directory: android
-          script: ./gradlew --no-daemon :app:connectedDebugAndroidTest
+          script: |
+            ./gradlew --no-daemon -Ppdf2md.abis=x86_64 :app:installDebug
+            tools/push_model_to_device.sh ../models
+            ./gradlew --no-daemon -Ppdf2md.abis=x86_64 :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.requireModel=true
 
       - name: Test reports
         if: always()
@@ -62,13 +127,13 @@ jobs:
           path: |
             android/core/build/reports/tests/
             android/app/build/reports/androidTests/
+            android/app/build/outputs/androidTest-results/
           retention-days: 14
 
       - name: Collect the APK
         run: |
           mkdir -p dist
           cp app/build/outputs/apk/release/app-arm64-v8a-release.apk dist/pdf2md.apk
-          cp app/build/outputs/apk/release/app-x86_64-release.apk dist/pdf2md-x86_64.apk
 
       - uses: actions/upload-artifact@v4
         with:

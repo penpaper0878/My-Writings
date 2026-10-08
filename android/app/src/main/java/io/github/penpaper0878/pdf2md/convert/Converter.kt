@@ -68,6 +68,15 @@ class Converter(
 ) {
     private val warnings = mutableListOf<String>()
     private var readerName: String? = null
+    private var current = Progress(0, 0, "")
+
+    private fun report(p: Progress) {
+        current = p
+        progress(p)
+    }
+
+    /** What the reader is doing on the current page, after the page's own message. */
+    private fun detail(text: String) = progress(current.copy(message = "${current.message} — $text"))
 
     /** A ready reader for scanned/handwritten pages. */
     private sealed class PageReader {
@@ -77,10 +86,15 @@ class Converter(
         abstract fun read(bitmap: Bitmap, page: Int): OcrResult
         open fun close() {}
 
-        class Model(override val method: String, private val t: Transcriber, private val closer: () -> Unit) : PageReader() {
+        class Model(
+            override val method: String,
+            private val t: Transcriber,
+            private val cancelled: () -> Boolean,
+            private val closer: () -> Unit,
+        ) : PageReader() {
             override val signature get() = t.signature
             override val readsHandwriting = true
-            override fun read(bitmap: Bitmap, page: Int) = t.transcribe(BitmapPageImage(bitmap), page)
+            override fun read(bitmap: Bitmap, page: Int) = t.transcribe(BitmapPageImage(bitmap), page, cancelled)
             override fun close() = closer()
         }
 
@@ -99,22 +113,23 @@ class Converter(
         reader?.let { return it }
         val r: PageReader = when (settings.reader) {
             Reader.PHONE -> try {
-                val m = LocalModel(models.modelFile, models.mmprojFile)
-                progress(Progress(0, 0, "Loading the AI model…"))
+                if (models.status() != ModelStore.Status.Ready) throw EngineUnavailable("the AI model is not downloaded yet")
+                val m = LocalModel(models.modelFile, models.mmprojFile, models.nativeLibDir, cancelled) { detail(it) }
+                report(Progress(0, 0, "Loading the AI model…"))
                 m.open()
                 readerName = m.description
-                PageReader.Model("phone", Transcriber(m, settings.lang.ifBlank { null }, settings.hint.ifBlank { null }, settings.tiles)) { m.close() }
+                PageReader.Model("phone", Transcriber(m, settings.lang.ifBlank { null }, settings.hint.ifBlank { null }, settings.tiles), cancelled) { m.close() }
             } catch (e: EngineUnavailable) {
                 warnings.add("On-phone AI unavailable (${e.message}); scanned pages were read as printed text, which is poor on handwriting.")
                 printed()
             }
             Reader.COMPUTER -> try {
                 val m = RemoteModel(settings.computerModel, baseUrl = settings.computerUrl.ifBlank { null })
-                progress(Progress(0, 0, "Connecting to ${m.baseUrl}…"))
+                report(Progress(0, 0, "Connecting to ${m.baseUrl}…"))
                 m.check()
                 warnings.addAll(m.notes)
                 readerName = m.description
-                PageReader.Model("computer", Transcriber(m, settings.lang.ifBlank { null }, settings.hint.ifBlank { null }, settings.tiles)) {}
+                PageReader.Model("computer", Transcriber(m, settings.lang.ifBlank { null }, settings.hint.ifBlank { null }, settings.tiles), cancelled) {}
             } catch (e: EngineUnavailable) {
                 warnings.add("Computer unavailable (${e.message}); scanned pages were read as printed text, which is poor on handwriting.")
                 printed()
@@ -185,7 +200,7 @@ class Converter(
         val numbers = if (settings.pages.isBlank()) (1..count).toList() else PageSpec.parse(settings.pages, count)
         require(numbers.isNotEmpty()) { "no pages selected (the document has $count)" }
 
-        progress(Progress(0, numbers.size, "Looking at the pages…"))
+        report(Progress(0, numbers.size, "Looking at the pages…"))
         val kinds = LinkedHashMap<Int, PageKind>()
         for (n in numbers) {
             checkCancelled()
@@ -255,7 +270,7 @@ class Converter(
         for (n in ocrPages) {
             checkCancelled()
             done += 1
-            progress(Progress(done, numbers.size, "Page $n: ${kinds.getValue(n).reason}"))
+            report(Progress(done, numbers.size, "Page $n: ${kinds.getValue(n).reason}"))
             val bitmap = doc.withPage(n) { AndroidDrawDevice.drawPage(it, Matrix(200f / 72f)) }
             var method = "error"
             var outcome: PageOutcome? = null
@@ -285,7 +300,7 @@ class Converter(
             for ((i, load) in images.withIndex()) {
                 checkCancelled()
                 val n = i + 1
-                progress(Progress(n, images.size, "Photo $n of ${images.size}"))
+                report(Progress(n, images.size, "Photo $n of ${images.size}"))
                 val bitmap = load()
                 var method = "error"
                 var outcome: PageOutcome? = null

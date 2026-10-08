@@ -9,6 +9,7 @@ plugins {
 android {
     namespace = "io.github.penpaper0878.pdf2md"
     compileSdk = 36
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "io.github.penpaper0878.pdf2md"
@@ -17,6 +18,20 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                // One C++ runtime shared by llama.cpp's libraries; 16 KB pages for Android 15+.
+                arguments += listOf("-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
+            }
+        }
+    }
+
+    // The on-phone AI reader (llama.cpp). Its source is fetched by tools/fetch_llama.sh.
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.31.6"
+        }
     }
 
     signingConfigs {
@@ -45,7 +60,9 @@ android {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "x86_64")
+            // -Ppdf2md.abis=x86_64 builds one (CI: phones get arm64, the emulator x86_64).
+            val abis = (findProperty("pdf2md.abis") as String?)?.split(",") ?: listOf("arm64-v8a", "x86_64")
+            include(*abis.toTypedArray())
             isUniversalApk = false
         }
     }
@@ -61,6 +78,9 @@ android {
 
     packaging {
         resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1")
+        // Unpack native libraries at install: the model's CPU code is chosen
+        // at run time by scanning the library folder for the best match.
+        jniLibs.useLegacyPackaging = true
     }
 
     sourceSets {

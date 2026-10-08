@@ -11,7 +11,8 @@ import java.io.File
  * Face with Android's download manager (resumes by itself, shows a
  * notification). After that the phone needs no network to read handwriting.
  */
-class ModelStore(private val context: Context) {
+/** [modelDir] replaces the usual folder (tests). */
+class ModelStore(private val context: Context, modelDir: File? = null) {
     class ModelFile(val name: String, val url: String, val approxBytes: Long)
 
     val files = listOf(
@@ -27,10 +28,13 @@ class ModelStore(private val context: Context) {
         ),
     )
 
-    val dir: File = (context.getExternalFilesDir("models") ?: File(context.filesDir, "models")).also { it.mkdirs() }
+    val dir: File = (modelDir ?: context.getExternalFilesDir("models") ?: File(context.filesDir, "models")).also { it.mkdirs() }
     val modelFile get() = File(dir, files[0].name)
     val mmprojFile get() = File(dir, files[1].name)
     val totalBytes get() = files.sumOf { it.approxBytes }
+
+    /** Where the app's native libraries were unpacked (the model's CPU code is loaded from here). */
+    val nativeLibDir: String get() = context.applicationInfo.nativeLibraryDir
 
     private val prefs = context.getSharedPreferences("models", Context.MODE_PRIVATE)
     private val dm get() = context.getSystemService(DownloadManager::class.java)

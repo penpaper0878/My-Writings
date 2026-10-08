@@ -18,10 +18,11 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class ConverterDeviceTest {
+    // An empty model folder: these tests are about the app without the on-phone model.
     private fun converter(settings: Settings) = Converter(
         settings,
         OcrCache(File(Assets.target.cacheDir, "test-ocr-" + System.nanoTime())),
-        ModelStore(Assets.target),
+        ModelStore(Assets.target, File(Assets.target.cacheDir, "no-models")),
         progress = {},
         cancelled = { false },
     )

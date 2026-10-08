@@ -82,10 +82,14 @@ object MuPdfText {
         return if (plus == 6) name.substring(7) else name
     }
 
-    private fun rectOf(q: Quad): Box {
-        val r = Rect(q)
-        return Box(r.x0.toDouble(), r.y0.toDouble(), r.x1.toDouble(), r.y1.toDouble())
-    }
+    // Not Rect(Quad): in MuPDF 1.28 that constructor turns every finite quad
+    // into an infinite rectangle.
+    private fun rectOf(q: Quad): Box = Box(
+        minOf(minOf(q.ul_x, q.ur_x), minOf(q.ll_x, q.lr_x)).toDouble(),
+        minOf(minOf(q.ul_y, q.ur_y), minOf(q.ll_y, q.lr_y)).toDouble(),
+        maxOf(maxOf(q.ul_x, q.ur_x), maxOf(q.ll_x, q.lr_x)).toDouble(),
+        maxOf(maxOf(q.ul_y, q.ur_y), maxOf(q.ll_y, q.lr_y)).toDouble(),
+    )
 
     private class Links(val areas: List<Pair<Box, String>>) {
         fun at(b: Box): String? {
@@ -314,15 +318,45 @@ object MuPdfStats {
             })
         }
 
-        private class Shape : PathWalker {
+        /**
+         * A path's segments and its box: every point, control points included,
+         * through the matrix (as PyMuPDF measures drawings). Path.getBounds
+         * cannot be used for fills: the Java binding refuses a null stroke.
+         */
+        private class Shape(private val ctm: Matrix?) : PathWalker {
             var items = 0
             var curves = 0
             var closed = false
-            override fun moveTo(x: Float, y: Float) {}
-            override fun lineTo(x: Float, y: Float) { items += 1 }
-            override fun curveTo(cx1: Float, cy1: Float, cx2: Float, cy2: Float, ex: Float, ey: Float) { items += 1; curves += 1 }
+            private var x0 = Float.POSITIVE_INFINITY
+            private var y0 = Float.POSITIVE_INFINITY
+            private var x1 = Float.NEGATIVE_INFINITY
+            private var y1 = Float.NEGATIVE_INFINITY
+
+            private fun point(x: Float, y: Float) {
+                val m = ctm
+                val tx = if (m == null) x else x * m.a + y * m.c + m.e
+                val ty = if (m == null) y else x * m.b + y * m.d + m.f
+                if (tx < x0) x0 = tx
+                if (ty < y0) y0 = ty
+                if (tx > x1) x1 = tx
+                if (ty > y1) y1 = ty
+            }
+
+            override fun moveTo(x: Float, y: Float) = point(x, y)
+            override fun lineTo(x: Float, y: Float) { items += 1; point(x, y) }
+            override fun curveTo(cx1: Float, cy1: Float, cx2: Float, cy2: Float, ex: Float, ey: Float) {
+                items += 1
+                curves += 1
+                point(cx1, cy1)
+                point(cx2, cy2)
+                point(ex, ey)
+            }
             override fun closePath() { closed = true }
+
+            val bounds: Rect? get() = if (x0 > x1 || y0 > y1) null else Rect(x0, y0, x1, y1)
         }
+
+        private fun shape(path: Path, ctm: Matrix?) = Shape(ctm).also { path.walk(it) }
 
         private fun same(a: Rect?, b: Rect?) =
             a != null && b != null && a.x0 == b.x0 && a.y0 == b.y0 && a.x1 == b.x1 && a.y1 == b.y1
@@ -330,20 +364,19 @@ object MuPdfStats {
         override fun fillPath(path: Path?, evenOdd: Boolean, ctm: Matrix?, cs: ColorSpace?, color: FloatArray?, alpha: Float, cp: Int) {
             if (path == null) return
             drawings += 1
-            lastFill = path.getBounds(null, ctm)
+            lastFill = shape(path, ctm).bounds
         }
 
         override fun strokePath(path: Path?, stroke: StrokeState?, ctm: Matrix?, cs: ColorSpace?, color: FloatArray?, alpha: Float, cp: Int) {
             if (path == null) return
-            val bounds = path.getBounds(null, ctm)
+            val shape = shape(path, ctm)
+            val bounds = shape.bounds ?: return
             // A filled and stroked shape is one drawing, and filled shapes are not pen strokes.
             if (same(bounds, lastFill)) {
                 lastFill = null
                 return
             }
             drawings += 1
-            val shape = Shape()
-            path.walk(shape)
             val w = bounds.x1 - bounds.x0
             val h = bounds.y1 - bounds.y0
             val pageSized = w > 0 && h > 0 && minOf(w, h) > 300
