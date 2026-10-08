@@ -58,6 +58,13 @@ Windows may warn that the app is unrecognised because it is not code-signed:
 choose *More info → Run anyway*. For handwriting, install Ollama and pull a
 model as described next.
 
+## Android phones
+
+There is also an Android app: open a PDF or photos of pages (or scan them
+with the camera) and get the same Markdown on the phone. Handwriting is read
+by an AI model running on the phone itself, or by this computer over Wi-Fi.
+See [android/README.md](../android/README.md) for the APK and setup.
+
 ## Install
 
 You need **Python 3.9+**. From this folder:

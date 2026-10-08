@@ -115,7 +115,7 @@ private fun Home(vm: AppViewModel, state: UiState, actions: Actions) {
                 selected = s.reader == Reader.PHONE,
                 title = "On this phone (AI)",
                 detail = "Private and offline. One-time download of about ${"%.1f".format(vm.modelSizeMb / 1024.0)} GB. " +
-                    "Roughly a minute per page.",
+                    "Slower than a computer; how long a page takes depends on the phone.",
                 onSelect = { vm.updateSettings { it.copy(reader = Reader.PHONE) } },
             )
             if (s.reader == Reader.PHONE) ModelPanel(vm, state.model)

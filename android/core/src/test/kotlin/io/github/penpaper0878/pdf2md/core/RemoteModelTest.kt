@@ -82,7 +82,7 @@ class RemoteModelTest {
 
     private fun page() = BufferedPageImage.text(listOf("First line of notes", "", "Second paragraph here"))
 
-    private fun model(vararg extra: Pair<String, Any>): RemoteModel {
+    private fun model(): RemoteModel {
         val m = RemoteModel("qwen2.5vl:7b", baseUrl = server.url)
         m.check()
         return m
