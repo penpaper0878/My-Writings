@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Versions on Google Maven
         run: |
-          gi() { curl -sSL "https://maven.google.com/$1/group-index.xml" | grep -o "<$2 versions=\"[^\"]*\"" | tr ',' '\n' | grep -viE 'alpha|beta|rc' | tail -4 | tr '\n' ' '; echo " <= $1:$2"; }
+          gi() { curl -sSL "https://maven.google.com/$1/group-index.xml" | grep -o "<$2 versions=\"[^\"]*\"" | tr ',' '\n' | grep -viE 'alpha|beta|rc' | grep -E '^[^0-9]*(8\.1[0-9]|2025\.|1\.1[0-9]|2\.9|16\.|1\.[0-9]\.|3\.[0-9]\.)' | tr '\n' ' '; echo " <= $1:$2"; }
           gi com/android/tools/build gradle
           gi androidx/compose compose-bom
           gi androidx/activity activity-compose
@@ -23,6 +23,8 @@ jobs:
           gi androidx/test/ext junit
           gi androidx/test runner
           gi androidx/test/espresso espresso-core
+          gi androidx/compose/material3 material3
+          gi androidx/compose/material material-icons-extended
       - name: MuPDF on maven.ghostscript.com
         run: curl -sSL https://maven.ghostscript.com/com/artifex/mupdf/fitz/maven-metadata.xml | grep -o '<version>[^<]*' | tail -12 | tr '\n' ' '
       - name: Model files on Hugging Face
