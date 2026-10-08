@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A model server on the home network (Ollama on a PC) speaks plain HTTP.
+     The app itself refuses any address that is not on this phone or the local network. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

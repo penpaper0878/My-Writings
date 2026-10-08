@@ -1,0 +1,1286 @@
+{
+"source": "digital.pdf",
+"pages": [
+{
+"number": 1,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"spans": [
+{
+"text": "ACME Quarterly Report",
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"spans": [
+{
+"text": "Page 1 of 3",
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+64.31999969482422,
+252.04800415039062,
+97.36799621582031
+],
+"spans": [
+{
+"text": "Quarterly Notes",
+"bbox": [
+72.0,
+64.31999969482422,
+252.04800415039062,
+97.36799621582031
+],
+"size": 24.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+112.87999725341797,
+183.1199951171875,
+134.91200256347656
+],
+"spans": [
+{
+"text": "1. Introduction",
+"bbox": [
+72.0,
+112.87999725341797,
+183.1199951171875,
+134.91200256347656
+],
+"size": 16.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+143.1750030517578,
+364.82000732421875,
+158.3769989013672
+],
+"spans": [
+{
+"text": "This report has ",
+"bbox": [
+72.0,
+143.1750030517578,
+148.4169921875,
+158.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "bold facts",
+"bbox": [
+148.4169921875,
+143.22999572753906,
+200.3699493408203,
+158.3769989013672
+],
+"size": 11.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": " and ",
+"bbox": [
+200.3699951171875,
+143.1750030517578,
+224.833984375,
+158.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "gentle italics",
+"bbox": [
+224.83399963378906,
+143.22999572753906,
+285.35595703125,
+158.12399291992188
+],
+"size": 11.0,
+"bold": false,
+"italic": true,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": " for every exam-",
+"bbox": [
+285.3559875488281,
+143.1750030517578,
+364.82000732421875,
+158.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+157.1750030517578,
+328.783935546875,
+172.28900146484375
+],
+"spans": [
+{
+"text": "ple we tried. See the project site for more details and",
+"bbox": [
+72.0,
+157.1750030517578,
+328.783935546875,
+172.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.1750030517578,
+252.344970703125,
+186.28900146484375
+],
+"spans": [
+{
+"text": "the ",
+"bbox": [
+72.0,
+171.1750030517578,
+90.34799194335938,
+186.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "full data",
+"bbox": [
+90.3479995727539,
+171.1750030517578,
+131.92799377441406,
+186.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": "https://example.org/data"
+},
+{
+"text": " ",
+"bbox": [
+128.8699951171875,
+171.1750030517578,
+131.92799377441406,
+186.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "set, which is well-known.",
+"bbox": [
+131.92799377441406,
+171.1750030517578,
+252.344970703125,
+186.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+203.1750030517578,
+169.2069854736328,
+218.28900146484375
+],
+"spans": [
+{
+"text": "Things we checked:",
+"bbox": [
+72.0,
+203.1750030517578,
+169.2069854736328,
+218.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+80.0,
+219.1750030517578,
+232.22894287109375,
+234.28900146484375
+],
+"spans": [
+{
+"text": "· Revenue grew in every region",
+"bbox": [
+80.0,
+219.1750030517578,
+232.22894287109375,
+234.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+80.0,
+235.1750030517578,
+167.427978515625,
+250.28900146484375
+],
+"spans": [
+{
+"text": "· Costs stayed flat",
+"bbox": [
+80.0,
+235.1750030517578,
+167.427978515625,
+250.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+96.0,
+251.1750030517578,
+195.65997314453125,
+266.28900146484375
+],
+"spans": [
+{
+"text": "· Except for shipping",
+"bbox": [
+96.0,
+251.1750030517578,
+195.65997314453125,
+266.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+80.0,
+267.17498779296875,
+160.6849822998047,
+282.28900146484375
+],
+"spans": [
+{
+"text": "· Hiring resumed",
+"bbox": [
+80.0,
+267.17498779296875,
+160.6849822998047,
+282.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+293.17498779296875,
+167.99696350097656,
+308.28900146484375
+],
+"spans": [
+{
+"text": "Steps to reproduce:",
+"bbox": [
+72.0,
+293.17498779296875,
+167.99696350097656,
+308.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+80.0,
+309.17498779296875,
+183.94996643066406,
+324.28900146484375
+],
+"spans": [
+{
+"text": "1. Download the data",
+"bbox": [
+80.0,
+309.17498779296875,
+183.94996643066406,
+324.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+80.0,
+325.17498779296875,
+160.09097290039062,
+340.28900146484375
+],
+"spans": [
+{
+"text": "2. Run the script",
+"bbox": [
+80.0,
+325.17498779296875,
+160.09097290039062,
+340.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+360.67999267578125,
+168.0,
+373.1700134277344
+],
+"spans": [
+{
+"text": "def total(rows):",
+"bbox": [
+72.0,
+360.67999267578125,
+168.0,
+373.1700134277344
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": true,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+373.67999267578125,
+300.0,
+386.1700134277344
+],
+"spans": [
+{
+"text": "    return sum(r.amount for r in rows)",
+"bbox": [
+72.0,
+373.67999267578125,
+300.0,
+386.1700134277344
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": true,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+76.0,
+423.25,
+369.3399963378906,
+436.989990234375
+],
+"spans": [
+{
+"text": "Region ",
+"bbox": [
+76.0,
+423.25,
+107.67999267578125,
+436.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "Q1 ",
+"bbox": [
+216.0,
+423.25,
+229.33999633789062,
+436.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "Q2",
+"bbox": [
+356.0,
+423.25,
+369.3399963378906,
+436.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+76.0,
+443.25,
+372.67999267578125,
+456.989990234375
+],
+"spans": [
+{
+"text": "North ",
+"bbox": [
+76.0,
+443.25,
+100.44999694824219,
+456.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "120 ",
+"bbox": [
+216.0,
+443.25,
+232.67999267578125,
+456.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "135",
+"bbox": [
+356.0,
+443.25,
+372.67999267578125,
+456.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+76.0,
+463.25,
+372.67999267578125,
+476.989990234375
+],
+"spans": [
+{
+"text": "South ",
+"bbox": [
+76.0,
+463.25,
+102.12998962402344,
+476.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "98 ",
+"bbox": [
+216.0,
+463.25,
+227.1199951171875,
+476.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+},
+{
+"text": "101",
+"bbox": [
+356.0,
+463.25,
+372.67999267578125,
+476.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+498.17498779296875,
+204.67095947265625,
+513.2890014648438
+],
+"spans": [
+{
+"text": "That is all for the first page.",
+"bbox": [
+72.0,
+498.17498779296875,
+204.67095947265625,
+513.2890014648438
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": [
+{
+"bbox": [
+72.0,
+420.0,
+492.0,
+480.0
+],
+"markdown": "| Region | Q1 | Q2 |\n| --- | --- | --- |\n| North | 120 | 135 |\n| South | 98 | 101 |"
+}
+]
+},
+{
+"number": 2,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"spans": [
+{
+"text": "ACME Quarterly Report",
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"spans": [
+{
+"text": "Page 2 of 3",
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+72.87999725341797,
+194.68798828125,
+94.91200256347656
+],
+"spans": [
+{
+"text": "2. Two Columns",
+"bbox": [
+72.0,
+72.87999725341797,
+194.68798828125,
+94.91200256347656
+],
+"size": 16.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+205.28695678710938,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Left column starts here and",
+"bbox": [
+72.0,
+108.17500305175781,
+205.28695678710938,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.17500305175781,
+202.2289581298828,
+137.28900146484375
+],
+"spans": [
+{
+"text": "keeps going for a few lines",
+"bbox": [
+72.0,
+122.17500305175781,
+202.2289581298828,
+137.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+136.1750030517578,
+185.72897338867188,
+151.28900146484375
+],
+"spans": [
+{
+"text": "until it reaches the end.",
+"bbox": [
+72.0,
+136.1750030517578,
+185.72897338867188,
+151.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+164.1750030517578,
+188.78695678710938,
+179.28900146484375
+],
+"spans": [
+{
+"text": "A second left paragraph",
+"bbox": [
+72.0,
+164.1750030517578,
+188.78695678710938,
+179.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+178.1750030517578,
+164.32296752929688,
+193.28900146484375
+],
+"spans": [
+{
+"text": "follows after a gap.",
+"bbox": [
+72.0,
+178.1750030517578,
+164.32296752929688,
+193.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+108.17500305175781,
+440.4389953613281,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Right column text begins",
+"bbox": [
+320.0,
+108.17500305175781,
+440.4389953613281,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+320.0,
+122.17500305175781,
+433.72906494140625,
+137.28900146484375
+],
+"spans": [
+{
+"text": "only after the left one is",
+"bbox": [
+320.0,
+122.17500305175781,
+433.72906494140625,
+137.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+320.0,
+136.1750030517578,
+415.9969787597656,
+151.28900146484375
+],
+"spans": [
+{
+"text": "finished being read.",
+"bbox": [
+320.0,
+136.1750030517578,
+415.9969787597656,
+151.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+164.1750030517578,
+432.4969787597656,
+179.28900146484375
+],
+"spans": [
+{
+"text": "Right side second para",
+"bbox": [
+320.0,
+164.1750030517578,
+432.4969787597656,
+179.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+320.0,
+178.1750030517578,
+400.1020202636719,
+193.28900146484375
+],
+"spans": [
+{
+"text": "closes the page.",
+"bbox": [
+320.0,
+178.1750030517578,
+400.1020202636719,
+193.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 3,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"spans": [
+{
+"text": "ACME Quarterly Report",
+"bbox": [
+72.0,
+30.325000762939453,
+167.02197265625,
+42.691001892089844
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"spans": [
+{
+"text": "Page 3 of 3",
+"bbox": [
+280.0,
+800.3250122070312,
+326.0350341796875,
+812.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+72.87999725341797,
+147.58399963378906,
+94.91200256347656
+],
+"spans": [
+{
+"text": "3. Figures",
+"bbox": [
+72.0,
+72.87999725341797,
+147.58399963378906,
+94.91200256347656
+],
+"size": 16.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+588.1749877929688,
+224.84495544433594,
+603.2890014648438
+],
+"spans": [
+{
+"text": "The chart above shows growth.",
+"bbox": [
+72.0,
+588.1749877929688,
+224.84495544433594,
+603.2890014648438
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+}
+],
+"markdown": "# Quarterly Notes\n\n## 1. Introduction\n\nThis report has **bold facts** and *gentle italics* for every example we tried. See the project site for more details and the [full data](https://example.org/data) set, which is well-known.\n\nThings we checked:\n\n- Revenue grew in every region\n- Costs stayed flat\n  - Except for shipping\n- Hiring resumed\n\nSteps to reproduce:\n\n1. Download the data\n2. Run the script\n\n```\ndef total(rows):\n    return sum(r.amount for r in rows)\n```\n\n| Region | Q1 | Q2 |\n| --- | --- | --- |\n| North | 120 | 135 |\n| South | 98 | 101 |\n\nThat is all for the first page.\n\n## 2. Two Columns\n\nLeft column starts here and keeps going for a few lines until it reaches the end.\n\nA second left paragraph follows after a gap.\n\nRight column text begins only after the left one is finished being read.\n\nRight side second para closes the page.\n\n## 3. Figures\n\nThe chart above shows growth.\n"
+}

@@ -1,0 +1,662 @@
+{
+"source": "paper.pdf",
+"pages": [
+{
+"number": 1,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.73999786376953,
+226.00799560546875,
+65.5260009765625
+],
+"spans": [
+{
+"text": "A Study of Things",
+"bbox": [
+72.0,
+40.73999786376953,
+226.00799560546875,
+65.5260009765625
+],
+"size": 18.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+74.94999694824219,
+588.6698608398438,
+94.18599700927734
+],
+"spans": [
+{
+"text": "Ada Lovelace, Charles Babbage, Alan Turing, Grace Hopper, Edsger Dijkstra, John",
+"bbox": [
+72.0,
+74.94999694824219,
+588.6698608398438,
+94.18599700927734
+],
+"size": 14.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+92.94999694824219,
+595.641845703125,
+112.18599700927734
+],
+"spans": [
+{
+"text": "McCarthy, Barbara Liskov, Donald Knuth, Frances Allen, Tony Hoare, Leslie Lampor",
+"bbox": [
+72.0,
+92.94999694824219,
+595.641845703125,
+112.18599700927734
+],
+"size": 14.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+110.94999694824219,
+533.369873046875,
+130.18600463867188
+],
+"spans": [
+{
+"text": "and Niklaus Wirth, together with many colleagues from several universities",
+"bbox": [
+72.0,
+110.94999694824219,
+533.369873046875,
+130.18600463867188
+],
+"size": 14.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+145.02000427246094,
+138.13601684570312,
+164.29800415039062
+],
+"spans": [
+{
+"text": "1. Section",
+"bbox": [
+72.0,
+145.02000427246094,
+138.13601684570312,
+164.29800415039062
+],
+"size": 14.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+179.25,
+232.0799560546875,
+192.99000549316406
+],
+"spans": [
+{
+"text": "The left column opens the argument",
+"bbox": [
+72.0,
+179.25,
+232.0799560546875,
+192.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+192.25,
+218.73995971679688,
+205.99000549316406
+],
+"spans": [
+{
+"text": "and carries it down the page until",
+"bbox": [
+72.0,
+192.25,
+218.73995971679688,
+205.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+205.25,
+190.94996643066406,
+218.99000549316406
+],
+"spans": [
+{
+"text": "it stops in the middle of the",
+"bbox": [
+72.0,
+205.25,
+190.94996643066406,
+218.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+752.4749755859375,
+206.22496032714844,
+762.093017578125
+],
+"spans": [
+{
+"text": "Permission to copy is granted provided that",
+"bbox": [
+72.0,
+752.4749755859375,
+206.22496032714844,
+762.093017578125
+],
+"size": 7.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+761.4749755859375,
+205.84693908691406,
+771.093017578125
+],
+"spans": [
+{
+"text": "copies are not made for profit or advantage",
+"bbox": [
+72.0,
+761.4749755859375,
+205.84693908691406,
+771.093017578125
+],
+"size": 7.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+179.25,
+505.0799255371094,
+192.99000549316406
+],
+"spans": [
+{
+"text": "sentence, which the right column finishes.",
+"bbox": [
+320.0,
+179.25,
+505.0799255371094,
+192.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+320.0,
+192.25,
+432.2699279785156,
+205.99000549316406
+],
+"spans": [
+{
+"text": "Then it goes on normally.",
+"bbox": [
+320.0,
+192.25,
+432.2699279785156,
+205.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+229.25,
+496.7398986816406,
+242.99000549316406
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+229.25,
+496.7398986816406,
+242.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+229.25,
+243.7499542236328,
+242.99000549316406
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+229.25,
+243.7499542236328,
+242.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+242.25,
+496.7398986816406,
+255.99000549316406
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+242.25,
+496.7398986816406,
+255.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+242.25,
+243.7499542236328,
+255.99000549316406
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+242.25,
+243.7499542236328,
+255.99000549316406
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+255.25,
+496.7398986816406,
+268.989990234375
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+255.25,
+496.7398986816406,
+268.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+255.25,
+243.7499542236328,
+268.989990234375
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+255.25,
+243.7499542236328,
+268.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+268.25,
+496.7398986816406,
+281.989990234375
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+268.25,
+496.7398986816406,
+281.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.25,
+243.7499542236328,
+281.989990234375
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+268.25,
+243.7499542236328,
+281.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+281.25,
+496.7398986816406,
+294.989990234375
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+281.25,
+496.7398986816406,
+294.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+281.25,
+243.7499542236328,
+294.989990234375
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+281.25,
+243.7499542236328,
+294.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+320.0,
+294.25,
+496.7398986816406,
+307.989990234375
+],
+"spans": [
+{
+"text": "Filler text keeps the body size the norm.",
+"bbox": [
+320.0,
+294.25,
+496.7398986816406,
+307.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+294.25,
+243.7499542236328,
+307.989990234375
+],
+"spans": [
+{
+"text": "More body text on the left column side.",
+"bbox": [
+72.0,
+294.25,
+243.7499542236328,
+307.989990234375
+],
+"size": 10.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+}
+],
+"markdown": "# A Study of Things\n\nAda Lovelace, Charles Babbage, Alan Turing, Grace Hopper, Edsger Dijkstra, John McCarthy, Barbara Liskov, Donald Knuth, Frances Allen, Tony Hoare, Leslie Lampor and Niklaus Wirth, together with many colleagues from several universities\n\n## 1. Section\n\nThe left column opens the argument and carries it down the page until it stops in the middle of the sentence, which the right column finishes. Then it goes on normally.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nFiller text keeps the body size the norm. More body text on the left column side.\n\nPermission to copy is granted provided that copies are not made for profit or advantage\n"
+}

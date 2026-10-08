@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Pdf2md" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+    <color name="background">#FFFBFE</color>
+    <color name="launcher_background">#1F6F5C</color>
+</resources>

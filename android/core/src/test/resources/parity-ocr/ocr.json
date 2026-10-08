@@ -1,0 +1,1065 @@
+{
+"prompts": [
+{
+"part": 1,
+"parts": 1,
+"lang": null,
+"hint": null,
+"prompt": "Transcribe this page into Markdown.\n\nRules:\n- Copy the text exactly as written: the same words, spelling, numbers, punctuation and capitalisation. Do not correct mistakes, translate, summarise, explain or add anything.\n- Keep every script as it is (Latin, Devanagari, Gujarati, Arabic, …). Never transliterate.\n- Handwriting: read carefully and use the surrounding words as context. If a word cannot be read at all, write [illegible]. If you are unsure of a word, write your best reading followed by [?].\n- Structure: use Markdown headings only for text that is visibly a title or heading (larger, underlined, boxed or set apart). Keep bullet and numbered lists as Markdown lists, with their nesting. Keep paragraph breaks. Use a Markdown table for anything laid out as a table.\n- Use **bold** or *italic* only where the page clearly shows it. Crossed-out text: ~~text~~. Checkboxes: - [ ] and - [x].\n- Maths: LaTeX, $...$ inline and $$...$$ on a line of its own. Chemical formulas, units and symbols exactly as written.\n- Drawings, diagrams, charts and photos: do not describe their shapes; write one line \"[Figure: short description]\" where they appear, followed by any words written in them.\n- Leave out page numbers, ruled lines, margins, punch holes, stains and scanner marks.\n- Follow the natural reading order: top to bottom, and for side-by-side columns finish the left column before the right.\n- If there is no text at all, output only: [blank]\n\nOutput only the Markdown, with no introduction, no comments and no code fence around it."
+},
+{
+"part": 1,
+"parts": 2,
+"lang": null,
+"hint": null,
+"prompt": "Transcribe this part of a page into Markdown.\n\nRules:\n- Copy the text exactly as written: the same words, spelling, numbers, punctuation and capitalisation. Do not correct mistakes, translate, summarise, explain or add anything.\n- Keep every script as it is (Latin, Devanagari, Gujarati, Arabic, …). Never transliterate.\n- Handwriting: read carefully and use the surrounding words as context. If a word cannot be read at all, write [illegible]. If you are unsure of a word, write your best reading followed by [?].\n- Structure: use Markdown headings only for text that is visibly a title or heading (larger, underlined, boxed or set apart). Keep bullet and numbered lists as Markdown lists, with their nesting. Keep paragraph breaks. Use a Markdown table for anything laid out as a table.\n- Use **bold** or *italic* only where the page clearly shows it. Crossed-out text: ~~text~~. Checkboxes: - [ ] and - [x].\n- Maths: LaTeX, $...$ inline and $$...$$ on a line of its own. Chemical formulas, units and symbols exactly as written.\n- Drawings, diagrams, charts and photos: do not describe their shapes; write one line \"[Figure: short description]\" where they appear, followed by any words written in them.\n- Leave out page numbers, ruled lines, margins, punch holes, stains and scanner marks.\n- Follow the natural reading order: top to bottom, and for side-by-side columns finish the left column before the right.\n- If there is no text at all, output only: [blank]\n- This image is part 1 of 2 of one page, cut through a blank gap. It may begin or end in the middle of a sentence, list or table; transcribe only what is visible.\nOutput only the Markdown, with no introduction, no comments and no code fence around it."
+},
+{
+"part": 2,
+"parts": 3,
+"lang": "guj+hin+eng",
+"hint": null,
+"prompt": "Transcribe this part of a page into Markdown.\n\nRules:\n- Copy the text exactly as written: the same words, spelling, numbers, punctuation and capitalisation. Do not correct mistakes, translate, summarise, explain or add anything.\n- Keep every script as it is (Latin, Devanagari, Gujarati, Arabic, …). Never transliterate.\n- Handwriting: read carefully and use the surrounding words as context. If a word cannot be read at all, write [illegible]. If you are unsure of a word, write your best reading followed by [?].\n- Structure: use Markdown headings only for text that is visibly a title or heading (larger, underlined, boxed or set apart). Keep bullet and numbered lists as Markdown lists, with their nesting. Keep paragraph breaks. Use a Markdown table for anything laid out as a table.\n- Use **bold** or *italic* only where the page clearly shows it. Crossed-out text: ~~text~~. Checkboxes: - [ ] and - [x].\n- Maths: LaTeX, $...$ inline and $$...$$ on a line of its own. Chemical formulas, units and symbols exactly as written.\n- Drawings, diagrams, charts and photos: do not describe their shapes; write one line \"[Figure: short description]\" where they appear, followed by any words written in them.\n- Leave out page numbers, ruled lines, margins, punch holes, stains and scanner marks.\n- Follow the natural reading order: top to bottom, and for side-by-side columns finish the left column before the right.\n- If there is no text at all, output only: [blank]\n- This image is part 2 of 3 of one page, cut through a blank gap. It may begin or end in the middle of a sentence, list or table; transcribe only what is visible.\n- The text is written in Gujarati, Hindi and English.\nOutput only the Markdown, with no introduction, no comments and no code fence around it."
+},
+{
+"part": 1,
+"parts": 1,
+"lang": "hin",
+"hint": "class 10 chemistry notes",
+"prompt": "Transcribe this page into Markdown.\n\nRules:\n- Copy the text exactly as written: the same words, spelling, numbers, punctuation and capitalisation. Do not correct mistakes, translate, summarise, explain or add anything.\n- Keep every script as it is (Latin, Devanagari, Gujarati, Arabic, …). Never transliterate.\n- Handwriting: read carefully and use the surrounding words as context. If a word cannot be read at all, write [illegible]. If you are unsure of a word, write your best reading followed by [?].\n- Structure: use Markdown headings only for text that is visibly a title or heading (larger, underlined, boxed or set apart). Keep bullet and numbered lists as Markdown lists, with their nesting. Keep paragraph breaks. Use a Markdown table for anything laid out as a table.\n- Use **bold** or *italic* only where the page clearly shows it. Crossed-out text: ~~text~~. Checkboxes: - [ ] and - [x].\n- Maths: LaTeX, $...$ inline and $$...$$ on a line of its own. Chemical formulas, units and symbols exactly as written.\n- Drawings, diagrams, charts and photos: do not describe their shapes; write one line \"[Figure: short description]\" where they appear, followed by any words written in them.\n- Leave out page numbers, ruled lines, margins, punch holes, stains and scanner marks.\n- Follow the natural reading order: top to bottom, and for side-by-side columns finish the left column before the right.\n- If there is no text at all, output only: [blank]\n- The text is written in Hindi.\n- About the document (use only to help read unclear words): class 10 chemistry notes\nOutput only the Markdown, with no introduction, no comments and no code fence around it."
+},
+{
+"part": 1,
+"parts": 1,
+"lang": "eng,osd,xyz",
+"hint": "  spaced hint ",
+"prompt": "Transcribe this page into Markdown.\n\nRules:\n- Copy the text exactly as written: the same words, spelling, numbers, punctuation and capitalisation. Do not correct mistakes, translate, summarise, explain or add anything.\n- Keep every script as it is (Latin, Devanagari, Gujarati, Arabic, …). Never transliterate.\n- Handwriting: read carefully and use the surrounding words as context. If a word cannot be read at all, write [illegible]. If you are unsure of a word, write your best reading followed by [?].\n- Structure: use Markdown headings only for text that is visibly a title or heading (larger, underlined, boxed or set apart). Keep bullet and numbered lists as Markdown lists, with their nesting. Keep paragraph breaks. Use a Markdown table for anything laid out as a table.\n- Use **bold** or *italic* only where the page clearly shows it. Crossed-out text: ~~text~~. Checkboxes: - [ ] and - [x].\n- Maths: LaTeX, $...$ inline and $$...$$ on a line of its own. Chemical formulas, units and symbols exactly as written.\n- Drawings, diagrams, charts and photos: do not describe their shapes; write one line \"[Figure: short description]\" where they appear, followed by any words written in them.\n- Leave out page numbers, ruled lines, margins, punch holes, stains and scanner marks.\n- Follow the natural reading order: top to bottom, and for side-by-side columns finish the left column before the right.\n- If there is no text at all, output only: [blank]\n- The text is written in English and xyz.\n- About the document (use only to help read unclear words): spaced hint\nOutput only the Markdown, with no introduction, no comments and no code fence around it."
+}
+],
+"cleanup": [
+{
+"input": "Here is the transcription of the page:\n\n```markdown\n# Title\n\nHello\n```",
+"clean": "# Title\n\nHello\n",
+"degenerate": false,
+"collapsed": "# Title\n\nHello\n"
+},
+{
+"input": "```markdown\n# Title\n\nHello\n```\nLet me know if you need anything else.",
+"clean": "# Title\n\nHello\n",
+"degenerate": false,
+"collapsed": "# Title\n\nHello\n"
+},
+{
+"input": "# Notes\n\n```python\nx = 1\n```\n\nDone",
+"clean": "# Notes\n\n```python\nx = 1\n```\n\nDone\n",
+"degenerate": false,
+"collapsed": "# Notes\n\n```python\nx = 1\n```\n\nDone\n"
+},
+{
+"input": "[blank]",
+"clean": "",
+"degenerate": false,
+"collapsed": "\n"
+},
+{
+"input": "<think>hmm, let me look</think>\nText here",
+"clean": "Text here\n",
+"degenerate": false,
+"collapsed": "Text here\n"
+},
+{
+"input": "```\nopened but cut off",
+"clean": "opened but cut off\n",
+"degenerate": false,
+"collapsed": "opened but cut off\n"
+},
+{
+"input": "Line one\r\nLine two\r\n\r\n\r\n\r\nLine three",
+"clean": "Line one\nLine two\n\nLine three\n",
+"degenerate": false,
+"collapsed": "Line one\nLine two\n\nLine three\n"
+},
+{
+"input": "Sure! Below is the Markdown text of the image:\n- item one\n- item two\nI hope this helps.",
+"clean": "- item one\n- item two\n",
+"degenerate": false,
+"collapsed": "- item one\n- item two\n"
+},
+{
+"input": "Intro line\nthe cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. ",
+"clean": "Intro line\nthe cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat. the cat sat on the mat.\n",
+"degenerate": true,
+"collapsed": "Intro line\nthe cat sat on the mat.\n"
+},
+{
+"input": "Real text.\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line",
+"clean": "Real text.\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\nsame line\n",
+"degenerate": true,
+"collapsed": "Real text.\nsame line\n"
+},
+{
+"input": "| a | b |\n|---|---|\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n",
+"clean": "| a | b |\n|---|---|\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n",
+"degenerate": false,
+"collapsed": "| a | b |\n|---|---|\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n|  |  |\n"
+},
+{
+"input": "Contents . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+"clean": "Contents . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\n",
+"degenerate": false,
+"collapsed": "Contents . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .\n"
+},
+{
+"input": "Normal page with nothing odd.\n\nSecond paragraph.",
+"clean": "Normal page with nothing odd.\n\nSecond paragraph.\n",
+"degenerate": false,
+"collapsed": "Normal page with nothing odd.\n\nSecond paragraph.\n"
+}
+],
+"layouts": [
+{
+"words": [
+{
+"text": "Chapter",
+"left": 122,
+"top": 130,
+"width": 158,
+"height": 42,
+"conf": 95.646301,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "4:",
+"left": 291,
+"top": 133,
+"width": 33,
+"height": 30,
+"conf": 95.646301,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "Photosynthesis",
+"left": 340,
+"top": 130,
+"width": 295,
+"height": 43,
+"conf": 96.152855,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "Plants",
+"left": 124,
+"top": 270,
+"width": 117,
+"height": 34,
+"conf": 96.36898,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "convert",
+"left": 253,
+"top": 274,
+"width": 146,
+"height": 30,
+"conf": 96.662468,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "light",
+"left": 414,
+"top": 270,
+"width": 84,
+"height": 43,
+"conf": 95.810265,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "energy",
+"left": 511,
+"top": 279,
+"width": 137,
+"height": 34,
+"conf": 96.74678,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "into",
+"left": 661,
+"top": 273,
+"width": 72,
+"height": 31,
+"conf": 96.800018,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "chemical",
+"left": 745,
+"top": 270,
+"width": 179,
+"height": 34,
+"conf": 96.797882,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "energy.",
+"left": 121,
+"top": 349,
+"width": 145,
+"height": 34,
+"conf": 96.674873,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "The",
+"left": 279,
+"top": 340,
+"width": 73,
+"height": 34,
+"conf": 96.958626,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "process",
+"left": 367,
+"top": 349,
+"width": 148,
+"height": 33,
+"conf": 96.276199,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "takes",
+"left": 527,
+"top": 340,
+"width": 104,
+"height": 34,
+"conf": 96.450562,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "place",
+"left": 645,
+"top": 340,
+"width": 104,
+"height": 42,
+"conf": 95.937668,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "in",
+"left": 764,
+"top": 343,
+"width": 31,
+"height": 30,
+"conf": 96.201019,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "the",
+"left": 809,
+"top": 340,
+"width": 61,
+"height": 34,
+"conf": 96.765572,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "chloroplasts",
+"left": 121,
+"top": 410,
+"width": 238,
+"height": 42,
+"conf": 96.88401,
+"block": 2,
+"par": 1,
+"line": 3
+},
+{
+"text": "of",
+"left": 371,
+"top": 409,
+"width": 37,
+"height": 35,
+"conf": 96.997215,
+"block": 2,
+"par": 1,
+"line": 3
+},
+{
+"text": "leaf",
+"left": 421,
+"top": 409,
+"width": 70,
+"height": 35,
+"conf": 96.674408,
+"block": 2,
+"par": 1,
+"line": 3
+},
+{
+"text": "cells.",
+"left": 502,
+"top": 410,
+"width": 96,
+"height": 34,
+"conf": 96.627594,
+"block": 2,
+"par": 1,
+"line": 3
+},
+{
+"text": "-",
+"left": 121,
+"top": 569,
+"width": 9,
+"height": 3,
+"conf": 92.853729,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "Light",
+"left": 145,
+"top": 550,
+"width": 97,
+"height": 43,
+"conf": 96.929047,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "reactions",
+"left": 257,
+"top": 553,
+"width": 178,
+"height": 31,
+"conf": 96.104134,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "happen",
+"left": 449,
+"top": 550,
+"width": 147,
+"height": 42,
+"conf": 94.508682,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "in",
+"left": 612,
+"top": 553,
+"width": 31,
+"height": 30,
+"conf": 94.508682,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "the",
+"left": 657,
+"top": 550,
+"width": 61,
+"height": 34,
+"conf": 96.453735,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "thylakoids",
+"left": 731,
+"top": 550,
+"width": 202,
+"height": 43,
+"conf": 96.524338,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "-",
+"left": 121,
+"top": 639,
+"width": 9,
+"height": 3,
+"conf": 92.352257,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "The",
+"left": 142,
+"top": 620,
+"width": 73,
+"height": 34,
+"conf": 96.654251,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "Calvin",
+"left": 229,
+"top": 620,
+"width": 122,
+"height": 34,
+"conf": 96.449234,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "cycle",
+"left": 365,
+"top": 620,
+"width": 101,
+"height": 43,
+"conf": 96.449234,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "fixes",
+"left": 479,
+"top": 619,
+"width": 87,
+"height": 35,
+"conf": 96.62043,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "carbon",
+"left": 578,
+"top": 620,
+"width": 135,
+"height": 34,
+"conf": 96.698547,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "dioxide",
+"left": 727,
+"top": 620,
+"width": 141,
+"height": 34,
+"conf": 96.395172,
+"block": 3,
+"par": 1,
+"line": 2
+}
+],
+"markdown": "Chapter 4: Photosynthesis\n\nPlants convert light energy into chemical energy. The process takes place in the chloroplasts of leaf cells.\n\n- Light reactions happen in the thylakoids\n- The Calvin cycle fixes carbon dioxide\n",
+"confidence": 96.13473729411764
+},
+{
+"words": [
+{
+"text": "Big",
+"left": 124,
+"top": 130,
+"width": 46,
+"height": 33,
+"conf": 97.005775,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "Title",
+"left": 182,
+"top": 128,
+"width": 69,
+"height": 28,
+"conf": 96.545837,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "Here",
+"left": 264,
+"top": 130,
+"width": 75,
+"height": 26,
+"conf": 96.477448,
+"block": 1,
+"par": 1,
+"line": 1
+},
+{
+"text": "Body",
+"left": 124,
+"top": 242,
+"width": 80,
+"height": 35,
+"conf": 96.776817,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "text",
+"left": 213,
+"top": 245,
+"width": 58,
+"height": 25,
+"conf": 96.093864,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "line",
+"left": 284,
+"top": 242,
+"width": 55,
+"height": 28,
+"conf": 96.955643,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "that",
+"left": 349,
+"top": 242,
+"width": 62,
+"height": 28,
+"conf": 95.789703,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "is",
+"left": 423,
+"top": 244,
+"width": 22,
+"height": 26,
+"conf": 95.789703,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "long",
+"left": 457,
+"top": 242,
+"width": 68,
+"height": 35,
+"conf": 91.993324,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "enough",
+"left": 537,
+"top": 242,
+"width": 124,
+"height": 35,
+"conf": 96.703514,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "to",
+"left": 673,
+"top": 245,
+"width": 31,
+"height": 25,
+"conf": 96.065376,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "wrap",
+"left": 713,
+"top": 249,
+"width": 81,
+"height": 27,
+"conf": 96.393478,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "around",
+"left": 804,
+"top": 242,
+"width": 114,
+"height": 28,
+"conf": 96.642204,
+"block": 2,
+"par": 1,
+"line": 1
+},
+{
+"text": "and",
+"left": 121,
+"top": 299,
+"width": 59,
+"height": 28,
+"conf": 95.297073,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "continue",
+"left": 192,
+"top": 301,
+"width": 143,
+"height": 26,
+"conf": 95.297073,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "onto",
+"left": 345,
+"top": 302,
+"width": 74,
+"height": 25,
+"conf": 94.602821,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "a",
+"left": 429,
+"top": 306,
+"width": 16,
+"height": 21,
+"conf": 94.602821,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "second",
+"left": 456,
+"top": 299,
+"width": 117,
+"height": 28,
+"conf": 96.14492,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "line",
+"left": 587,
+"top": 299,
+"width": 55,
+"height": 28,
+"conf": 96.14492,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "of",
+"left": 652,
+"top": 298,
+"width": 31,
+"height": 29,
+"conf": 96.392929,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "the",
+"left": 692,
+"top": 299,
+"width": 52,
+"height": 28,
+"conf": 96.472816,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "paragraph.",
+"left": 756,
+"top": 299,
+"width": 174,
+"height": 35,
+"conf": 96.77179,
+"block": 2,
+"par": 1,
+"line": 2
+},
+{
+"text": "1.",
+"left": 125,
+"top": 415,
+"width": 22,
+"height": 25,
+"conf": 95.299278,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "first",
+"left": 158,
+"top": 412,
+"width": 58,
+"height": 29,
+"conf": 96.227234,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "step",
+"left": 227,
+"top": 416,
+"width": 69,
+"height": 31,
+"conf": 96.446716,
+"block": 3,
+"par": 1,
+"line": 1
+},
+{
+"text": "2.",
+"left": 122,
+"top": 471,
+"width": 25,
+"height": 26,
+"conf": 90.06369,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "second",
+"left": 158,
+"top": 470,
+"width": 117,
+"height": 28,
+"conf": 90.06369,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "step",
+"left": 287,
+"top": 473,
+"width": 69,
+"height": 31,
+"conf": 96.657776,
+"block": 3,
+"par": 1,
+"line": 2
+},
+{
+"text": "Short",
+"left": 122,
+"top": 584,
+"width": 85,
+"height": 28,
+"conf": 96.785332,
+"block": 4,
+"par": 1,
+"line": 1
+},
+{
+"text": "line",
+"left": 220,
+"top": 584,
+"width": 55,
+"height": 28,
+"conf": 96.775093,
+"block": 4,
+"par": 1,
+"line": 1
+},
+{
+"text": "Another",
+"left": 121,
+"top": 641,
+"width": 131,
+"height": 28,
+"conf": 96.798096,
+"block": 4,
+"par": 1,
+"line": 2
+},
+{
+"text": "short",
+"left": 262,
+"top": 641,
+"width": 82,
+"height": 28,
+"conf": 96.482079,
+"block": 4,
+"par": 1,
+"line": 2
+},
+{
+"text": "one",
+"left": 355,
+"top": 648,
+"width": 61,
+"height": 21,
+"conf": 96.542046,
+"block": 4,
+"par": 1,
+"line": 2
+}
+],
+"markdown": "Big Title Here\n\nBody text line that is long enough to wrap around and continue onto a second line of the paragraph.\n\n1. first step\n2. second step\n\nShort line\n\nAnother short one\n",
+"confidence": 95.73032966666666
+}
+],
+"edges": [
+{
+"pages": [
+{
+"markdown": "Journal of Things - Vol 3\n\nDate: 11 March\n\nBody of page 1.\n\n1",
+"printed": true
+},
+{
+"markdown": "Journal of Things - Vol 3\n\nDate: 12 March\n\nBody of page 2.\n\n2",
+"printed": true
+},
+{
+"markdown": "Journal of Things - Vol 3\n\nDate: 13 March\n\nBody of page 3.\n\n3",
+"printed": true
+},
+{
+"markdown": "Journal of Things - Vol 3\n\nDate: 14 March\n\nBody of page 4.\n\n4",
+"printed": true
+},
+{
+"markdown": "Journal of Things - Vol 3\n\nDate: 15 March\n\nBody of page 5.\n\n5",
+"printed": true
+}
+],
+"after": [
+"Date: 11 March\n\nBody of page 1.\n",
+"Date: 12 March\n\nBody of page 2.\n",
+"Date: 13 March\n\nBody of page 3.\n",
+"Date: 14 March\n\nBody of page 4.\n",
+"Date: 15 March\n\nBody of page 5.\n"
+]
+},
+{
+"pages": [
+{
+"markdown": "Header text\n\nWorking for problem 1.\n\n41",
+"printed": false
+},
+{
+"markdown": "Header text\n\nWorking for problem 2.\n\n42",
+"printed": false
+},
+{
+"markdown": "Header text\n\nWorking for problem 3.\n\n43",
+"printed": false
+},
+{
+"markdown": "Header text\n\nWorking for problem 4.\n\n44",
+"printed": false
+},
+{
+"markdown": "Header text\n\nWorking for problem 5.\n\n45",
+"printed": false
+}
+],
+"after": [
+"Working for problem 1.\n\n41\n",
+"Working for problem 2.\n\n42\n",
+"Working for problem 3.\n\n43\n",
+"Working for problem 4.\n\n44\n",
+"Working for problem 5.\n\n45\n"
+]
+},
+{
+"pages": [
+{
+"markdown": "Same header\n\nText.",
+"printed": false
+},
+{
+"markdown": "Same header\n\nText.",
+"printed": false
+},
+{
+"markdown": "Same header\n\nText.",
+"printed": false
+}
+],
+"after": [
+"Same header\n\nText.",
+"Same header\n\nText.",
+"Same header\n\nText."
+]
+},
+{
+"pages": [
+{
+"markdown": "# Logo junk 1\n\nSprouts - http://x.org/9\n\nBody 1\n\nFooter line",
+"printed": true
+},
+{
+"markdown": "# Logo junk 0\n\nSprouts - http://x.org/9\n\nBody 2\n\nFooter line",
+"printed": true
+},
+{
+"markdown": "# Logo junk 1\n\nSprouts - http://x.org/9\n\nBody 3\n\nFooter line",
+"printed": true
+},
+{
+"markdown": "# Logo junk 0\n\nSprouts - http://x.org/9\n\nBody 4\n\nFooter line",
+"printed": true
+},
+{
+"markdown": "# Logo junk 1\n\nSprouts - http://x.org/9\n\nBody 5\n\nFooter line",
+"printed": true
+},
+{
+"markdown": "# Logo junk 0\n\nSprouts - http://x.org/9\n\nBody 6\n\nFooter line",
+"printed": true
+}
+],
+"after": [
+"Body 1\n",
+"Body 2\n",
+"Body 3\n",
+"Body 4\n",
+"Body 5\n",
+"Body 6\n"
+]
+}
+],
+"images": [
+{
+"file": "lined.png",
+"cuts": {
+"2": [
+989
+],
+"3": [
+637,
+1333
+],
+"4": [
+461,
+989,
+1507
+]
+},
+"blank": false
+},
+{
+"file": "ruled.png",
+"cuts": {
+"2": [
+989
+],
+"3": [
+637,
+1333
+],
+"4": [
+461,
+989,
+1507
+]
+},
+"blank": false
+},
+{
+"file": "white.png",
+"cuts": {
+"2": [
+1169
+],
+"3": [
+840,
+1497
+],
+"4": [
+630,
+1169,
+1707
+]
+},
+"blank": true
+},
+{
+"file": "word.png",
+"cuts": {
+"2": [
+1169
+],
+"3": [
+840,
+1497
+],
+"4": [
+630,
+1169,
+1707
+]
+},
+"blank": false
+}
+]
+}

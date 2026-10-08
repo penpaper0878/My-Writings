@@ -1,0 +1,3054 @@
+{
+"source": "book.pdf",
+"pages": [
+{
+"number": 1,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 1",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "1",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 2,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 2",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "2",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 3,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 3",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "3",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 4,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 4",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "4",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 5,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 5",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "5",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 6,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"spans": [
+{
+"text": "Chapter 6",
+"bbox": [
+72.0,
+40.650001525878906,
+151.0380096435547,
+65.38200378417969
+],
+"size": 18.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"spans": [
+{
+"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut",
+"bbox": [
+72.0,
+90.00001525878906,
+519.5128784179688,
+105.114013671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"spans": [
+{
+"text": "labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+"bbox": [
+72.0,
+106.24757385253906,
+512.1869506835938,
+121.361572265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"spans": [
+{
+"text": "do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+122.49513244628906,
+518.3029174804688,
+137.609130859375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+138.7426300048828,
+496.9189453125,
+153.85662841796875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+154.9901885986328,
+493.2229309082031,
+170.10418701171875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+171.2377471923828,
+481.012939453125,
+186.35174560546875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+187.4853057861328,
+506.6979064941406,
+202.59930419921875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+203.7328643798828,
+518.907958984375,
+218.84686279296875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+219.9804229736328,
+493.8499755859375,
+235.09442138671875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet,",
+"bbox": [
+72.0,
+236.2279815673828,
+503.012939453125,
+251.34197998046875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"spans": [
+{
+"text": "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna",
+"bbox": [
+72.0,
+252.4755401611328,
+496.9189453125,
+267.58953857421875
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"spans": [
+{
+"text": "aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+"bbox": [
+72.0,
+268.7230224609375,
+493.2229309082031,
+283.8370361328125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"spans": [
+{
+"text": "incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur",
+"bbox": [
+72.0,
+284.9705810546875,
+481.012939453125,
+300.0845947265625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"spans": [
+{
+"text": "adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem",
+"bbox": [
+72.0,
+301.2181396484375,
+506.6979064941406,
+316.3321533203125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"spans": [
+{
+"text": "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+"bbox": [
+72.0,
+317.4656982421875,
+518.907958984375,
+332.5797119140625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"spans": [
+{
+"text": "et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+"bbox": [
+72.0,
+333.7132568359375,
+493.8499755859375,
+348.8272705078125
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+},
+{
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"spans": [
+{
+"text": "eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+"bbox": [
+72.0,
+349.9608154296875,
+364.2479248046875,
+365.0748291015625
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"spans": [
+{
+"text": "6",
+"bbox": [
+290.0,
+805.3250122070312,
+295.0039978027344,
+817.6909790039062
+],
+"size": 9.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+}
+],
+"markdown": "# Chapter 1\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n# Chapter 2\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n# Chapter 3\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n# Chapter 4\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n# Chapter 5\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n# Chapter 6\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n"
+}

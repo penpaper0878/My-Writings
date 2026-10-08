@@ -1,0 +1,466 @@
+{
+"source": "slides.pdf",
+"pages": [
+{
+"number": 1,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"spans": [
+{
+"text": "Slide 1",
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"size": 20.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Content of slide number 1 goes here in body text.",
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"spans": [
+{
+"text": "Company Confidential 1",
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"size": 8.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 2,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"spans": [
+{
+"text": "Slide 2",
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"size": 20.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Content of slide number 2 goes here in body text.",
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"spans": [
+{
+"text": "Company Confidential 2",
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"size": 8.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 3,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"spans": [
+{
+"text": "Slide 3",
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"size": 20.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Content of slide number 3 goes here in body text.",
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"spans": [
+{
+"text": "Company Confidential 3",
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"size": 8.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 4,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"spans": [
+{
+"text": "Slide 4",
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"size": 20.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Content of slide number 4 goes here in body text.",
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"spans": [
+{
+"text": "Company Confidential 4",
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"size": 8.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+},
+{
+"number": 5,
+"width": 595.0,
+"height": 842.0,
+"blocks": [
+[
+{
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"spans": [
+{
+"text": "Slide 5",
+"bbox": [
+72.0,
+28.599998474121094,
+136.47999572753906,
+56.13999938964844
+],
+"size": 20.0,
+"bold": true,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"spans": [
+{
+"text": "Content of slide number 5 goes here in body text.",
+"bbox": [
+72.0,
+108.17500305175781,
+312.29498291015625,
+123.28900146484375
+],
+"size": 11.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+],
+[
+{
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"spans": [
+{
+"text": "Company Confidential 5",
+"bbox": [
+72.0,
+811.4000244140625,
+157.36798095703125,
+822.3920288085938
+],
+"size": 8.0,
+"bold": false,
+"italic": false,
+"mono": false,
+"sup": false,
+"strike": false,
+"link": null
+}
+]
+}
+]
+],
+"tables": []
+}
+],
+"markdown": "# Slide 1\n\nContent of slide number 1 goes here in body text.\n\n# Slide 2\n\nContent of slide number 2 goes here in body text.\n\n# Slide 3\n\nContent of slide number 3 goes here in body text.\n\n# Slide 4\n\nContent of slide number 4 goes here in body text.\n\n# Slide 5\n\nContent of slide number 5 goes here in body text.\n"
+}

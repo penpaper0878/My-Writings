@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A page with a folded corner, and "M↓" (Markdown) on it. 108dp canvas, art inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,24 L64,24 L76,36 L76,84 L34,84 Z" />
+    <path
+        android:fillColor="#CFE8E1"
+        android:pathData="M64,24 L64,36 L76,36 Z" />
+    <!-- M -->
+    <path
+        android:fillColor="#1F6F5C"
+        android:pathData="M40,72 L40,48 L45,48 L50,58 L55,48 L60,48 L60,72 L55,72 L55,58 L50,67 L45,58 L45,72 Z" />
+    <!-- down arrow -->
+    <path
+        android:fillColor="#1F6F5C"
+        android:pathData="M65,48 L69,48 L69,63 L73,63 L67,72 L61,63 L65,63 Z" />
+</vector>
