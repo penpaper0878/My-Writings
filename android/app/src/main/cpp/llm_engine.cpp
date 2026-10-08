@@ -22,6 +22,8 @@ constexpr int kPenaltyLastN = 64;
 constexpr int kTopK = 40;
 constexpr float kTopP = 0.9f;
 constexpr uint32_t kSeed = 42;
+// The image encoder stops to check for Cancel every this many graph nodes.
+constexpr unsigned kVisionCheckEvery = 32;
 
 struct ChunksDeleter { void operator()(mtmd_input_chunks * c) const { mtmd_input_chunks_free(c); } };
 struct BitmapDeleter { void operator()(mtmd_bitmap * b) const { mtmd_bitmap_free(b); } };
@@ -49,6 +51,16 @@ void Engine::init_backends(const std::string & lib_dir) {
 
 bool Engine::abort_requested(void * self) {
     return static_cast<Engine *>(self)->cancelled_.load();
+}
+
+// llama.cpp has no abort for the image encoder, which is the slowest step on a
+// phone. Its evaluation callback can stop it, though: asking for every Nth
+// node splits the graph there, and answering false afterwards ends the run.
+// The half-made image is then thrown away when the next decode aborts.
+bool Engine::vision_checkpoint(ggml_tensor *, bool ask, void * self) {
+    auto * e = static_cast<Engine *>(self);
+    if (ask) return ++e->vision_nodes_ % kVisionCheckEvery == 0;
+    return !e->cancelled_.load();
 }
 
 Engine * Engine::load(const std::string & model_path, const std::string & mmproj_path,
@@ -89,6 +101,8 @@ Engine * Engine::load(const std::string & model_path, const std::string & mmproj
     vp.n_threads = threads;
     vp.print_timings = false;
     vp.warmup = false;
+    vp.cb_eval = vision_checkpoint;
+    vp.cb_eval_user_data = e.get();
     e->vision_ = mtmd_init_from_file(mmproj_path.c_str(), e->model_, vp);
     if (!e->vision_) {
         error = "the image part of the model (mmproj) could not be read";

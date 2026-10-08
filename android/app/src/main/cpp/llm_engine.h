@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 
+struct ggml_tensor;
 struct llama_model;
 struct llama_context;
 struct mtmd_context;
@@ -46,6 +47,7 @@ public:
 private:
     Engine() = default;
     static bool abort_requested(void * self);
+    static bool vision_checkpoint(ggml_tensor * t, bool ask, void * self);
 
     llama_model * model_ = nullptr;
     llama_context * ctx_ = nullptr;
@@ -55,6 +57,7 @@ private:
     std::atomic<bool> cancelled_{false};
     std::atomic<int> stage_{0};
     std::atomic<int> written_{0};
+    unsigned vision_nodes_ = 0;  // only touched by the thread running the encoder
 };
 
 }  // namespace pdf2md

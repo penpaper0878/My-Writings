@@ -36,6 +36,10 @@ MODEL_OUTPUTS = [
     "| a | b |\n|---|---|\n" + "|  |  |\n" * 8,
     "Contents" + " ." * 60,
     "Normal page with nothing odd.\n\nSecond paragraph.",
+    # A real answer from Qwen3-VL 2B on handwritten dash bullets, plus look-alikes to keep.
+    "**Biology notes - 14 March**\n\n- Photosynthesis happens in the chloroplasts.\n"
+    "- - Light reactions make ATP\n- - The Calvin cycle fixes carbon\n  * \u2022 nested dot\n"
+    "- \u2013 en dash\n- - -\n* * *\n- [ ] - todo\n- + 5 volts\n- -5 degrees\n-- not a list",
 ]
 
 

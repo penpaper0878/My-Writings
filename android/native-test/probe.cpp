@@ -124,23 +124,25 @@ int main(int argc, char ** argv) {
     check(r.status == Reply::DONE && words(r.text).size() >= words(expected).size() / 2,
           "the retry settings (penalty 1.15, temperature 0.2) also read the page");
 
-    // 4. Cancelling stops the model quickly, while it looks at the image and while it writes.
-    for (int when_ms : {300, 0}) {
+    // 4. Cancelling stops the model within seconds, while it looks at the image
+    //    (the slowest step) and while it writes.
+    for (bool while_writing : {false, true}) {
+        Clock::time_point cancelled_at;
         std::thread canceller([&] {
-            if (when_ms > 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(when_ms));
-            } else {
+            if (while_writing) {
                 while (e->stage() != 2) std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(while_writing ? 200 : 2000));
+            cancelled_at = Clock::now();
             e->set_cancelled(true);
         });
-        t0 = Clock::now();
         r = e->transcribe(rgb, w, h, prompt, 3072, 1.0f, 0.0f);
         canceller.join();
-        std::printf("cancel test (%s): returned after %.1fs\n", when_ms > 0 ? "early" : "while writing", seconds_since(t0));
-        check(r.status == Reply::CANCELLED, std::string("cancelled ") + (when_ms > 0 ? "early" : "while writing") +
-                                              " (got " + status_name(r.status) + ")");
+        const double stop_s = seconds_since(cancelled_at);
+        const char * when = while_writing ? "while writing" : "while looking at the image";
+        std::printf("cancel %s: stopped %.1fs after the request\n", when, stop_s);
+        check(r.status == Reply::CANCELLED, std::string("cancelled ") + when + " (got " + status_name(r.status) + ")");
+        check(stop_s < 10.0, std::string("stops within 10s of Cancel ") + when);
         e->set_cancelled(false);
     }
 

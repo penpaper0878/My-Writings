@@ -17,6 +17,10 @@ _POSTAMBLE_RE = re.compile(
     re.I,
 )
 BLANK_MARKERS = {"[blank]", "blank", "[blank page]", "(blank)", "[empty]", "[no text]", "no text"}
+# "- - text": a list item whose text starts with the handwritten dash or dot
+# the model also turned into the list marker. Rules ("- - -", "* * *") and
+# checkboxes ("- [ ]") are left alone.
+_DOUBLE_BULLET_RE = re.compile(r"^([ \t]*)([-*+])[ \t]+[-*\u2022\u2013][ \t]+(?=[^ \t\r\n*_-])", re.M)
 
 
 def clean_model_output(text: str) -> str:
@@ -36,6 +40,7 @@ def clean_model_output(text: str) -> str:
         text = text[m.end():].strip()  # opened, never closed (cut off)
     if text.lower() in BLANK_MARKERS:
         return ""
+    text = _DOUBLE_BULLET_RE.sub(r"\1\2 ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text + "\n" if text else ""
 

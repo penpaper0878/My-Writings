@@ -16,6 +16,7 @@ object OcrCleanup {
     )
     private val BLANK_MARKERS = setOf("[blank]", "blank", "[blank page]", "(blank)", "[empty]", "[no text]", "no text")
     private val MANY_NEWLINES = Regex("\n{3,}")
+    private val DOUBLE_BULLET_RE = Regex("""^([ \t]*)([-*+])[ \t]+[-*\u2022\u2013][ \t]+(?=[^ \t\r\n*_-])""", RegexOption.MULTILINE)
     private val TAIL_REPEAT_RE = Regex("""(.{2,200}?)(?:\s*\1){7,}\s*$""", RegexOption.DOT_MATCHES_ALL)
     private val WORD_CHAR = Regex("""[\p{L}\p{N}_]""")
     private val RULE_LINE = Regex("""[|\-:\s]*""")
@@ -38,6 +39,8 @@ object OcrCleanup {
             text = text.substring(m.range.last + 1).trim() // opened, never closed (cut off)
         }
         if (text.lowercase() in BLANK_MARKERS) return ""
+        // "- - text": the handwritten dash also became the list marker.
+        text = DOUBLE_BULLET_RE.replace(text) { it.groupValues[1] + it.groupValues[2] + " " }
         text = MANY_NEWLINES.replace(text) { "\n\n" }
         return if (text.isNotEmpty()) text + "\n" else ""
     }
