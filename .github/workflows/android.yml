@@ -63,6 +63,9 @@ jobs:
           java-version: "17"
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          # Keep downloaded libraries between runs on this branch too.
+          cache-read-only: false
 
       - name: Engine tests (parity with the desktop tool)
         run: ./gradlew --no-daemon -p core test
@@ -74,7 +77,13 @@ jobs:
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358" "cmake;3.31.6" > /dev/null'
 
       - name: Build the APK for phones
-        run: ./gradlew --no-daemon -Ppdf2md.abis=arm64-v8a :app:assembleRelease
+        # Retried: MuPDF's Maven server sometimes times out.
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew --no-daemon -Ppdf2md.abis=arm64-v8a :app:assembleRelease && break
+            [ "$attempt" = 3 ] && exit 1
+            sleep 30
+          done
 
       - name: Check the APK carries the on-phone AI engine
         run: |
@@ -84,6 +93,18 @@ jobs:
                      libggml-cpu-android_armv8.0_1.so libggml-cpu-android_armv8.2_1.so libggml-cpu-android_armv8.6_1.so; do
             grep -q "lib/arm64-v8a/$lib" apk.txt || { echo "missing $lib"; exit 1; }
           done
+
+      # Published as soon as it is built; the on-device tests below follow.
+      - name: Collect the APK
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-arm64-v8a-release.apk dist/pdf2md.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdf2md-android
+          path: android/dist/
+          retention-days: 90
 
       - name: Build the emulator APK and the on-device tests
         run: ./gradlew --no-daemon -Ppdf2md.abis=x86_64 :app:assembleDebug :app:assembleDebugAndroidTest
@@ -130,13 +151,3 @@ jobs:
             android/app/build/outputs/androidTest-results/
           retention-days: 14
 
-      - name: Collect the APK
-        run: |
-          mkdir -p dist
-          cp app/build/outputs/apk/release/app-arm64-v8a-release.apk dist/pdf2md.apk
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pdf2md-android
-          path: android/dist/
-          retention-days: 90
