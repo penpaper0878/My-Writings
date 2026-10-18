@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-18T17:54:59.061Z",
+  "updatedAt": "2026-10-18T17:55:18.858Z",
   "site": {
     "name": "My Writings",
     "nameGu": "",
@@ -374,7 +374,7 @@
       "id": "c_mve4l2g4v9rlz",
       "desc": "સફર ",
       "cover": "",
-      "accent": ""
+      "accent": "#0091ff"
     }
   ],
   "feedback": {
