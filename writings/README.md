@@ -38,7 +38,7 @@ the `/ (root)` folder, and save.
 A minute later the site is live at:
 
 ```
-https://penpaper0878.github.io/instatements/writings/
+https://penpaper0878.github.io/My-Writings/writings/
 ```
 
 Open it on your phone and use *Add to Home Screen* — it installs like an app and
@@ -73,7 +73,7 @@ The owner and repository should already be filled in. You need one token:
 1. Go to **github.com → Settings → Developer settings → Personal access tokens →
    Fine-grained tokens → Generate new token**.
    (Or use the button in the Publish panel, which links straight there.)
-2. **Repository access:** *Only select repositories* → `instatements`.
+2. **Repository access:** *Only select repositories* → `My-Writings`.
 3. **Permissions → Repository permissions → Contents:** *Read and write*.
    Nothing else. That is the whole list.
 4. Generate it, copy it, and paste it into the Publish panel.
@@ -312,6 +312,11 @@ one and paste it in.
 
 **Publish says there is no permission.** The token needs *Contents: Read and
 write*, and this repository must be in its *Only select repositories* list.
+
+**After renaming the repository.** GitHub Pages moves the site to the new
+address (`https://<you>.github.io/<new-name>/writings/`) and the old one stops
+working. Your token keeps working, and when the site is opened at the new
+address it publishes to the renamed repository by itself.
 
 **The site did not update after publishing.** GitHub Pages takes up to a minute.
 Check the **Actions** tab for the deployment, then hard-refresh.

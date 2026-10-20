@@ -962,7 +962,7 @@
     host.appendChild(el('div', { class: 'section-title', text: 'Repository' }));
     host.appendChild(el('div', { class: 'field-row' }, [
       UI.field('Owner', bound(p, 'owner', { placeholder: 'your-github-username' })),
-      UI.field('Repository', bound(p, 'repo', { placeholder: 'instatements' }))
+      UI.field('Repository', bound(p, 'repo', { placeholder: 'My-Writings' }))
     ]));
     host.appendChild(el('div', { class: 'field-row' }, [
       UI.field('Branch', bound(p, 'branch', { placeholder: 'main' })),

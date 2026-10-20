@@ -204,13 +204,21 @@
       // The publish target is usually derivable from the URL; fill it in so
       // the admin only ever has to paste a token.
       var p = Store.state.data.publish;
+      var guess = Publish.guessTarget();
       if (!p.owner || !p.repo) {
-        var guess = Publish.guessTarget();
         if (guess.owner && guess.repo) {
           p.owner = p.owner || guess.owner;
           p.repo = p.repo || guess.repo;
           if (guess.path && p.path === Store.DEFAULTS.publish.path) p.path = guess.path;
         }
+      } else if (guess.owner && guess.repo &&
+                 (p.owner.toLowerCase() !== guess.owner.toLowerCase() ||
+                  p.repo.toLowerCase() !== guess.repo.toLowerCase())) {
+        // On github.io the address names the repository serving this page,
+        // and that is the only one whose content.json this page reads. A
+        // renamed repository leaves the old name in the saved settings.
+        p.owner = guess.owner;
+        p.repo = guess.repo;
       }
 
       Theme.applyTheme(Store.state.data.theme);
