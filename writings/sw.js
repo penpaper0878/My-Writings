@@ -59,16 +59,31 @@ self.addEventListener('install', function (event) {
   );
 });
 
+// Versions whose pages cannot reload themselves when a newer worker arrives.
+// They served the code from cache first, so without a nudge the author kept
+// seeing the old site until a second refresh.
+var SILENT_VERSIONS = [CACHE_PREFIX + 'v1', CACHE_PREFIX + 'v2'];
+
 self.addEventListener('activate', function (event) {
+  var replacedSilent = false;
   event.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (key) {
         // Only our own old versions. Instatements at the site root keeps a
         // cache of its own on this same origin.
         if (key.indexOf(CACHE_PREFIX) !== 0 || key === CACHE) return null;
+        if (SILENT_VERSIONS.indexOf(key) !== -1) replacedSilent = true;
         return caches.delete(key);
       }));
     }).then(function () { return self.clients.claim(); })
+      .then(function () {
+        if (!replacedSilent) return null;
+        return self.clients.matchAll({ type: 'window' }).then(function (windows) {
+          windows.forEach(function (w) {
+            try { w.navigate(w.url); } catch (err) { /* older browsers: next visit */ }
+          });
+        });
+      })
   );
 });
 
