@@ -434,8 +434,62 @@
      than silently doing nothing. */
   var IMAGE_TYPES = 'image/png,image/jpeg,image/gif,image/webp,image/avif';
 
-  function pickImage(onLoad, maxBytes) {
-    var limit = maxBytes || 1400000;
+  /* Pictures live inside the content file, which every reader downloads and
+     the editing device keeps a copy of. A phone photo straight off the camera
+     is 3–8 MB: enough to make the site slow for everyone and, on a phone, to
+     fill the storage drafts are saved in — after which changes stop saving.
+     So every picture is scaled down and re-encoded before it is stored. A
+     poem's background never needs more than this. */
+  function compressImage(file, maxSide) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        var w = Math.max(1, Math.round(img.naturalWidth * scale));
+        var h = Math.max(1, Math.round(img.naturalHeight * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+
+        // WebP keeps transparency and is smaller; browsers that cannot encode
+        // it hand back PNG instead, in which case fall back to JPEG on white.
+        ctx.drawImage(img, 0, 0, w, h);
+        var webp = canvas.toDataURL('image/webp', 0.82);
+        if (/^data:image\/webp/.test(webp)) return resolve(webp);
+
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('unreadable'));
+      };
+      img.src = url;
+    });
+  }
+
+  function readAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result)); };
+      reader.onerror = function () { reject(new Error('unreadable')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* opts.maxSide: longest edge after scaling (1600 for backgrounds, smaller
+     for an avatar). Large camera photos are accepted and shrunk; only truly
+     enormous files are turned away. */
+  function pickImage(onLoad, opts) {
+    if (typeof opts === 'number') opts = {};          // old signature: a byte limit
+    opts = opts || {};
+    var maxSide = opts.maxSide || 1600;
     var input = el('input', { type: 'file', accept: IMAGE_TYPES, style: { display: 'none' } });
     document.body.appendChild(input);
     input.addEventListener('change', function () {
@@ -446,15 +500,26 @@
         toast('Please use a PNG, JPEG, GIF, WebP or AVIF image.', 'error');
         return;
       }
-      if (file.size > limit) {
-        toast('That image is ' + Math.round(file.size / 1024) + ' KB. Please use one under ' +
-              Math.round(limit / 1024) + ' KB.', 'error');
+      if (file.size > 30 * 1024 * 1024) {
+        toast('That image is over 30 MB. Please choose a smaller one.', 'error');
         return;
       }
-      var reader = new FileReader();
-      reader.onload = function () { onLoad(String(reader.result)); };
-      reader.onerror = function () { toast('Could not read that image.', 'error'); };
-      reader.readAsDataURL(file);
+
+      // An animated GIF would lose its animation if redrawn; keep small ones as they are.
+      var job = (file.type === 'image/gif' && file.size < 1200000)
+        ? readAsDataUrl(file)
+        : compressImage(file, maxSide).catch(function () { return readAsDataUrl(file); });
+
+      job.then(function (dataUrl) {
+        var kb = Math.round(dataUrl.length * 0.75 / 1024);
+        if (kb > 1500) {
+          toast('Even after shrinking, that image is ' + kb + ' KB. Please choose a simpler one.', 'error');
+          return;
+        }
+        onLoad(dataUrl, { kb: kb, originalKb: Math.round(file.size / 1024) });
+      }).catch(function () {
+        toast('Could not read that image.', 'error');
+      });
     });
     input.click();
   }
@@ -482,6 +547,6 @@
     sheetDepth: sheetDepth, confirmAction: confirmAction,
     copyText: copyText, downloadBlob: downloadBlob,
     field: field, switchRow: switchRow, rangeRow: rangeRow, colorRow: colorRow,
-    optGrid: optGrid, pickImage: pickImage, pickFile: pickFile
+    optGrid: optGrid, pickImage: pickImage, pickFile: pickFile, compressImage: compressImage
   };
 })(window);

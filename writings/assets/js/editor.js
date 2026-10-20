@@ -157,14 +157,17 @@
             style: { marginTop: '8px' },
             type: 'button',
             onclick: function () {
-              UI.pickImage(function (dataUrl) {
+              UI.pickImage(function (dataUrl, info) {
                 target.bgImage = dataUrl;
                 urlInput.value = '(uploaded image)';
                 onChange();
+                if (info && info.originalKb > info.kb * 1.5) {
+                  UI.toast('Image added — shrunk from ' + info.originalKb + ' KB to ' + info.kb + ' KB.', 'ok');
+                }
               });
             }
           }, [icon('upload'), el('span', { text: 'Choose file' })])
-        ]), 'A file you pick is stored inside your content, so it keeps working offline. Keep it under 1.4 MB.'));
+        ]), 'Any photo works — it is shrunk automatically and stored inside your content, so it keeps working offline.'));
 
         host.appendChild(UI.field('Darken', UI.rangeRow(0, 0.85, 0.05, Number(target.bgDim) || 0,
           function (v) { return Math.round(v * 100) + '%'; },
@@ -276,6 +279,10 @@
   /* ========================================================== entry editor  */
 
   function openEntryEditor(existing) {
+    if (!Store.canEdit()) {
+      UI.toast('Your writing has not loaded yet. Reload the page first.', 'error');
+      return;
+    }
     var isNew = !existing;
     // Edit a copy, so hitting Cancel really does leave the original alone.
     var draft = Store.normaliseEntry(existing ? Store.clone(existing) : {

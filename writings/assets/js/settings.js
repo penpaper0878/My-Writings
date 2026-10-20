@@ -370,12 +370,12 @@
       avatarPreview,
       el('div', { style: { display: 'flex', gap: '8px' } }, [
         el('button', { class: 'btn btn-sm', type: 'button', onclick: function () {
-          UI.pickImage(function (dataUrl) { s.avatar = dataUrl; touched(); drawAvatar(); }, 400000);
+          UI.pickImage(function (dataUrl) { s.avatar = dataUrl; touched(); drawAvatar(); }, { maxSide: 512 });
         } }, [icon('upload'), el('span', { text: 'Choose' })]),
         s.avatar ? el('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: 'Remove',
           onclick: function () { s.avatar = ''; touched(); drawAvatar(); } }) : null
       ])
-    ]), 'Keep it small — under 400 KB.'));
+    ]), 'Any photo works — it is shrunk automatically.'));
 
     host.appendChild(UI.field('About you', bound(s, 'about', { multiline: true,
       placeholder: 'A few lines about yourself and your writing.' })));
@@ -919,7 +919,10 @@
             danger: true
           }).then(function (yes) {
             if (!yes) return;
-            Store.discardDraft();
+            if (!Store.discardDraft()) {
+              UI.toast('There is no loaded copy of the live site to go back to. Reload first.', 'error');
+              return;
+            }
             UI.closeSheet();
             App.rerender();
           });
@@ -961,6 +964,10 @@
   function redraw() { if (currentTabs) currentTabs.redraw(); }
 
   function openSettings(initial) {
+    if (!Store.canEdit()) {
+      UI.toast('Your writing has not loaded yet. Reload the page first.', 'error');
+      return;
+    }
     var tabs = Editor.tabbed([
       { id: 'content',     label: 'Content',     render: contentTab },
       { id: 'site',        label: 'Site',        render: siteTab },

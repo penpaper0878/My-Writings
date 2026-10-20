@@ -1119,6 +1119,41 @@ button.tag-pill.is-active {
 }
 .opt-sample { font-size: 17px; line-height: 1.5; margin-bottom: 5px; }
 
+/* ------------------------------------------------------------- notices    */
+/* Status the author must not miss: storage full, live site unreachable,
+   publish still deploying. Colour encodes severity; the words carry it. */
+.notice-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.notice svg { width: 17px; height: 17px; flex: none; margin-top: 2px; stroke-width: 2; }
+.notice-danger {
+  background: color-mix(in srgb, #E5484D 11%, var(--surface));
+  border-color: color-mix(in srgb, #E5484D 42%, var(--border));
+}
+.notice-danger svg { color: #E5484D; }
+.notice-warn {
+  background: color-mix(in srgb, #E9A23B 12%, var(--surface));
+  border-color: color-mix(in srgb, #E9A23B 42%, var(--border));
+}
+.notice-warn svg { color: #E9A23B; }
+.notice-info {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+.notice-info svg { color: var(--accent); }
+
+.load-failed { max-width: 520px; margin: 40px auto 0; }
+
 /* --------------------------------------------------- content list (admin)  */
 /* A dense, scannable list of everything written. Deliberately not cards: this
    is a working list you run your eye down, not a gallery. */

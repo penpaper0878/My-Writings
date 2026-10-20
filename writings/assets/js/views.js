@@ -290,8 +290,67 @@
 
   /* -------------------------------------------------------------- admin bar */
 
-  function adminBar() {
+  /* Status notes above the admin bar. Each one exists because its absence let
+     the author believe something false about where their writing was. */
+  function adminNotices() {
     if (!Store.state.isAdmin) return null;
+    var notes = [];
+
+    if (Store.state.saveFailed) {
+      notes.push({ kind: 'danger', icon: 'alert', text:
+        'This device could not save your latest change — its storage is full. Publish now so ' +
+        'nothing is lost, and keep images small.' });
+    }
+    if (Store.state.loadFailed && Store.state.dirty) {
+      notes.push({ kind: 'warn', icon: 'info', text:
+        'Could not reach your live site, so you are seeing this device’s own copy. Publishing ' +
+        'will still merge safely with what is live.' });
+    }
+    if (Store.state.pendingLive) {
+      notes.push({ kind: 'info', icon: 'refresh', text:
+        'Your last publish is still going live on GitHub — usually a minute or two. Until then ' +
+        'this device shows what you published.' });
+    }
+    if (!notes.length) return null;
+
+    return el('div', { class: 'notice-stack' }, notes.map(function (n) {
+      return el('div', { class: 'notice notice-' + n.kind, role: n.kind === 'danger' ? 'alert' : 'status' },
+        [icon(n.icon), el('span', { text: n.text })]);
+    }));
+  }
+
+  /* Shown instead of the site when the writing could not be loaded and this
+     device holds no copy of its own. An empty site here is a lie — and was
+     the start of the chain that published one over real writing. */
+  function loadFailedView() {
+    var wrap = el('div', { class: 'empty load-failed' }, [
+      el('div', { class: 'empty-icon' }, icon('alert')),
+      el('div', { class: 'empty-title', text: 'The writing could not be loaded' }),
+      el('div', { class: 'empty-hint', text:
+        'This is a connection problem, not a missing site — nothing has been deleted. ' +
+        'Check the connection and try again.' }),
+      el('button', {
+        class: 'btn btn-primary',
+        style: { marginTop: '20px' },
+        onclick: function (e) {
+          var btn = e.currentTarget;
+          btn.disabled = true;
+          btn.textContent = t('state.loading');
+          Store.load().then(function () { App.rerender(); });
+        }
+      }, [icon('refresh'), el('span', { text: t('action.retry') })])
+    ]);
+    if (Store.state.loadError) {
+      wrap.appendChild(el('div', {
+        class: 'field-hint', style: { marginTop: '14px' },
+        text: 'Details: ' + Store.state.loadError
+      }));
+    }
+    return wrap;
+  }
+
+  function adminBar() {
+    if (!Store.state.isAdmin || !Store.canEdit()) return null;
     var bar = el('div', { class: 'admin-bar' });
 
     var text = el('div', { class: 'admin-bar-text' });
@@ -629,6 +688,13 @@
     var main = UI.$('#main');
     UI.clear(main);
 
+    if (!Store.canEdit()) {
+      main.appendChild(loadFailedView());
+      return;
+    }
+
+    var notices = adminNotices();
+    if (notices) main.appendChild(notices);
     var bar = adminBar();
     if (bar) main.appendChild(bar);
 
@@ -827,6 +893,7 @@
 
   global.Views = {
     view: view,
+    loadFailedView: loadFailedView,
     filterByTag: filterByTag,
     tagPill: tagPill,
     renderTopbar: renderTopbar,
