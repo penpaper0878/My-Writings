@@ -7,6 +7,10 @@ on:
       - ".github/workflows/build-windows-exe.yml"
     tags:
       - "drone-inspector-v*"
+  pull_request:
+    paths:
+      - "drone_inspector/**"
+      - ".github/workflows/build-windows-exe.yml"
   workflow_dispatch:
 
 permissions:
