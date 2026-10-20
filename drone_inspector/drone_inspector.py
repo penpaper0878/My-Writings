@@ -25,7 +25,9 @@ OUTPUTS (written to the chosen output folder)
 INSTALL  : pip install numpy opencv-contrib-python pillow python-docx
            (opencv-contrib gives true thinning for crack skeletons; plain
             opencv-python works with a slower morphological fallback)
-RUN GUI  : python drone_inspector.py
+RUN GUI  : python drone_inspector.py        (or double-click DroneInspectPro.exe)
+BUILD EXE: build_exe.bat on Windows, or the GitHub Actions workflow
+           .github/workflows/build-windows-exe.yml (downloads as an artifact)
 RUN CLI  : python drone_inspector.py --cli --asset bridge --input D:/survey --output D:/out
            python drone_inspector.py --list-assets
 CUSTOMISE: Settings tab (JSON editor) or ~/.droneinspect/config.json. Every
@@ -57,6 +59,12 @@ import threading
 import traceback
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+
+# A windowed (no-console) Windows .exe has no stdout/stderr; give print() somewhere to go.
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
 
 try:
     import numpy as np
