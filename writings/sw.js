@@ -34,6 +34,7 @@ var SHELL = [
   './assets/js/i18n.js',
   './assets/js/theme.js',
   './assets/js/ui.js',
+  './assets/js/rich.js',
   './assets/js/views.js',
   './assets/js/share.js',
   './assets/js/publish.js',

@@ -214,6 +214,38 @@
   var PRESET_BY_ID = {};
   PRESETS.forEach(function (p) { PRESET_BY_ID[p.id] = p; });
 
+  /* Frames drawn around a piece. Each has a CSS treatment (app.css, .frame-*)
+     and a canvas one (share.js) so the shared image matches the page. */
+  var FRAMES = [
+    { id: 'none',     label: 'None' },
+    { id: 'rule',     label: 'Side line' },
+    { id: 'box',      label: 'Box' },
+    { id: 'double',   label: 'Double' },
+    { id: 'corners',  label: 'Corners' },
+    { id: 'card',     label: 'Card' },
+    { id: 'ornament', label: 'Ornament' },
+    { id: 'lines',    label: 'Notebook' },
+    { id: 'quotes',   label: 'Quote mark' },
+    { id: 'stamp',    label: 'Stamp' }
+  ];
+
+  /* Gradients worth one tap. Three and four colours, because the two-colour
+     ones are easy to make by hand and these are not. */
+  var GRADIENTS = [
+    { id: 'dusk',     label: 'Dusk',     stops: ['#0F2027', '#203A43', '#2C5364'] },
+    { id: 'saffron',  label: 'Saffron',  stops: ['#FF9933', '#FFB347', '#FFCC70'] },
+    { id: 'peacock',  label: 'Peacock',  stops: ['#003B46', '#07575B', '#66A5AD', '#C4DFE6'] },
+    { id: 'sunset',   label: 'Sunset',   stops: ['#FF5F6D', '#FFC371', '#FFE29F'] },
+    { id: 'monsoon',  label: 'Monsoon',  stops: ['#2C3E50', '#3E5F7B', '#4CA1AF', '#C4E0E5'] },
+    { id: 'rose',     label: 'Rose',     stops: ['#4B1248', '#B24592', '#F15F79', '#F0C27B'] },
+    { id: 'forest',   label: 'Forest',   stops: ['#0B3D2E', '#134E5E', '#71B280'] },
+    { id: 'aurora',   label: 'Aurora',   stops: ['#0B0C2A', '#2B2E83', '#3BB78F', '#A8E063'] },
+    { id: 'diya',     label: 'Diya',     stops: ['#1F1300', '#7A3E00', '#F09819', '#FFD86F'] },
+    { id: 'lavender', label: 'Lavender', stops: ['#E0C3FC', '#C3B1E1', '#8EC5FC'] },
+    { id: 'ink',      label: 'Ink',      stops: ['#232526', '#414345', '#232526'] },
+    { id: 'rainbow',  label: 'Holi',     stops: ['#FF0080', '#FF8C00', '#FFD700', '#00C9A7', '#845EC2'] }
+  ];
+
   var CARD_STYLES = [
     { id: 'paper',   label: 'Paper' },
     { id: 'glass',   label: 'Glass' },
@@ -296,9 +328,14 @@
 
   var COLOUR_RE = /^(#[0-9a-f]{3,8}|rgba?\([\d.,%\s/]+\)|hsla?\([\d.,%\sdegrad/]+\)|[a-z]{3,20})$/i;
 
+  /* An invalid or empty value returns the fallback exactly as given — an empty
+     string included, which callers use to mean "nothing chosen". Only with no
+     fallback at all does it return 'transparent'. (Collapsing an empty
+     fallback to 'transparent' once painted every unstyled poem invisible.) */
   function safeColour(value, fallback) {
     var v = String(value == null ? '' : value).trim();
-    return COLOUR_RE.test(v) ? v : (fallback || 'transparent');
+    if (COLOUR_RE.test(v)) return v;
+    return fallback === undefined ? 'transparent' : fallback;
   }
 
   /* Only images may become a background: an https URL, an inline data: image,
@@ -314,6 +351,61 @@
     return '';
   }
 
+  /* A gradient's colours as [{ c, p }], whichever way it was stored: the
+     multi-stop list, or the older two-colour from/to pair. */
+  function gradientStops(spec) {
+    var stops = Array.isArray(spec.gradStops) ? spec.gradStops : [];
+    var clean = stops
+      .map(function (st) { return { c: safeColour(st && st.c, ''), p: Number(st && st.p) }; })
+      .filter(function (st) { return st.c && st.c !== 'transparent' && isFinite(st.p); });
+    if (clean.length >= 2) {
+      return clean.slice().sort(function (a, b) { return a.p - b.p; });
+    }
+    return [
+      { c: safeColour(spec.gradFrom, '#222222'), p: 0 },
+      { c: safeColour(spec.gradTo, '#000000'), p: 100 }
+    ];
+  }
+
+  /* Evenly spread stops for a list of colours. */
+  function spreadStops(colours) {
+    var n = colours.length;
+    return colours.map(function (c, i) {
+      return { c: c, p: n === 1 ? 0 : Math.round((i / (n - 1)) * 100) };
+    });
+  }
+
+  function gradientCSS(spec) {
+    var stops = gradientStops(spec);
+    var list = stops.map(function (st) { return st.c + ' ' + st.p + '%'; }).join(', ');
+    if (spec.gradKind === 'radial') {
+      return 'radial-gradient(circle at 50% 45%, ' + list + ')';
+    }
+    var ang = Number(spec.gradAngle);
+    if (!isFinite(ang)) ang = 160;
+    return 'linear-gradient(' + ang + 'deg, ' + list + ')';
+  }
+
+  /* Is the gradient, taken as a whole, dark? Average every colour weighted by
+     how much of the area it covers, then ask the usual luminance question. */
+  function gradientIsDark(spec) {
+    var stops = gradientStops(spec);
+    var r = 0, g = 0, b = 0, total = 0;
+    for (var i = 0; i < stops.length; i++) {
+      var c = hexToRgb(stops[i].c);
+      if (!c) continue;
+      var left = i > 0 ? (stops[i].p - stops[i - 1].p) / 2 : stops[i].p;
+      var right = i < stops.length - 1 ? (stops[i + 1].p - stops[i].p) / 2 : 100 - stops[i].p;
+      var w = Math.max(1, left + right);
+      r += c.r * w; g += c.g * w; b += c.b * w; total += w;
+    }
+    if (!total) return true;
+    var hex = '#' + [r, g, b].map(function (v) {
+      return Math.round(v / total).toString(16).padStart(2, '0');
+    }).join('');
+    return !isLight(hex);
+  }
+
   /* Turn a {bgType, ...} spec into CSS. Returns null when the spec says
      "inherit", so callers know to leave the surface alone. */
   function backgroundCSS(spec) {
@@ -326,17 +418,14 @@
       return { image: 'none', color: solid, dark: !isLight(solid) };
     }
     if (type === 'gradient') {
-      var from = safeColour(spec.gradFrom, '#222222');
-      var to   = safeColour(spec.gradTo, '#000000');
-      var ang  = Number(spec.gradAngle);
-      if (!isFinite(ang)) ang = 160;
+      var stops = gradientStops(spec);
       return {
-        image: 'linear-gradient(' + ang + 'deg, ' + from + ' 0%, ' + to + ' 100%)',
-        color: from,
+        image: gradientCSS(spec),
+        color: stops[0].c,
         // Judge the blend, not the ends. A gradient running dark-to-light is
-        // light at one end and dark at the other; asking whether *both* ends
-        // are dark calls it light and lands black text on a near-black corner.
-        dark: !isLight(mixHex(from, to, 0.5))
+        // light at one end and dark at the other; asking about an end calls
+        // it wrong and lands black text on a near-black corner.
+        dark: gradientIsDark(spec)
       };
     }
     if (type === 'image') {
@@ -394,7 +483,12 @@
       '--ff-ui': fontStack(theme.fontUi || 'Inter', 'en'),
       '--ff-en': fontStack(theme.fontEn || 'Fraunces', 'en'),
       '--ff-gu': fontStack(theme.fontGu || 'Hind Vadodara', 'gu'),
-      '--ff-hi': fontStack(theme.fontHi || 'Hind', 'hi')
+      '--ff-hi': fontStack(theme.fontHi || 'Hind', 'hi'),
+      // Headings get their own faces; empty means "same as the body".
+      '--fh-en': fontStack(theme.headEn || theme.fontEn || 'Fraunces', 'en'),
+      '--fh-gu': fontStack(theme.headGu || theme.fontGu || 'Hind Vadodara', 'gu'),
+      '--fh-hi': fontStack(theme.headHi || theme.fontHi || 'Hind', 'hi'),
+      '--head-weight': String(Number(theme.headWeight) || 620)
     };
 
     Object.keys(vars).forEach(function (k) { root.style.setProperty(k, vars[k]); });
@@ -409,7 +503,8 @@
     if (meta) meta.setAttribute('content', p.bg);
 
     applyPageBackground(theme, p);
-    ensureFonts([theme.fontUi, theme.fontEn, theme.fontGu, theme.fontHi]);
+    ensureFonts([theme.fontUi, theme.fontEn, theme.fontGu, theme.fontHi,
+                 theme.headEn, theme.headGu, theme.headHi]);
     return mode;
   }
 
@@ -451,6 +546,12 @@
     PRESETS: PRESETS,
     PRESET_BY_ID: PRESET_BY_ID,
     CARD_STYLES: CARD_STYLES,
+    FRAMES: FRAMES,
+    GRADIENTS: GRADIENTS,
+    gradientStops: gradientStops,
+    gradientCSS: gradientCSS,
+    gradientIsDark: gradientIsDark,
+    spreadStops: spreadStops,
     LAYOUTS: LAYOUTS,
     fontsFor: fontsFor,
     ensureFont: ensureFont,

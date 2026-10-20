@@ -105,22 +105,48 @@
 
   var DEFAULT_STYLE = {
     preset: 'inherit',   // 'inherit' = follow the site theme
+
+    /* --- the writing itself --- */
     font: '',            // '' = follow the language default
     size: 1,             // multiplier on the base reading size
+    weight: 400,         // 300 light … 800 extra bold
+    italic: false,
+    underline: false,
     lineHeight: 1.85,
     letterSpacing: 0,
     align: 'left',       // left | center | right | justify
     textColor: '',
+    textShadow: false,
+
+    /* --- the heading, styled separately. Empty values follow the writing
+       (or, with no piece font set, the site's heading font). --- */
+    titleFont: '',
+    titleSize: 1,        // multiplier on the default heading size
+    titleWeight: 0,      // 0 = the site's heading weight
+    titleItalic: false,
+    titleUnderline: false,
+    titleColor: '',
+    titleAlign: '',      // '' = same as the writing
+
+    /* --- background --- */
     bgType: 'inherit',   // inherit | solid | gradient | image
     bgColor: '#101418',
+    gradStops: [],       // [{ c: '#hex', p: 0..100 }]; empty = the two below
     gradFrom: '#1b2735',
     gradTo: '#090a0f',
     gradAngle: 160,
+    gradKind: 'linear',  // linear | radial
     bgImage: '',
     bgDim: 0.35,
     bgBlur: 0,
-    textShadow: false,
-    frame: 'none'        // none | rule | box | quotes
+
+    /* --- frame around the writing --- */
+    frame: 'none',       // see Theme.FRAMES
+    frameColor: '',      // '' = the accent colour
+    frameWidth: 2,
+    frameRadius: 14,
+    framePad: 24,
+    frameStyle: 'solid'  // solid | dashed | dotted | double
   };
 
   var DEFAULTS = {
@@ -151,6 +177,8 @@
       gradFrom: '',
       gradTo: '',
       gradAngle: 160,
+      gradStops: [],
+      gradKind: 'linear',
       bgImage: '',
       bgDim: 0.45,
       bgBlur: 0,
@@ -158,6 +186,10 @@
       fontGu: 'Hind Vadodara',
       fontHi: 'Hind',
       fontUi: 'Inter',
+      headEn: '',          // heading fonts; '' = same as the body font
+      headGu: '',
+      headHi: '',
+      headWeight: 620,
       baseSize: 17,
       radius: 18,
       cardStyle: 'paper',  // paper | glass | solid | outline | minimal
@@ -249,7 +281,18 @@
     if (!Array.isArray(e.tags)) e.tags = [];
     if (!Array.isArray(e.collections)) e.collections = [];
     e.style = deepDefaults(e.style, DEFAULT_STYLE);
+    e.style.gradStops = normaliseStops(e.style.gradStops);
     return e;
+  }
+
+  function normaliseStops(stops) {
+    if (!Array.isArray(stops)) return [];
+    return stops.filter(function (st) { return st && typeof st.c === 'string'; })
+      .slice(0, 8)
+      .map(function (st) {
+        var p = Number(st.p);
+        return { c: st.c, p: isFinite(p) ? Math.max(0, Math.min(100, p)) : 0 };
+      });
   }
 
   function normalise(raw) {
@@ -265,6 +308,7 @@
         return col;
       });
     if (!Array.isArray(data.site.links)) data.site.links = [];
+    data.theme.gradStops = normaliseStops(data.theme.gradStops);
     return data;
   }
 
@@ -931,6 +975,7 @@
     updateEntry: updateEntry,
     removeEntry: removeEntry,
     normaliseEntry: normaliseEntry,
+    normaliseStops: normaliseStops,
 
     getCollection: getCollection,
     addCollection: addCollection,

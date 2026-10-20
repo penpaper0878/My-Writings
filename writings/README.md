@@ -57,7 +57,9 @@ Gear → **Site**: your name, the site's name, a photo, links, a contact email.
 The site name can be different in each language if you want it to be.
 
 Gear → **Theme**: eight palettes, light/dark/automatic, a custom accent colour,
-page backgrounds, and a separate font for each of the three scripts.
+page backgrounds, a separate font for each of the three scripts, and — under
+*Fonts for headings* — a separate font and weight for titles, so headings and
+body text can differ.
 
 Gear → **Home page**: the layout, how many pieces show before *See more*, which
 tabs exist, and what the big header says.
@@ -92,21 +94,37 @@ Now **Publish** pushes your work live in about a minute.
 
 ## Writing
 
-Press **+**, or just hit `N`.
+Press **+**, or just hit `N`. The editor has six tabs; only the first is needed.
 
-- **Kind** — poem, blog or quote. Quotes get centred and styled like quotes;
-  blogs get a reading time.
-- **Language** — Gujarati, Hindi or English. This picks the typeface and tells
-  the browser how to shape the script, so set it correctly.
-- **Writing** — your line breaks are kept exactly as typed. In a poem the breaks
-  *are* the poem.
-- **Keep as draft** — only you can see it. It is not published.
+- **Write** — the kind (poem, blog or quote), the title and the words. The
+  language is picked for you from the script you type in; change it if it guesses
+  wrong. Your line breaks are kept exactly as typed — in a poem the breaks *are*
+  the poem. Select words and press **B**, **I** or **U** to make them bold,
+  italic or underlined; press again to undo it. Tags, collections, the date, a
+  credit line, *Pin to the top* and *Keep as draft* are all on this tab too.
+- **Look** — eight ready-made designs, shown with your own words. One tap sets
+  the font, colours, background and frame together; adjust any of it afterwards.
+- **Text** — typeface, size, line spacing, weight, italic, underline,
+  alignment and colour for the body of the piece.
+- **Heading** — the same controls for the title on its own: a different
+  typeface, size, weight, italic, underline, colour or alignment from the body.
+- **Background** — the theme's, one colour, a gradient, or a photograph.
+  Gradients take as many colours as you like (*Add a colour*), each with its own
+  position, in a straight line at any angle or as a circle.
+- **Frame** — nine frames (side line, box, double, corners, card, ornament,
+  notebook, quote mark, stamp) or none, each with its own colour and, where it
+  applies, thickness, line style, corner rounding and space
+  inside.
 
-The **Style** tab restyles that one piece on its own: a different typeface, a
-larger size, looser lines, a colour, a gradient, or a photograph behind the
-words. The preview at the top updates as you type.
+The preview at the top updates as you go, and images and PDFs you share use the
+same design.
 
-Keyboard: `N` for a new piece, `Ctrl/Cmd + S` to publish.
+**Save** keeps the piece on this device; **Save & publish** puts it live in one
+step. If the editor is closed by accident — a tap outside, a lost tab — the next
+time you open it offers to bring back what you were writing.
+
+Keyboard: `N` for a new piece; `Ctrl/Cmd + S` saves inside the editor and
+publishes everywhere else.
 
 ### Finding and changing what you have written
 
@@ -114,19 +132,37 @@ Gear → **Content** lists everything, newest first — drafts included, which t
 home page deliberately hides from readers. Search it, narrow it to poems, blogs,
 quotes or drafts, and tap any row to edit it.
 
-Each row also carries three controls: pin it to the top of every list, switch it
-between draft and visible, or delete it. **Select** turns on checkboxes for
-clearing out several at once — useful for deleting the sample pieces this site
-ships with.
+Each row shows which collections the piece is in and carries three controls:
+pin it to the top of every list, switch it between draft and visible, or delete
+it. **Select** turns on
+checkboxes so you can act on several at once — add them all to a collection
+(new or existing) in one go, or delete them, which is useful for clearing out
+the sample pieces this site ships with.
 
 ### Tags
 
-Tags are how you get through a few hundred pieces. Add them in the editor,
-comma-separated, in any script — `ગઝલ, વરસાદ` works as well as `love, monsoon`.
+Tags are how you get through a few hundred pieces. In the editor, type a tag
+and press Enter (or a comma), in any script — `ગઝલ` works as well as `love`.
+Tags you have used before are offered underneath, one tap to add.
 
 Every tag on the site is then clickable: on a card, inside a piece, or from the
 tag button next to the language filter, which lists all of them with counts.
 Clicking the tag that is already filtering turns it off again.
+
+### Collections
+
+A collection gathers pieces that belong together — a series, a book, a season.
+Readers see each one as a cover on the *Collections* tab.
+
+- **While writing:** the *Collections* row on the Write tab — tap a collection
+  to put the piece in it, or **New collection** to make one on the spot.
+- **From Gear → Collections:** create one by name, then **Add or remove pieces**
+  opens a searchable list of everything you have written; tap pieces to tick
+  them in or out. Each collection also takes a description, a cover photo or
+  colour, and arrows to change the order readers see them in. **View** opens it
+  as a reader would.
+- **From Gear → Content:** **Select** several pieces, then **Add to
+  collection**.
 
 ### Bringing in writing you already have
 
@@ -254,6 +290,7 @@ writings/
         ├── i18n.js         interface strings in gu / hi / en
         ├── theme.js        palettes, the font catalogue, backgrounds
         ├── ui.js           icons, sheets, toasts, form controls
+        ├── rich.js         bold / italic / underline inside a piece
         ├── views.js        header, hero, tabs, cards, the reading view
         ├── share.js        image, PDF, text, link, import and export
         ├── publish.js      committing to GitHub
@@ -283,9 +320,20 @@ Check the **Actions** tab for the deployment, then hard-refresh.
 device's own Gujarati and Devanagari fonts and stays readable. It fixes itself on
 the next load.
 
+**The site says your writing could not be loaded.** The connection dropped or
+GitHub was slow. Nothing is lost and nothing is overwritten: editing and
+publishing stay switched off until the real content loads, so an empty page can
+never be published over your work. Press *Try again*, or reload.
+
+**I published, refreshed, and my new piece was not there.** GitHub Pages takes
+a minute or two to serve a new version. Your device keeps showing what you just
+published until the live site catches up, and publishing always reads the live
+copy first and merges with it, so pieces added from another device are kept.
+
 **Everything vanished on a device.** That device had an unpublished draft and
 lost its storage. Your published site is unaffected — reload it. Restore a
-backup from Gear → Data if you had local work.
+backup from Gear → Data if you had local work. Every publish is a commit, so
+older versions are also in the repository's history.
 
 **It says "unpublished changes" after I wrote something.** That is the normal
 state, not a problem. Writing saves to your device immediately; the live site

@@ -139,16 +139,25 @@
         }, icon('trash'))
       ]);
 
+      /* Ticking a row changes that row and the toolbar count, nothing else —
+         rebuilding the list each time lost the scroll on a long one. */
+      function flip() {
+        var on = !contentSelection[entry.id];
+        contentSelection[entry.id] = on;
+        if (checkbox) {
+          checkbox.classList.toggle('is-on', on);
+          checkbox.setAttribute('aria-pressed', on ? 'true' : 'false');
+          UI.clear(checkbox);
+          if (on) checkbox.appendChild(icon('check'));
+        }
+        drawSelBar();
+      }
       var checkbox = selectMode ? el('button', {
         class: 'row-check' + (contentSelection[entry.id] ? ' is-on' : ''),
         type: 'button',
         'aria-label': 'Select',
         'aria-pressed': contentSelection[entry.id] ? 'true' : 'false',
-        onclick: function (e) {
-          e.stopPropagation();
-          contentSelection[entry.id] = !contentSelection[entry.id];
-          drawList();
-        }
+        onclick: function (e) { e.stopPropagation(); flip(); }
       }, contentSelection[entry.id] ? icon('check') : null) : null;
 
       return el('div', {
@@ -156,11 +165,7 @@
         role: 'button',
         tabindex: '0',
         onclick: function () {
-          if (selectMode) {
-            contentSelection[entry.id] = !contentSelection[entry.id];
-            drawList();
-            return;
-          }
+          if (selectMode) { flip(); return; }
           UI.closeSheet();
           Editor.openEntryEditor(entry);
         },
@@ -174,24 +179,82 @@
             el('span', { text: meta }),
             entry.draft ? el('span', { class: 'card-draft', text: 'Draft' }) : null,
             entry.pinned ? el('span', { class: 'row-flag', text: 'Pinned' }) : null
-          ]),
+          ].concat((entry.collections || []).map(function (cid) {
+            var c = Store.getCollection(cid);
+            return c ? el('span', { class: 'row-col' }, [icon('folder'), el('span', { text: c.name || 'Untitled' })]) : null;
+          }))),
           el('div', {
             class: 'row-title',
             lang: entry.lang,
-            text: entry.title || Views.preview(entry, 1).replace(/\s+/g, ' ').slice(0, 70)
+            text: entry.title || Rich.plain(Views.preview(entry, 1)).replace(/\s+/g, ' ').slice(0, 70)
           }),
           entry.title ? el('div', {
             class: 'row-sub',
             lang: entry.lang,
-            text: Views.preview(entry, 1).replace(/\s+/g, ' ').slice(0, 90)
+            text: Rich.plain(Views.preview(entry, 1)).replace(/\s+/g, ' ').slice(0, 90)
           }) : null
         ]),
         selectMode ? null : actions
       ]);
     }
 
+    var selBar = null;
+    var shownList = [];
+
+    function drawSelBar() {
+      if (!selBar) return;
+      UI.clear(selBar);
+      var list = shownList;
+      var picked = selectedIds();
+      [
+        el('button', {
+          class: 'btn btn-sm', type: 'button',
+          text: picked.length && picked.length === list.length ? 'Select none' : 'Select all shown',
+          onclick: function () {
+            var all = picked.length && picked.length === list.length;
+            list.forEach(function (e) { contentSelection[e.id] = !all; });
+            drawList();
+          }
+        }),
+        el('button', {
+          class: 'btn btn-sm',
+          type: 'button',
+          disabled: !picked.length,
+          onclick: function () {
+            openAddToCollection(picked, function () {
+              contentSelection = {};
+              selectMode = false;
+              drawList();
+            });
+          }
+        }, [icon('folder'), el('span', { text: 'Add to collection' })]),
+        el('button', {
+          class: 'btn btn-sm btn-danger',
+          type: 'button',
+          disabled: !picked.length,
+          text: picked.length ? 'Delete ' + picked.length : 'Delete',
+          onclick: function () {
+            UI.confirmAction({
+              title: 'Delete ' + picked.length + ' ' + (picked.length === 1 ? 'piece' : 'pieces') + '?',
+              message: 'This cannot be undone once you publish.',
+              danger: true
+            }).then(function (yes) {
+              if (!yes) return;
+              picked.forEach(function (id) { Store.removeEntry(id); });
+              contentSelection = {};
+              selectMode = false;
+              UI.toast(picked.length + ' deleted', 'ok');
+              drawList();
+              App.rerender();
+            });
+          }
+        })
+      ].forEach(function (n) { selBar.appendChild(n); });
+    }
+
     function drawList() {
       UI.clear(listHost);
+      selBar = null;
       var list = matching();
       var total = Store.entries().length;
 
@@ -217,39 +280,10 @@
       listHost.appendChild(bar);
 
       if (selectMode) {
-        var picked = selectedIds();
-        listHost.appendChild(el('div', { class: 'row-toolbar' }, [
-          el('button', {
-            class: 'btn btn-sm', type: 'button',
-            text: picked.length === list.length ? 'Select none' : 'Select all shown',
-            onclick: function () {
-              var all = picked.length === list.length;
-              list.forEach(function (e) { contentSelection[e.id] = !all; });
-              drawList();
-            }
-          }),
-          el('button', {
-            class: 'btn btn-sm btn-danger',
-            type: 'button',
-            disabled: !picked.length,
-            text: picked.length ? 'Delete ' + picked.length : 'Delete',
-            onclick: function () {
-              UI.confirmAction({
-                title: 'Delete ' + picked.length + ' ' + (picked.length === 1 ? 'piece' : 'pieces') + '?',
-                message: 'This cannot be undone once you publish.',
-                danger: true
-              }).then(function (yes) {
-                if (!yes) return;
-                picked.forEach(function (id) { Store.removeEntry(id); });
-                contentSelection = {};
-                selectMode = false;
-                UI.toast(picked.length + ' deleted', 'ok');
-                drawList();
-                App.rerender();
-              });
-            }
-          })
-        ]));
+        selBar = el('div', { class: 'row-toolbar' });
+        listHost.appendChild(selBar);
+        shownList = list;
+        drawSelBar();
       }
 
       if (!list.length) {
@@ -561,19 +595,43 @@
       inheritId: 'preset', inheritLabel: 'From palette'
     }, function () { touched(); }));
 
-    host.appendChild(el('div', { class: 'section-title', text: 'Fonts' }));
-    [
-      { key: 'fontGu', script: 'gu', label: 'Gujarati' },
-      { key: 'fontHi', script: 'hi', label: 'Hindi' },
-      { key: 'fontEn', script: 'en', label: 'English' }
-    ].forEach(function (row) {
+    var SCRIPTS = [
+      { body: 'fontGu', head: 'headGu', script: 'gu', label: 'Gujarati' },
+      { body: 'fontHi', head: 'headHi', script: 'hi', label: 'Hindi' },
+      { body: 'fontEn', head: 'headEn', script: 'en', label: 'English' }
+    ];
+
+    host.appendChild(el('div', { class: 'section-title', text: 'Fonts for writing' }));
+    SCRIPTS.forEach(function (row) {
       host.appendChild(el('div', { class: 'field' }, [
         el('label', { class: 'field-label', text: row.label }),
-        Editor.fontPicker(row.script, th[row.key], function (id) {
-          th[row.key] = id; touched(); App.rerender();
+        Editor.fontPicker(row.script, th[row.body], function (id) {
+          th[row.body] = id; touched(); App.rerender(); redraw();
         })
       ]));
     });
+
+    /* Headings — titles of pieces, the big site title — can have a face of
+       their own: a display serif over plain body text is the classic pairing.
+       Each piece can still override this in its own Heading tab. */
+    host.appendChild(el('div', { class: 'section-title', text: 'Fonts for headings' }));
+    host.appendChild(el('div', { class: 'field-hint', style: { margin: '-4px 0 14px' }, text:
+      'Used for titles across the site. Leave on “Same as writing” to match the fonts above.' }));
+    SCRIPTS.forEach(function (row) {
+      host.appendChild(el('div', { class: 'field' }, [
+        el('label', { class: 'field-label', text: row.label }),
+        Editor.fontPicker(row.script, th[row.head], function (id) {
+          th[row.head] = id; touched(); App.rerender();
+        }, { noneLabel: 'Same as writing', noneFamily: Theme.fontStack(th[row.body], row.script) })
+      ]));
+    });
+    host.appendChild(el('div', { class: 'field' }, [
+      el('label', { class: 'field-label', text: 'Heading weight' }),
+      UI.segmented([
+        { id: 400, label: 'Regular' }, { id: 500, label: 'Medium' }, { id: 620, label: 'Semibold' },
+        { id: 700, label: 'Bold' }, { id: 800, label: 'Black' }
+      ], Number(th.headWeight) || 620, function (id) { th.headWeight = id; touched(); App.rerender(); }, { wrap: true })
+    ]));
 
     host.appendChild(UI.field('Reading size', UI.rangeRow(14, 22, 1, Number(th.baseSize) || 17,
       function (v) { return v + 'px'; },
@@ -600,39 +658,184 @@
   }
 
   /* =========================================================== Collections  */
+  /* A collection is a shelf: a series, a season, a book. Everything about one
+     happens on its own card — name it, see what is on it, add or take off
+     pieces, give it a cover, move it up or down — instead of opening each
+     piece separately to tick a box. */
+
+  function sortedCollections() {
+    return (data().collections || []).slice()
+      .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+  }
+
+  function piecesIn(colId) {
+    return Store.entries().filter(function (e) { return (e.collections || []).indexOf(colId) !== -1; });
+  }
+
+  function setMembership(entry, colId, on) {
+    var list = (entry.collections || []).slice();
+    var i = list.indexOf(colId);
+    if (on && i === -1) list.push(colId);
+    if (!on && i !== -1) list.splice(i, 1);
+    Store.updateEntry(entry.id, { collections: list });
+  }
+
+  function pieceLabel(entry) {
+    return entry.title || Rich.plain(Views.preview(entry, 1)).replace(/\s+/g, ' ').slice(0, 50);
+  }
+
+  /* A searchable checklist of every piece, ticked if it is in the collection. */
+  function openPiecePicker(col, onDone) {
+    var query = '';
+    var listHost = el('div', { class: 'row-list' });
+
+    function draw() {
+      UI.clear(listHost);
+      var q = query.trim().toLowerCase();
+      var list = Store.select({ sortBy: 'date-desc' }).filter(function (e) {
+        return !q || (e.title + ' ' + Rich.plain(e.body) + ' ' + (e.tags || []).join(' ')).toLowerCase().indexOf(q) !== -1;
+      });
+      if (!list.length) {
+        listHost.appendChild(el('div', { class: 'field-hint', style: { padding: '18px 0', textAlign: 'center' },
+          text: 'Nothing matches that.' }));
+      }
+      list.forEach(function (entry) {
+        var on = (entry.collections || []).indexOf(col.id) !== -1;
+        var box = el('span', { class: 'row-check' + (on ? ' is-on' : '') }, on ? icon('check') : null);
+        // Flip just this row: rebuilding the list on every tick would drop
+        // keyboard focus and could jump the scroll on a long list.
+        var row = el('div', {
+          class: 'row-item', role: 'checkbox', tabindex: '0', 'aria-checked': on ? 'true' : 'false',
+          onclick: function () {
+            on = !on;
+            setMembership(entry, col.id, on);
+            row.setAttribute('aria-checked', on ? 'true' : 'false');
+            box.classList.toggle('is-on', on);
+            UI.clear(box);
+            if (on) box.appendChild(icon('check'));
+          },
+          onkeydown: function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); row.click(); } }
+        }, [
+          box,
+          el('div', { class: 'row-main' }, [
+            el('div', { class: 'row-meta', text: Views.typeLabel(entry.type) + ' · ' + I18n.formatDate(entry.date) +
+              ' · ' + entry.lang.toUpperCase() }),
+            el('div', { class: 'row-title', lang: entry.lang, text: pieceLabel(entry) })
+          ])
+        ]);
+        listHost.appendChild(row);
+      });
+    }
+
+    var search = el('input', {
+      class: 'input', type: 'search', placeholder: t('action.searchPlaceholder'),
+      oninput: function () { query = search.value; draw(); }
+    });
+    draw();
+    UI.openSheet({
+      title: 'Pieces in “' + (col.name || 'Untitled') + '”',
+      variant: 'center',
+      body: el('div', {}, [UI.field(null, search), listHost]),
+      foot: [el('button', { class: 'btn btn-primary', text: 'Done', onclick: function () { UI.closeSheet(); } })],
+      onClose: function () { if (onDone) onDone(); App.rerender(); }
+    });
+  }
+
+  /* Pick (or create) a collection for several pieces at once. */
+  function openAddToCollection(ids, onDone) {
+    var body = el('div', {});
+    function addAll(col) {
+      ids.forEach(function (id) {
+        var entry = Store.getEntry(id);
+        if (entry) setMembership(entry, col.id, true);
+      });
+      UI.closeSheet();
+      UI.toast(ids.length + (ids.length === 1 ? ' piece' : ' pieces') + ' added to “' + (col.name || 'Untitled') + '”', 'ok');
+      if (onDone) onDone();
+      App.rerender();
+    }
+    var cols = sortedCollections();
+    if (cols.length) {
+      body.appendChild(el('div', { class: 'field-label', text: 'Add to' }));
+      body.appendChild(el('div', { class: 'chip-row', style: { flexWrap: 'wrap', gap: '8px', marginBottom: '18px' } },
+        cols.map(function (col) {
+          return el('button', { class: 'chip', type: 'button', onclick: function () { addAll(col); } },
+            [icon('folder'), el('span', { text: (col.name || 'Untitled') + ' (' + piecesIn(col.id).length + ')' })]);
+        })));
+    }
+    var name = el('input', {
+      class: 'input', placeholder: 'Name of a new collection',
+      onkeydown: function (e) { if (e.key === 'Enter') { e.preventDefault(); create(); } }
+    });
+    function create() {
+      var n = name.value.trim();
+      if (!n) { name.focus(); return; }
+      addAll(Store.addCollection({ name: n, order: (data().collections || []).length }));
+    }
+    body.appendChild(UI.field(cols.length ? 'Or a new one' : 'New collection', el('div', { class: 'new-col', style: { marginTop: '0' } }, [
+      name, el('button', { class: 'btn btn-primary', type: 'button', text: 'Create & add', onclick: create })
+    ])));
+    UI.openSheet({ title: 'Add ' + ids.length + (ids.length === 1 ? ' piece' : ' pieces') + ' to a collection',
+                   variant: 'center', body: body });
+  }
 
   function collectionsTab() {
     var host = el('div', {});
     var list = el('div', {});
 
-    function drawList() {
-      UI.clear(list);
-      var cols = data().collections || [];
-      if (!cols.length) {
-        list.appendChild(el('div', { class: 'field-hint', style: { padding: '12px 0' },
-          text: 'No collections yet. A collection groups pieces that belong together — a series, a book, a theme.' }));
-      }
-      cols.forEach(function (col, i) {
-        var count = Store.select({ collection: col.id }).length;
-        list.appendChild(el('div', {
-          style: {
-            padding: '14px', marginBottom: '10px',
-            border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
-            background: 'var(--surface)'
-          }
-        }, [
-          el('div', { style: { display: 'flex', gap: '8px', marginBottom: '10px' } }, [
+    function move(col, dir) {
+      var cols = sortedCollections();
+      var i = cols.indexOf(col), j = i + dir;
+      if (j < 0 || j >= cols.length) return;
+      var tmp = cols[i]; cols[i] = cols[j]; cols[j] = tmp;
+      cols.forEach(function (c, k) { c.order = k; });
+      touched();
+      drawList();
+      App.rerender();
+    }
+
+    function card(col, index, total) {
+      var pieces = piecesIn(col.id);
+      var cover = Theme.safeImageUrl(col.cover);
+
+      var thumb = el('div', { class: 'col-thumb' });
+      if (cover) thumb.style.backgroundImage = 'url("' + cover + '")';
+      else thumb.style.background = 'linear-gradient(145deg, ' + (Theme.safeColour(col.accent, '') || 'var(--accent)') + ', var(--surface-2))';
+
+      var pieceChips = el('div', { class: 'col-pieces' }, pieces.slice(0, 12).map(function (entry) {
+        return el('span', { class: 'tag-chip', lang: entry.lang }, [
+          el('span', { text: pieceLabel(entry) }),
+          el('button', {
+            type: 'button', 'aria-label': 'Take off this collection', title: 'Take off this collection',
+            onclick: function () { setMembership(entry, col.id, false); drawList(); App.rerender(); }
+          }, icon('x'))
+        ]);
+      }).concat(pieces.length > 12 ? [el('span', { class: 'field-hint', style: { margin: '0' },
+        text: '+ ' + (pieces.length - 12) + ' more' })] : []));
+
+      return el('div', { class: 'col-card-edit' }, [
+        el('div', { class: 'col-card-top' }, [
+          thumb,
+          el('div', { class: 'col-card-fields' }, [
             el('input', {
-              class: 'input', value: col.name, placeholder: 'Collection name',
-              style: { flex: '1' },
+              class: 'input col-name', value: col.name, placeholder: 'Collection name',
               oninput: function (e) { col.name = e.target.value; touched(); }
             }),
-            el('button', {
-              class: 'icon-btn', type: 'button', 'aria-label': t('action.delete'),
+            el('input', {
+              class: 'input', value: col.desc, placeholder: 'A short description (optional)',
+              oninput: function (e) { col.desc = e.target.value; touched(); }
+            })
+          ]),
+          el('div', { class: 'col-card-tools' }, [
+            el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Move up', title: 'Move up',
+              disabled: index === 0, onclick: function () { move(col, -1); } }, icon('chevronUp')),
+            el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Move down', title: 'Move down',
+              disabled: index === total - 1, onclick: function () { move(col, 1); } }, icon('chevronDown')),
+            el('button', { class: 'icon-btn', type: 'button', 'aria-label': t('action.delete'), title: t('action.delete'),
               onclick: function () {
                 UI.confirmAction({
-                  title: 'Delete this collection?',
-                  message: 'The ' + count + ' piece' + (count === 1 ? '' : 's') +
+                  title: 'Delete “' + (col.name || 'Untitled') + '”?',
+                  message: 'The ' + pieces.length + ' piece' + (pieces.length === 1 ? '' : 's') +
                     ' inside will stay — only the grouping goes.',
                   danger: true
                 }).then(function (yes) {
@@ -641,35 +844,61 @@
                   drawList();
                   App.rerender();
                 });
-              }
-            }, icon('trash'))
-          ]),
-          el('input', {
-            class: 'input', value: col.desc, placeholder: 'A short description',
-            style: { marginBottom: '10px' },
-            oninput: function (e) { col.desc = e.target.value; touched(); }
-          }),
-          el('div', { style: { display: 'flex', gap: '10px', alignItems: 'center' } }, [
-            el('div', { style: { flex: '1' } },
-              UI.colorRow(col.accent || '#888888', function (v) { col.accent = v; touched(); })),
-            el('span', { class: 'field-hint', style: { marginTop: '0', whiteSpace: 'nowrap' },
-              text: count + ' ' + (count === 1 ? t('meta.piece') : t('meta.pieces')) })
+              } }, icon('trash'))
           ])
-        ]));
-      });
+        ]),
+        el('div', { class: 'field-label', style: { marginTop: '14px' },
+          text: pieces.length ? 'In this collection (' + pieces.length + ')' : 'Nothing in this collection yet' }),
+        pieceChips,
+        el('div', { class: 'col-card-actions' }, [
+          el('button', { class: 'btn btn-sm btn-primary', type: 'button',
+            onclick: function () { openPiecePicker(col, drawList); } },
+            [icon('plus'), el('span', { text: 'Add or remove pieces' })]),
+          el('button', { class: 'btn btn-sm', type: 'button',
+            onclick: function () {
+              UI.pickImage(function (dataUrl) { col.cover = dataUrl; touched(); drawList(); App.rerender(); }, { maxSide: 1200 });
+            } }, [icon('image'), el('span', { text: cover ? 'Change cover' : 'Add a cover' })]),
+          cover ? el('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: 'Remove cover',
+            onclick: function () { col.cover = ''; touched(); drawList(); App.rerender(); } }) : null,
+          el('div', { class: 'col-colour' },
+            UI.colorRow(col.accent || '#888888', function (v) { col.accent = v; touched(); })),
+          el('button', { class: 'btn btn-sm btn-ghost', type: 'button',
+            onclick: function () { UI.closeSheet(); Router.go('/c/' + col.id); } },
+            [el('span', { text: 'View' }), icon('chevronRight')])
+        ])
+      ]);
     }
+
+    function drawList() {
+      UI.clear(list);
+      var cols = sortedCollections();
+      if (!cols.length) {
+        list.appendChild(el('div', { class: 'field-hint', style: { padding: '8px 0 16px' },
+          text: 'A collection groups pieces that belong together — a series, a season, a book. ' +
+                'Make one here, or straight from a piece’s editor.' }));
+      }
+      cols.forEach(function (col, i) { list.appendChild(card(col, i, cols.length)); });
+    }
+
+    var name = el('input', {
+      class: 'input', placeholder: 'Name of a new collection',
+      onkeydown: function (e) { if (e.key === 'Enter') { e.preventDefault(); create(); } }
+    });
+    function create() {
+      var n = name.value.trim();
+      if (!n) { name.focus(); return; }
+      Store.addCollection({ name: n, order: (data().collections || []).length });
+      name.value = '';
+      drawList();
+      App.rerender();
+    }
+    host.appendChild(el('div', { class: 'new-col', style: { margin: '0 0 18px' } }, [
+      name, el('button', { class: 'btn btn-primary', type: 'button', onclick: create },
+        [icon('plus'), el('span', { text: 'Create' })])
+    ]));
 
     drawList();
     host.appendChild(list);
-    host.appendChild(el('button', {
-      class: 'btn btn-sm', type: 'button',
-      onclick: function () {
-        Store.addCollection({ name: 'New collection', order: (data().collections || []).length });
-        drawList();
-        App.rerender();
-      }
-    }, [icon('plus'), el('span', { text: 'Add collection' })]));
-
     return host;
   }
 

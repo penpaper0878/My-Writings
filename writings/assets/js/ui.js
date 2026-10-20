@@ -87,6 +87,7 @@
     lock:      '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     unlock:    '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
     chevronDown:  '<path d="m6 9 6 6 6-6"/>',
+    chevronUp:    '<path d="m18 15-6-6-6 6"/>',
     chevronRight: '<path d="m9 18 6-6-6-6"/>',
     arrowLeft: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
     arrowDown: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
@@ -194,7 +195,7 @@
         el('button', {
           class: 'icon-btn',
           'aria-label': I18n.t('action.close'),
-          onclick: function () { closeSheet(); }
+          onclick: function () { requestClose(); }
         }, icon('x'))
       ]);
     }
@@ -226,13 +227,16 @@
     var entry = {
       node: sheet,
       onClose: opts.onClose,
+      beforeClose: opts.beforeClose,
       dismissible: opts.dismissible,
       lastFocus: document.activeElement
     };
     stack.push(entry);
 
     // Focus the first control so keyboard and screen-reader users land inside.
+    // Never take focus from a field the person is already typing in.
     setTimeout(function () {
+      if (sheet.contains(document.activeElement)) return;
       var target = sheet.querySelector('[autofocus]') ||
                    sheet.querySelector('input, textarea, select, button');
       if (target) try { target.focus({ preventScroll: true }); } catch (err) { target.focus(); }
@@ -257,6 +261,18 @@
       }
       if (typeof entry.onClose === 'function') entry.onClose();
     }, 320);
+  }
+
+  /* Close the top sheet, unless it has a beforeClose hook that says not to.
+     The hook may return a boolean or a promise of one — the editor uses it to
+     ask before throwing away words that have not been saved. */
+  function requestClose() {
+    var top = stack[stack.length - 1];
+    if (!top) return;
+    if (typeof top.beforeClose !== 'function') return closeSheet();
+    Promise.resolve(top.beforeClose()).then(function (ok) {
+      if (ok !== false && stack[stack.length - 1] === top) closeSheet();
+    });
   }
 
   function closeAllSheets() {
@@ -415,6 +431,52 @@
     return el('div', { class: 'color-field' }, [picker, text]);
   }
 
+  /* A row of mutually exclusive choices — the "Poem / Blog / Quote" kind of
+     picker. Items: { id, label, icon? }. */
+  function segmented(items, activeId, onPick, opts) {
+    opts = opts || {};
+    var row = el('div', { class: 'segmented' + (opts.wrap ? ' segmented-wrap' : ''), role: 'radiogroup' });
+    function paint(id) {
+      UI.$$('button', row).forEach(function (b, i) {
+        var on = items[i].id === id;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+    }
+    items.forEach(function (item) {
+      row.appendChild(el('button', {
+        type: 'button',
+        role: 'radio',
+        class: 'seg',
+        title: item.title || null,
+        style: item.style || null,
+        onclick: function () { paint(item.id); onPick(item.id); }
+      }, [item.icon ? icon(item.icon) : null, item.label ? el('span', { text: item.label }) : null]));
+    });
+    paint(activeId);
+    row.setValue = paint;          // let callers move the selection themselves
+    return row;
+  }
+
+  /* A button that stays pressed — Italic, Underline and the like. */
+  function toggleButton(content, on, onChange, opts) {
+    opts = opts || {};
+    var btn = el('button', {
+      type: 'button',
+      class: 'seg toggle' + (on ? ' is-active' : ''),
+      'aria-pressed': on ? 'true' : 'false',
+      title: opts.title || null,
+      style: opts.style || null,
+      onclick: function () {
+        on = !on;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        onChange(on);
+      }
+    }, content);
+    return btn;
+  }
+
   function optGrid(items, activeId, onPick) {
     return el('div', { class: 'opt-grid' }, items.map(function (item) {
       return el('button', {
@@ -543,10 +605,10 @@
     $: $, $$: $$, el: el, esc: esc, escCss: escCss, safeUrl: safeUrl, clear: clear,
     icon: icon, iconHtml: iconHtml, PATHS: PATHS,
     toast: toast,
-    openSheet: openSheet, closeSheet: closeSheet, closeAllSheets: closeAllSheets,
+    openSheet: openSheet, closeSheet: closeSheet, closeAllSheets: closeAllSheets, requestClose: requestClose,
     sheetDepth: sheetDepth, confirmAction: confirmAction,
     copyText: copyText, downloadBlob: downloadBlob,
     field: field, switchRow: switchRow, rangeRow: rangeRow, colorRow: colorRow,
-    optGrid: optGrid, pickImage: pickImage, pickFile: pickFile, compressImage: compressImage
+    optGrid: optGrid, segmented: segmented, toggleButton: toggleButton, pickImage: pickImage, pickFile: pickFile, compressImage: compressImage
   };
 })(window);

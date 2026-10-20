@@ -46,7 +46,8 @@
     var body = String(entry.body || '').trim();
     if (entry.excerpt) return entry.excerpt;
     if (entry.type === 'blog') {
-      var flat = body.replace(/\s+/g, ' ');
+      // A cut mid-sentence could split a **pair**; previews of prose go plain.
+      var flat = Rich.plain(body).replace(/\s+/g, ' ');
       return flat.length > 240 ? flat.slice(0, 240).trim() + '…' : flat;
     }
     // Poems and quotes keep their line breaks — the shape is the point.
@@ -75,21 +76,84 @@
     if (opts.scale !== false && Number(st.size) && Number(st.size) !== 1) {
       css.fontSize = 'calc(var(--base-size) * ' + Number(st.size) + ')';
     }
+    var weight = Number(st.weight);
+    if (weight && weight !== 400) css.fontWeight = String(weight);
+    if (st.italic) css.fontStyle = 'italic';
+    if (st.underline) {
+      css.textDecoration = 'underline';
+      css.textUnderlineOffset = '0.22em';
+      css.textDecorationThickness = '0.06em';
+    }
     if (st.textShadow) css.textShadow = '0 2px 14px rgba(0,0,0,.45)';
 
+    var colour = Theme.safeColour(st.textColor, '');
     var bg = Theme.backgroundCSS(st);
-    if (bg) {
-      cls = bg.dark ? 'on-dark' : 'on-light';
-      if (st.textColor) css.color = st.textColor;
-    } else if (st.textColor) {
-      css.color = st.textColor;
-    }
+    if (bg) cls = bg.dark ? 'on-dark' : 'on-light';
+    if (colour) css.color = colour;
 
     return { css: css, cls: cls, bg: bg };
   }
 
+  /* The heading's own look. Anything left unset follows, in order: the piece's
+     own writing font (so a styled piece stays coherent), then the site's
+     heading font for that script. */
+  function titleStyleFor(entry) {
+    var st = entry.style || {};
+    var css = {};
+
+    if (st.titleFont) {
+      Theme.ensureFont(st.titleFont);
+      css.fontFamily = Theme.fontStack(st.titleFont, entry.lang);
+    } else if (st.font) {
+      css.fontFamily = Theme.fontStack(st.font, entry.lang);
+    } else {
+      css.fontFamily = 'var(--fh-' + entry.lang + ')';
+    }
+
+    var w = Number(st.titleWeight);
+    css.fontWeight = w ? String(w) : 'var(--head-weight)';
+    var scale = Number(st.titleSize);
+    if (scale && scale !== 1) css['--title-scale'] = String(scale);
+    if (st.titleItalic) css.fontStyle = 'italic';
+    if (st.titleUnderline) {
+      css.textDecoration = 'underline';
+      css.textUnderlineOffset = '0.18em';
+    }
+    var colour = Theme.safeColour(st.titleColor, '');
+    if (colour) css.color = colour;
+    var align = st.titleAlign || (st.align === 'justify' ? '' : st.align);
+    if (align && align !== 'left') css.textAlign = align;
+    return { css: css };
+  }
+
+  /* The frame as a class plus the custom properties app.css reads. */
+  function frameFor(entry) {
+    var st = entry.style || {};
+    var type = st.frame || 'none';
+    if (type === 'none') return { cls: '', vars: {} };
+    var vars = {
+      '--fc': Theme.safeColour(st.frameColor, '') || 'var(--accent)',
+      '--fw': Math.max(1, Math.min(12, Number(st.frameWidth) || 2)) + 'px',
+      '--fr': Math.max(0, Math.min(40, Number(st.frameRadius) || 0)) + 'px',
+      '--fp': Math.max(0, Math.min(64, Number(st.framePad) || 0)) + 'px',
+      '--fs': ['solid', 'dashed', 'dotted', 'double'].indexOf(st.frameStyle) !== -1 ? st.frameStyle : 'solid'
+    };
+    return { cls: 'framed frame-' + type, vars: vars };
+  }
+
+  function applyFrame(node, entry) {
+    var f = frameFor(entry);
+    if (!f.cls) return node;
+    f.cls.split(' ').forEach(function (c) { node.classList.add(c); });
+    Object.keys(f.vars).forEach(function (k) { node.style.setProperty(k, f.vars[k]); });
+    return node;
+  }
+
   function applyStyle(node, css) {
-    Object.keys(css).forEach(function (k) { node.style[k] = css[k]; });
+    Object.keys(css).forEach(function (k) {
+      if (k.slice(0, 2) === '--') node.style.setProperty(k, css[k]);
+      else node.style[k] = css[k];
+    });
   }
 
   /* Tags are the natural way through a few hundred poems — everything tagged
@@ -137,7 +201,7 @@
       tabindex: '0',
       'data-type': entry.type,
       lang: entry.lang,
-      'aria-label': entry.title || preview(entry, 1),
+      'aria-label': entry.title || Rich.plain(preview(entry, 1)),
       onclick: open,
       onkeydown: function (e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
@@ -160,12 +224,12 @@
       entry.draft ? el('span', { class: 'card-draft', text: 'Draft' }) : null
     ]);
 
-    var body = el('div', { class: 'card-body', text: preview(entry) });
+    var body = Rich.render(el('div', { class: 'card-body' }), preview(entry));
     var title = entry.title
       ? el('h3', { class: 'card-title', text: entry.title })
       : null;
     applyStyle(body, s.css);
-    if (title) title.style.fontFamily = s.css.fontFamily;
+    if (title) applyStyle(title, titleStyleFor(entry).css);
 
     var main = el('div', { class: 'card-main' }, [
       entry.type === 'quote' && !title ? el('div', { class: 'card-quote-mark', text: '“' }) : null,
@@ -230,7 +294,7 @@
     var brand = el('a', { class: 'brand', href: '#/' }, [
       mark,
       el('div', { class: 'brand-text' }, [
-        el('div', { class: 'brand-name', text: siteName() }),
+        el('div', { class: 'brand-name', text: siteName(), lang: Share.detectLang(siteName()) }),
         siteTagline() ? el('div', { class: 'brand-tag', text: siteTagline() }) : null
       ])
     ]);
@@ -406,7 +470,8 @@
     if (h.showAvatar && avatar) {
       inner.appendChild(el('img', { class: 'hero-avatar', src: avatar, alt: '' }));
     }
-    inner.appendChild(el('h1', { class: 'hero-title', text: h.title || siteName() }));
+    var heroText = h.title || siteName();
+    inner.appendChild(el('h1', { class: 'hero-title', text: heroText, lang: Share.detectLang(heroText) }));
     var sub = h.subtitle || siteTagline();
     if (sub) inner.appendChild(el('p', { class: 'hero-sub', text: sub }));
     inner.appendChild(el('div', { class: 'hero-rule' }));
@@ -440,10 +505,10 @@
     node.appendChild(el('div', { class: 'featured-label', text: typeLabel(entry.type) }));
     if (entry.title) {
       var ft = el('h2', { class: 'featured-title', text: entry.title });
-      ft.style.fontFamily = s.css.fontFamily;
+      applyStyle(ft, titleStyleFor(entry).css);
       node.appendChild(ft);
     }
-    var fb = el('div', { class: 'featured-body', text: preview(entry, 4) });
+    var fb = Rich.render(el('div', { class: 'featured-body' }), preview(entry, 4));
     applyStyle(fb, s.css);
     if (s.bg) fb.style.color = 'inherit';
     node.appendChild(fb);
@@ -837,8 +902,7 @@
     inner.appendChild(el('div', { class: 'reader-kind', text: typeLabel(entry.type) }));
     if (entry.title) {
       var title = el('h1', { class: 'reader-title', text: entry.title });
-      title.style.fontFamily = s.css.fontFamily;
-      if (st.align && st.align !== 'left') title.style.textAlign = st.align;
+      applyStyle(title, titleStyleFor(entry).css);
       inner.appendChild(title);
     }
 
@@ -851,11 +915,9 @@
       entry.draft ? el('span', { class: 'card-draft', text: 'Draft' }) : null
     ]));
 
-    var body = el('div', {
-      class: 'reader-body' + (st.frame && st.frame !== 'none' ? ' frame-' + st.frame : ''),
-      text: entry.body
-    });
+    var body = Rich.render(el('div', { class: 'reader-body' }), entry.body);
     applyStyle(body, s.css);
+    applyFrame(body, entry);
     inner.appendChild(body);
 
     if (entry.credit) inner.appendChild(el('div', { class: 'reader-credit', text: entry.credit }));
@@ -904,6 +966,10 @@
     openReader: openReader,
     entryCard: entryCard,
     styleFor: styleFor,
+    titleStyleFor: titleStyleFor,
+    frameFor: frameFor,
+    applyFrame: applyFrame,
+    applyStyle: applyStyle,
     preview: preview,
     stats: stats,
     siteName: siteName,
