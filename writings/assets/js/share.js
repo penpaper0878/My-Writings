@@ -35,7 +35,7 @@
     opts = opts || {};
     var out = [];
     if (entry.title) out.push(entry.title, '');
-    out.push(String(entry.body || '').trim());
+    out.push(Rich.plain(String(entry.body || '').trim()));
     if (entry.credit) out.push('', entry.credit);
 
     if (opts.signature !== false) {
@@ -61,36 +61,88 @@
   }
 
   /* ------------------------------------------------------------ canvas image */
+  /* The shared picture is drawn by hand so the browser's own text engine
+     shapes Gujarati and Devanagari. It mirrors the page: the same fonts,
+     weights, slants, underlines, heading style, background and frame. */
 
-  /* Split text into lines that fit `maxWidth`, honouring the author's own line
-     breaks first — in a poem those breaks are the poem. */
-  function layoutLines(ctx, text, maxWidth) {
-    var lines = [];
-    String(text).split('\n').forEach(function (paragraph) {
-      if (!paragraph.trim()) { lines.push(''); return; }
-      var words = paragraph.split(/(\s+)/);
-      var line = '';
-      words.forEach(function (chunk) {
-        var next = line + chunk;
-        if (ctx.measureText(next).width <= maxWidth || !line.trim()) {
-          line = next;
-        } else {
-          lines.push(line.replace(/\s+$/, ''));
-          line = chunk.replace(/^\s+/, '');
-        }
+  /* A line of writing → words, each carrying its own style, so one bold word
+     in a line is measured and drawn bold. Spaces are kept as their own pieces
+     so wrapping can break on them. */
+  function tokens(line) {
+    var out = [];
+    Rich.runs(line).forEach(function (run) {
+      run.t.split(/(\s+)/).forEach(function (piece) {
+        if (piece) out.push({ t: piece, b: run.b, i: run.i, u: run.u, space: /^\s+$/.test(piece) });
       });
-      lines.push(line.replace(/\s+$/, ''));
+    });
+    return out;
+  }
+
+  function fontString(tok, base) {
+    var weight = tok.b ? Math.max(700, Math.min(900, base.weight + 300)) : base.weight;
+    var italic = tok.i || base.italic;
+    return (italic ? 'italic ' : '') + weight + ' ' + base.size + 'px ' + base.family;
+  }
+
+  /* Greedy word wrap that honours the author's own line breaks first — in a
+     poem those breaks are the poem. Returns lines of positioned pieces. */
+  function layout(ctx, text, maxWidth, base) {
+    var lines = [];
+    String(text || '').split('\n').forEach(function (paragraph) {
+      if (!paragraph.trim()) { lines.push({ items: [], width: 0 }); return; }
+      var line = { items: [], width: 0 };
+      tokens(paragraph).forEach(function (tok) {
+        ctx.font = fontString(tok, base);
+        var w = ctx.measureText(tok.t).width;
+        if (tok.space && !line.items.length) return;           // no leading space
+        if (!tok.space && line.items.length && line.width + w > maxWidth) {
+          while (line.items.length && line.items[line.items.length - 1].space) {
+            line.width -= line.items.pop().w;
+          }
+          lines.push(line);
+          line = { items: [], width: 0 };
+        }
+        line.items.push({ t: tok.t, w: w, font: ctx.font, u: tok.u || base.underline, space: tok.space });
+        line.width += w;
+      });
+      while (line.items.length && line.items[line.items.length - 1].space) {
+        line.width -= line.items.pop().w;
+      }
+      lines.push(line);
     });
     return lines;
   }
 
-  /* Ask the browser to have the webfont ready before we measure anything.
-     Measuring against a fallback and then drawing with the real face is what
-     makes hand-rolled canvas text overflow. */
-  function waitForFont(family, weights) {
+  function drawLines(ctx, lines, x0, width, firstBaseline, lineH, base) {
+    var y = firstBaseline;
+    lines.forEach(function (line) {
+      var x = base.align === 'center' ? x0 + (width - line.width) / 2
+            : base.align === 'right'  ? x0 + width - line.width
+            : x0;
+      line.items.forEach(function (it) {
+        ctx.font = it.font;
+        ctx.fillText(it.t, x, y);
+        if (it.u) {
+          var thick = Math.max(1.5, base.size * 0.06);
+          ctx.fillRect(x, y + base.size * 0.14, it.w, thick);
+        }
+        x += it.w;
+      });
+      line.baseline = y;
+      y += lineH;
+    });
+    return y;
+  }
+
+  /* Ask the browser to have the webfont ready before measuring anything.
+     Measuring against a fallback and drawing with the real face is what makes
+     hand-drawn canvas text overflow. */
+  function waitForFont(family, weights, italic) {
     if (!document.fonts || !document.fonts.load) return Promise.resolve();
-    var jobs = (weights || [400, 600]).map(function (w) {
-      return document.fonts.load(w + ' 64px ' + family, 'કવિતા कविता Writing');
+    var jobs = [];
+    (weights || [400, 700]).forEach(function (w) {
+      jobs.push(document.fonts.load(w + ' 64px ' + family, 'કવિતા कविता Writing'));
+      if (italic) jobs.push(document.fonts.load('italic ' + w + ' 64px ' + family, 'કવિતા कविता Writing'));
     });
     return Promise.all(jobs).catch(function () { /* fallback face is fine */ });
   }
@@ -119,41 +171,205 @@
     var mode = Theme.resolveMode(theme);
     var preset = Theme.PRESET_BY_ID[theme.preset] || Theme.PRESET_BY_ID.ink;
     var palette = preset[mode];
+    var accent = Theme.safeColour(theme.accent, palette.accent);
 
     var custom = Theme.backgroundCSS(st);
     if (custom) {
       return {
-        kind: st.bgType,
-        color: st.bgColor,
-        from: st.gradFrom, to: st.gradTo, angle: Number(st.gradAngle) || 160,
-        image: UI.safeUrl(st.bgImage), dim: Number(st.bgDim) || 0.35,
-        fg: st.textColor || (custom.dark ? '#FFFFFF' : '#14110D'),
-        accent: theme.accent || palette.accent
+        kind: custom.isImage ? 'image' : st.bgType,
+        spec: st,
+        image: Theme.safeImageUrl(st.bgImage),
+        dim: Number(st.bgDim) || 0,
+        color: custom.color,
+        fg: Theme.safeColour(st.textColor, '') || (custom.dark ? '#FFFFFF' : '#14110D'),
+        accent: accent
       };
     }
-    // No per-entry background: use the theme's own colours.
+    // No background of its own: the theme's surface, as a soft gradient.
     return {
       kind: 'gradient',
-      from: palette.surface,
-      to: palette.bg,
-      angle: 160,
-      fg: st.textColor || palette.text,
-      accent: theme.accent || palette.accent
+      spec: { gradStops: [{ c: palette.surface, p: 0 }, { c: palette.bg, p: 100 }], gradAngle: 160 },
+      fg: Theme.safeColour(st.textColor, '') || palette.text,
+      accent: accent
     };
+  }
+
+  function paintGradient(ctx, spec, W, H) {
+    var stops = Theme.gradientStops(spec);
+    var g;
+    if (spec.gradKind === 'radial') {
+      // Matches CSS "circle at 50% 45%", which reaches the farthest corner.
+      var cx = W * 0.5, cy = H * 0.45;
+      var r = Math.sqrt(Math.pow(Math.max(cx, W - cx), 2) + Math.pow(Math.max(cy, H - cy), 2));
+      g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    } else {
+      // The CSS gradient line for an angle, across the canvas.
+      var rad = ((Number(spec.gradAngle) || 160) - 90) * Math.PI / 180;
+      var half = (Math.abs(W * Math.cos(rad)) + Math.abs(H * Math.sin(rad))) / 2;
+      g = ctx.createLinearGradient(W / 2 - Math.cos(rad) * half, H / 2 - Math.sin(rad) * half,
+                                   W / 2 + Math.cos(rad) * half, H / 2 + Math.sin(rad) * half);
+    }
+    stops.forEach(function (s) { g.addColorStop(Math.max(0, Math.min(1, s.p / 100)), s.c); });
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* Space each frame takes inside its edge, in canvas pixels. */
+  function frameInsets(type, m) {
+    switch (type) {
+      case 'rule':     return { t: m.pad * 0.3, r: 0, b: m.pad * 0.3, l: m.pad + m.width };
+      case 'double':   return { t: m.pad + m.width * 3, r: m.pad + m.width * 3, b: m.pad + m.width * 3, l: m.pad + m.width * 3 };
+      case 'stamp':    return { t: m.pad + 8 * m.k, r: m.pad + 8 * m.k, b: m.pad + 8 * m.k, l: m.pad + 8 * m.k };
+      case 'ornament': return { t: m.pad + 34 * m.k, r: m.pad, b: m.pad + 34 * m.k, l: m.pad };
+      case 'lines':    return { t: m.pad * 0.5, r: m.pad, b: m.pad * 0.5, l: m.pad + 6 * m.k };
+      case 'quotes':   return { t: m.pad + 46 * m.k, r: m.pad, b: m.pad, l: m.pad };
+      case 'box': case 'card': case 'corners':
+                       return { t: m.pad, r: m.pad, b: m.pad, l: m.pad };
+      default:         return { t: 0, r: 0, b: 0, l: 0 };
+    }
+  }
+
+  function setDash(ctx, style, m) {
+    if (style === 'dashed') ctx.setLineDash([m.width * 4, m.width * 2.5]);
+    else if (style === 'dotted') { ctx.setLineDash([0.1, m.width * 2.2]); ctx.lineCap = 'round'; }
+    else ctx.setLineDash([]);
+  }
+
+  /* Drawn before the text: anything that sits behind the words. */
+  function drawFrameUnder(ctx, type, box, m, look) {
+    if (type === 'card') {
+      roundRect(ctx, box.x, box.y, box.w, box.h, m.radius);
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.28)';
+      ctx.shadowBlur = 30 * m.k;
+      ctx.shadowOffsetY = 8 * m.k;
+      ctx.fillStyle = look.cardFill;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  /* Drawn after the text: lines and marks on top. */
+  function drawFrameOver(ctx, type, box, m, bodyLines, bodyMetrics) {
+    var c = m.color;
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.fillStyle = c;
+    ctx.lineWidth = m.width;
+    var hw = m.width / 2;
+
+    if (type === 'box' || type === 'stamp' || type === 'card') {
+      setDash(ctx, m.style, m);
+      if (type === 'card') ctx.globalAlpha = 0.4;
+      roundRect(ctx, box.x + hw, box.y + hw, box.w - m.width, box.h - m.width, m.radius);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      if (type === 'stamp') {
+        ctx.setLineDash([]);
+        ctx.lineWidth = Math.max(1, m.k);
+        var inset = m.width + 7 * m.k;
+        roundRect(ctx, box.x + inset, box.y + inset, box.w - inset * 2, box.h - inset * 2, Math.max(0, m.radius - inset));
+        ctx.stroke();
+      }
+    } else if (type === 'double') {
+      ctx.lineWidth = m.width;
+      roundRect(ctx, box.x + hw, box.y + hw, box.w - m.width, box.h - m.width, m.radius);
+      ctx.stroke();
+      var gap = m.width * 2;
+      roundRect(ctx, box.x + gap + hw, box.y + gap + hw, box.w - gap * 2 - m.width, box.h - gap * 2 - m.width,
+                Math.max(0, m.radius - gap));
+      ctx.stroke();
+    } else if (type === 'rule') {
+      setDash(ctx, m.style, m);
+      ctx.beginPath();
+      ctx.moveTo(box.x + hw, box.y);
+      ctx.lineTo(box.x + hw, box.y + box.h);
+      ctx.stroke();
+    } else if (type === 'corners') {
+      var L = 18 * m.k + m.pad * 0.5;
+      [[box.x, box.y, 1, 1], [box.x + box.w, box.y, -1, 1],
+       [box.x, box.y + box.h, 1, -1], [box.x + box.w, box.y + box.h, -1, -1]].forEach(function (p) {
+        ctx.fillRect(p[2] > 0 ? p[0] : p[0] - L, p[3] > 0 ? p[1] : p[1] - m.width, L, m.width);
+        ctx.fillRect(p[2] > 0 ? p[0] : p[0] - m.width, p[3] > 0 ? p[1] : p[1] - L, m.width, L);
+      });
+    } else if (type === 'ornament') {
+      [[box.y + 17 * m.k, 0], [box.y + box.h - 17 * m.k, Math.PI]].forEach(function (o) {
+        var cy = o[0], cx = box.x + box.w / 2, span = box.w * 0.4;
+        [-1, 1].forEach(function (dir) {
+          var g = ctx.createLinearGradient(cx + dir * span, cy, cx + dir * 22 * m.k, cy);
+          g.addColorStop(0, 'rgba(0,0,0,0)');
+          g.addColorStop(1, c);
+          ctx.fillStyle = g;
+          var x1 = Math.min(cx + dir * span, cx + dir * 22 * m.k);
+          ctx.fillRect(x1, cy - m.width / 2, Math.abs(span - 22 * m.k), m.width);
+        });
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(o[1]);
+        ctx.fillStyle = c;
+        ctx.font = (24 * m.k) + 'px Georgia, "Noto Sans Symbols 2", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('❦', 0, 0);
+        ctx.restore();
+      });
+    } else if (type === 'lines') {
+      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = Math.max(1, m.k);
+      (bodyLines || []).forEach(function (line) {
+        if (line.baseline === undefined) return;
+        var y = line.baseline + bodyMetrics.size * 0.42;
+        ctx.beginPath();
+        ctx.moveTo(box.x + m.pad * 0.5, y);
+        ctx.lineTo(box.x + box.w - m.pad * 0.5, y);
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'rgba(229,72,77,.6)';
+      ctx.lineWidth = m.width;
+      ctx.beginPath();
+      ctx.moveTo(box.x + hw, box.y);
+      ctx.lineTo(box.x + hw, box.y + box.h);
+      ctx.stroke();
+    } else if (type === 'quotes') {
+      ctx.globalAlpha = 0.38;
+      ctx.font = (110 * m.k) + 'px Georgia, "Times New Roman", serif';
+      ctx.textBaseline = 'top';
+      ctx.fillText('“', box.x + m.pad * 0.4, box.y - 6 * m.k);
+      ctx.textBaseline = 'alphabetic';
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
+  function familyFor(id, lang, fallbackId) {
+    var chosen = id || fallbackId;
+    if (chosen) Theme.ensureFont(chosen);
+    return Theme.fontStack(chosen, lang);
   }
 
   function renderImage(entry, sizeId) {
     var size = SIZES.filter(function (s) { return s.id === sizeId; })[0] || SIZES[1];
     var W = size.w, H = size.h;
     var st = entry.style || {};
+    var theme = data().theme;
     var look = resolveImageStyle(entry);
 
-    var familyName = st.font || (
-      entry.lang === 'gu' ? data().theme.fontGu :
-      entry.lang === 'hi' ? data().theme.fontHi : data().theme.fontEn
-    );
-    var family = '"' + familyName + '"';
-    if (familyName) Theme.ensureFont(familyName);
+    var langKey = entry.lang === 'gu' ? 'Gu' : entry.lang === 'hi' ? 'Hi' : 'En';
+    var bodyFamily = familyFor(st.font, entry.lang, theme['font' + langKey]);
+    var titleFamily = familyFor(st.titleFont || st.font, entry.lang,
+                                theme['head' + langKey] || theme['font' + langKey]);
 
     var canvas = document.createElement('canvas');
     canvas.width = W;
@@ -172,117 +388,128 @@
       : Promise.resolve().then(function () {
           if (look.kind === 'solid') {
             ctx.fillStyle = look.color || '#111111';
+            ctx.fillRect(0, 0, W, H);
           } else {
-            // Approximate the CSS gradient angle across the canvas diagonal.
-            var rad = (Number(look.angle) - 90) * Math.PI / 180;
-            var cx = W / 2, cy = H / 2;
-            var len = Math.abs(W * Math.cos(rad)) + Math.abs(H * Math.sin(rad));
-            var g = ctx.createLinearGradient(
-              cx - Math.cos(rad) * len / 2, cy - Math.sin(rad) * len / 2,
-              cx + Math.cos(rad) * len / 2, cy + Math.sin(rad) * len / 2
-            );
-            g.addColorStop(0, look.from || '#222222');
-            g.addColorStop(1, look.to || '#000000');
-            ctx.fillStyle = g;
+            paintGradient(ctx, look.spec, W, H);
           }
-          ctx.fillRect(0, 0, W, H);
         });
 
+    var bodyWeight = Math.max(100, Math.min(900, Number(st.weight) || 400));
+    var titleWeight = Number(st.titleWeight) || Number(theme.headWeight) || 620;
+
     return bgReady
-      .then(function () { return waitForFont(family, [400, 600, 700]); })
       .then(function () {
-        var pad = Math.round(W * 0.105);
-        var maxW = W - pad * 2;
-        var align = st.align === 'center' ? 'center' : st.align === 'right' ? 'right' : 'left';
-        var anchorX = align === 'center' ? W / 2 : align === 'right' ? W - pad : pad;
+        return Promise.all([
+          waitForFont(bodyFamily, [bodyWeight, Math.min(900, bodyWeight + 300)], true),
+          waitForFont(titleFamily, [titleWeight], !!st.titleItalic)
+        ]);
+      })
+      .then(function () {
+        var pad = Math.round(W * 0.09);
+        var k = W / 720;                                     // page px → canvas px
+        var frameType = st.frame || 'none';
+        var m = {
+          k: k,
+          color: Theme.safeColour(st.frameColor, '') || look.accent,
+          width: Math.max(1, Math.min(12, Number(st.frameWidth) || 2)) * k,
+          radius: Math.max(0, Math.min(40, Number(st.frameRadius) || 0)) * k,
+          pad: Math.max(0, Math.min(64, Number(st.framePad) || 0)) * k,
+          style: st.frameStyle || 'solid'
+        };
+        var ins = frameInsets(frameType, m);
 
-        ctx.textAlign = align;
-        ctx.textBaseline = 'alphabetic';
+        var boxW = W - pad * 2;
+        var textW = boxW - ins.l - ins.r;
 
-        var sigSize = Math.round(W * 0.028);
+        var sigSize = Math.round(W * 0.026);
         var footerRoom = sigSize * 3.2;
+        var align = st.align === 'center' || st.align === 'right' ? st.align : 'left';
+        var titleAlign = st.titleAlign || align;
+        if (titleAlign === 'justify') titleAlign = 'left';
 
-        /* Shrink the body until the whole piece fits on the canvas. Poems vary
-           enormously in length and a fixed size would either clip a long one or
-           strand a short one in the corner. The author's own size setting sets
-           the starting point; the loop below brings it back down if it has to. */
-        var bodySize = Math.round(W * 0.052 * Math.max(0.6, Math.min(2, Number(st.size) || 1)));
-        var minSize = Math.round(W * 0.019);
-        var lineRatio = Number(st.lineHeight) || (entry.lang === 'en' ? 1.6 : 1.85);
-        var titleSize, titleLines, bodyLines, total, lineH, titleH;
+        /* Shrink until the whole piece fits. Poems vary enormously in length;
+           a fixed size would clip a long one or strand a short one. The
+           author's own size setting is the starting point. */
+        var bodySize = Math.round(W * 0.048 * Math.max(0.6, Math.min(2, Number(st.size) || 1)));
+        var minSize = Math.round(W * 0.017);
+        var ratio = Number(st.lineHeight) || (entry.lang === 'en' ? 1.6 : 1.85);
+        var titleScale = Math.max(0.5, Math.min(2.5, Number(st.titleSize) || 1));
+        var bodyBase, titleBase, bodyLines, titleLines, lineH, titleLH, gap, textH;
 
-        while (bodySize > minSize) {
-          titleSize = Math.round(bodySize * 1.22);
-          lineH = Math.round(bodySize * lineRatio);
-          titleH = Math.round(titleSize * 1.28);
+        while (true) {
+          bodyBase = { family: bodyFamily, size: bodySize, weight: bodyWeight,
+                       italic: !!st.italic, underline: !!st.underline, align: align };
+          titleBase = { family: titleFamily, size: Math.round(bodySize * 1.22 * titleScale),
+                        weight: titleWeight, italic: !!st.titleItalic, underline: !!st.titleUnderline,
+                        align: titleAlign };
+          lineH = Math.round(bodySize * ratio);
+          titleLH = Math.round(titleBase.size * 1.28);
+          gap = entry.title ? Math.round(bodySize * 0.9) : 0;
 
-          ctx.font = '600 ' + titleSize + 'px ' + family;
-          titleLines = entry.title ? layoutLines(ctx, entry.title, maxW) : [];
+          titleLines = entry.title ? layout(ctx, entry.title, textW, titleBase) : [];
+          bodyLines = layout(ctx, String(entry.body || '').trim(), textW, bodyBase);
+          textH = titleLines.length * titleLH + gap + bodyLines.length * lineH;
 
-          ctx.font = '400 ' + bodySize + 'px ' + family;
-          bodyLines = layoutLines(ctx, String(entry.body || '').trim(), maxW);
-
-          total = titleLines.length * titleH +
-                  (titleLines.length ? Math.round(bodySize * 0.9) : 0) +
-                  bodyLines.length * lineH;
-
-          if (total <= H - pad * 2 - footerRoom) break;
+          var fits = textH + ins.t + ins.b <= H - pad * 2 - footerRoom;
+          if (fits || bodySize <= minSize) break;
           bodySize -= 2;
         }
 
-        /* Centre the block in the space above the signature. `total` measures
-           baseline to baseline, so the first baseline has to drop by roughly
-           one ascender or the text reads as sitting too high. */
-        var regionTop = pad;
-        var regionBottom = H - footerRoom;
-        var firstAscent = titleLines.length ? titleSize : bodySize;
-        var y = (regionTop + regionBottom) / 2 - total / 2 + firstAscent * 0.78;
-        y = Math.max(regionTop + firstAscent, y);
+        var boxH = textH + ins.t + ins.b;
+        var region = H - pad - footerRoom - pad;
+        var boxY = Math.max(pad, pad + (region - boxH) / 2);
+        var box = { x: pad, y: boxY, w: boxW, h: boxH };
+        // The card sits behind the words: light words need a dark card, and
+        // dark words a light one.
+        var lightText = Theme.hexToRgb(look.fg) ? Theme.isLight(look.fg) : true;
+        look.cardFill = lightText ? 'rgba(0,0,0,0.38)' : 'rgba(255,255,255,0.6)';
+
+        drawFrameUnder(ctx, frameType, box, m, look);
 
         if (st.textShadow) {
           ctx.shadowColor = 'rgba(0,0,0,.5)';
           ctx.shadowBlur = Math.round(W * 0.02);
           ctx.shadowOffsetY = Math.round(W * 0.004);
         }
-
-        ctx.fillStyle = look.fg;
-        if (titleLines.length) {
-          ctx.font = '600 ' + titleSize + 'px ' + family;
-          titleLines.forEach(function (line) {
-            ctx.fillText(line, anchorX, y);
-            y += titleH;
-          });
-          y += Math.round(bodySize * 0.9);
+        if ('letterSpacing' in ctx && Number(st.letterSpacing)) {
+          ctx.letterSpacing = (Number(st.letterSpacing) * bodySize) + 'px';
         }
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
 
-        ctx.font = '400 ' + bodySize + 'px ' + family;
-        bodyLines.forEach(function (line) {
-          ctx.fillText(line, anchorX, y);
-          y += lineH;
-        });
+        var x0 = box.x + ins.l;
+        var y = box.y + ins.t;
+        if (titleLines.length) {
+          ctx.fillStyle = Theme.safeColour(st.titleColor, '') || look.fg;
+          drawLines(ctx, titleLines, x0, textW, y + titleBase.size * 0.92, titleLH, titleBase);
+          y += titleLines.length * titleLH + gap;
+        }
+        ctx.fillStyle = look.fg;
+        drawLines(ctx, bodyLines, x0, textW, y + bodySize * 0.95, lineH, bodyBase);
 
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
 
-        /* Signature block: a short accent rule and the author's name. */
+        drawFrameOver(ctx, frameType, box, m, bodyLines, bodyBase);
+
+        /* Signature: a short accent rule and the author's name. */
         var site = data().site;
         var who = site.author || site.name || '';
         if (who) {
           var sigY = H - pad + Math.round(sigSize * 0.2);
+          var sigX = align === 'center' ? W / 2 : align === 'right' ? W - pad : pad;
           ctx.globalAlpha = 0.85;
-
           var ruleW = Math.round(W * 0.07);
-          var ruleY = sigY - Math.round(sigSize * 1.5);
-          var ruleX = align === 'center' ? W / 2 - ruleW / 2
-                    : align === 'right' ? W - pad - ruleW
-                    : pad;
           ctx.fillStyle = look.accent;
-          ctx.fillRect(ruleX, ruleY, ruleW, Math.max(2, Math.round(W * 0.0028)));
-
+          ctx.fillRect(align === 'center' ? W / 2 - ruleW / 2 : align === 'right' ? W - pad - ruleW : pad,
+                       sigY - Math.round(sigSize * 1.5), ruleW, Math.max(2, Math.round(W * 0.0028)));
           ctx.fillStyle = look.fg;
           ctx.font = '600 ' + sigSize + 'px "Inter", system-ui, sans-serif';
-          ctx.fillText(who, anchorX, sigY);
+          ctx.textAlign = align === 'center' ? 'center' : align === 'right' ? 'right' : 'left';
+          ctx.fillText(who, sigX, sigY);
+          ctx.textAlign = 'left';
           ctx.globalAlpha = 1;
         }
 
@@ -426,21 +653,29 @@
     var inner = el('div', { class: 'reader-inner' });
 
     inner.appendChild(el('div', { class: 'reader-kind', text: Views.typeLabel(entry.type) }));
-    if (entry.title) inner.appendChild(el('h1', { class: 'reader-title', text: entry.title }));
+    if (entry.title) {
+      // The heading keeps its face, weight, slant and size; colour is dropped
+      // for paper along with the background.
+      var title = el('h1', { class: 'reader-title', text: entry.title });
+      var tcss = Views.titleStyleFor(entry).css;
+      delete tcss.color;
+      Views.applyStyle(title, tcss);
+      inner.appendChild(title);
+    }
     inner.appendChild(el('div', { class: 'reader-meta' }, [
       el('span', { text: I18n.formatDate(entry.date) }),
       site.author ? el('span', { class: 'card-dot' }) : null,
       site.author ? el('span', { text: site.author }) : null
     ]));
 
-    var body = el('div', {
-      class: 'reader-body' + (st.frame && st.frame !== 'none' ? ' frame-' + st.frame : ''),
-      text: entry.body
-    });
-    // Keep the chosen typeface and alignment; drop colours and backgrounds,
-    // which only waste ink and hurt legibility on paper.
-    body.style.fontFamily = s.css.fontFamily;
-    if (st.align && st.align !== 'left') body.style.textAlign = st.align;
+    var body = Rich.render(el('div', { class: 'reader-body' }), entry.body);
+    // Keep the typeface, weight, slant, underline, spacing and alignment; drop
+    // colours, shadows and backgrounds, which waste ink and hurt legibility.
+    var bcss = Object.assign({}, s.css);
+    delete bcss.color;
+    delete bcss.textShadow;
+    Views.applyStyle(body, bcss);
+    Views.applyFrame(body, entry);
     inner.appendChild(body);
 
     if (entry.credit) inner.appendChild(el('div', { class: 'reader-credit', text: entry.credit }));

@@ -125,16 +125,53 @@
 
   /* Fetch the file's current blob SHA. Null means the file is not there yet,
      which is a normal first publish, not an error. */
-  function currentSha(cfg) {
-    var url = API + '/repos/' + cfg.owner + '/' + cfg.repo + '/contents/' +
-      cfg.path.split('/').map(encodeURIComponent).join('/') +
-      '?ref=' + encodeURIComponent(cfg.branch);
+  function contentsUrl(cfg) {
+    return API + '/repos/' + cfg.owner + '/' + cfg.repo + '/contents/' +
+      cfg.path.split('/').map(encodeURIComponent).join('/');
+  }
+
+  /* GitHub returns file contents as base64 of UTF-8 bytes. atob() alone would
+     mangle every Gujarati and Devanagari character, so decode the bytes. */
+  function decodeBase64Utf8(b64) {
+    var bin = atob(String(b64 || '').replace(/\s+/g, ''));
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  /* What is actually live in the repository right now — sha and parsed
+     content. This is the source of truth a publish has to respect; the copy
+     this page loaded may be stale, or may never have loaded at all. */
+  function fetchRemote(cfg) {
+    var url = contentsUrl(cfg) + '?ref=' + encodeURIComponent(cfg.branch);
 
     return apiFetch(url, { headers: headers(), cache: 'no-store' }).then(function (res) {
-      if (res.status === 404) return null;
+      if (res.status === 404) return { sha: null, data: null };
       if (!res.ok) return apiJson(res).then(function (b) { throw new Error(describeError(res, b)); });
-      return apiJson(res).then(function (b) { return b.sha || null; });
+      return apiJson(res).then(function (meta) {
+        if (meta.content && meta.encoding === 'base64') {
+          return { sha: meta.sha, text: decodeBase64Utf8(meta.content) };
+        }
+        // Over 1 MB the contents API leaves the body out; the blob API has it.
+        if (!meta.sha) return { sha: null, text: '' };
+        var blobUrl = API + '/repos/' + cfg.owner + '/' + cfg.repo + '/git/blobs/' + meta.sha;
+        return apiFetch(blobUrl, { headers: headers(), cache: 'no-store' }).then(function (bres) {
+          if (!bres.ok) return apiJson(bres).then(function (b) { throw new Error(describeError(bres, b)); });
+          return apiJson(bres).then(function (blob) {
+            return { sha: meta.sha, text: decodeBase64Utf8(blob.content) };
+          });
+        });
+      });
+    }).then(function (r) {
+      if (r.data !== undefined) return r;
+      var parsed = null;
+      try { parsed = r.text ? JSON.parse(r.text) : null; } catch (err) { parsed = null; }
+      return { sha: r.sha, data: Store.looksLikeContent(parsed) ? parsed : null };
     });
+  }
+
+  function currentSha(cfg) {
+    return fetchRemote(cfg).then(function (r) { return r.sha; });
   }
 
   function putFile(cfg, sha, content, message) {
@@ -195,15 +232,32 @@
     return { payload: payload, text: JSON.stringify(payload, null, 2) + '\n' };
   }
 
-  function commitMessage() {
-    var c = Store.counts();
+  /* Counted from the file actually being written, which after a merge can
+     hold more than this device had on screen. */
+  function commitMessageFor(data) {
+    var c = { all: 0, poem: 0, blog: 0, quote: 0 };
+    (data.entries || []).forEach(function (e) {
+      c.all++;
+      if (c[e.type] !== undefined) c[e.type]++;
+    });
     return 'Update writings — ' + c.all + ' pieces (' +
-      c.poems + ' poems, ' + c.blogs + ' blogs, ' + c.quotes + ' quotes)';
+      c.poem + ' poems, ' + c.blog + ' blogs, ' + c.quote + ' quotes)';
+  }
+
+  function commitMessage() {
+    return commitMessageFor(Store.state.data);
   }
 
   /* The escape hatch when GitHub's token screens will not cooperate. Downloads
      the same file for the author to upload through GitHub's web interface. */
   function downloadContentFile() {
+    // This route uploads by hand and cannot merge with the live file, so it
+    // must never hand out a file built from nothing.
+    if (!Store.canEdit()) {
+      UI.toast('Your writing has not loaded on this device yet, so there is nothing safe to ' +
+               'download. Reload the page and try again.', 'error', 8000);
+      return;
+    }
     var file = contentFile();
     UI.downloadBlob(
       new Blob([file.text], { type: 'application/json' }),
@@ -216,8 +270,27 @@
 
   var inFlight = false;
 
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  /* Tell the author, in words, what the merge did for them. Silence here is
+     how they would find out later that a poem came back, or did not. */
+  function describeMerge(report) {
+    var bits = [];
+    if (report.kept) bits.push('kept ' + plural(report.kept, 'piece', 'pieces') +
+      ' from your live site that this device did not have');
+    if (report.updated) bits.push('took the newer version of ' +
+      plural(report.updated, 'piece', 'pieces') + ' edited on another device');
+    if (report.settings.length) bits.push('kept your live site settings');
+    return bits.length ? bits.join(', ') : '';
+  }
+
   function publish() {
     if (inFlight) return Promise.resolve();
+    if (!Store.canEdit()) {
+      UI.toast('Your writing has not loaded on this device yet. Reload the page — publishing ' +
+               'now could not show you what it was about to change.', 'error', 8000);
+      return Promise.resolve();
+    }
 
     var cfg = config();
     if (!token() || !cfg.owner || !cfg.repo) {
@@ -229,27 +302,33 @@
     inFlight = true;
     var note = UI.toast(t('admin.publishing'), null, 60000);
 
-    var file = contentFile();
-    var payload = file.payload;
-    var content = file.text;
-    var message = commitMessage();
-
+    /* Read what is live, fold it into this device's copy, then write that.
+       The fold keeps anything this device did not deliberately delete, so a
+       publish from a device that loaded nothing — or loaded an old version —
+       can no longer wipe the site. A 409 means another publish landed between
+       our read and our write; read again and redo the merge. */
     function attempt(retry) {
-      return currentSha(cfg)
-        .then(function (sha) { return putFile(cfg, sha, content, message); })
-        .catch(function (err) {
-          // Someone (or another device) committed between our read and write.
-          // Re-read the SHA and try once more before giving up.
-          if (err.status === 409 && !retry) return attempt(true);
-          throw err;
+      return fetchRemote(cfg).then(function (remote) {
+        var merged = Store.mergeForPublish(remote.data);
+        var payload = merged.data;
+        payload.updatedAt = new Date().toISOString();
+        var text = JSON.stringify(payload, null, 2) + '\n';
+        return putFile(cfg, remote.sha, text, commitMessageFor(payload)).then(function () {
+          return { payload: payload, report: merged.report };
         });
+      }).catch(function (err) {
+        if (err.status === 409 && !retry) return attempt(true);
+        throw err;
+      });
     }
 
     return attempt(false)
-      .then(function () {
-        Store.markPublished(payload);
+      .then(function (result) {
+        Store.markPublished(result.payload);
         if (note.parentNode) note.parentNode.removeChild(note);
         UI.toast(t('admin.published'), 'ok', 5000);
+        var merged = describeMerge(result.report);
+        if (merged) UI.toast('While publishing, I ' + merged + '.', null, 9000);
         App.rerender();
       })
       .catch(function (err) {
@@ -267,6 +346,8 @@
 
   global.Publish = {
     publish: publish,
+    fetchRemote: fetchRemote,
+    decodeBase64Utf8: decodeBase64Utf8,
     contentFile: contentFile,
     downloadContentFile: downloadContentFile,
     test: test,

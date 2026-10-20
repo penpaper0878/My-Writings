@@ -106,7 +106,7 @@
   function renderFab() {
     var existing = UI.$('#fab');
     if (existing) existing.parentNode.removeChild(existing);
-    if (!Store.state.isAdmin) return;
+    if (!Store.state.isAdmin || !Store.canEdit()) return;
     if (current() === '/feedback') return;
 
     document.body.appendChild(el('button', {
@@ -155,10 +155,29 @@
 
   /* -------------------------------------------------------- service worker */
 
+  var bootedAt = Date.now();
+
   function registerWorker() {
     if (!('serviceWorker' in global.navigator)) return;
     if (global.location.protocol === 'file:') return;   // not allowed there
     if (global.__PREVIEW__) return;                    // sandboxed preview
+
+    /* When a new version of the site installs, the page in front of the reader
+       is still running the old code. Reload once into the new version — but
+       only right after opening, never with an editor open or work in hand. */
+    var hadController = !!global.navigator.serviceWorker.controller;
+    var reloading = false;
+    global.navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController || reloading) return;
+      var early = Date.now() - bootedAt < 20000;
+      if (early && !UI.sheetDepth()) {
+        reloading = true;
+        global.location.reload();
+      } else {
+        UI.toast('A newer version of the site is ready — reload when convenient.', null, 8000);
+      }
+    });
+
     global.navigator.serviceWorker.register('sw.js').catch(function (err) {
       console.warn('[sw]', err && err.message);
     });
@@ -185,13 +204,21 @@
       // The publish target is usually derivable from the URL; fill it in so
       // the admin only ever has to paste a token.
       var p = Store.state.data.publish;
+      var guess = Publish.guessTarget();
       if (!p.owner || !p.repo) {
-        var guess = Publish.guessTarget();
         if (guess.owner && guess.repo) {
           p.owner = p.owner || guess.owner;
           p.repo = p.repo || guess.repo;
           if (guess.path && p.path === Store.DEFAULTS.publish.path) p.path = guess.path;
         }
+      } else if (guess.owner && guess.repo &&
+                 (p.owner.toLowerCase() !== guess.owner.toLowerCase() ||
+                  p.repo.toLowerCase() !== guess.repo.toLowerCase())) {
+        // On github.io the address names the repository serving this page,
+        // and that is the only one whose content.json this page reads. A
+        // renamed repository leaves the old name in the saved settings.
+        p.owner = guess.owner;
+        p.repo = guess.repo;
       }
 
       Theme.applyTheme(Store.state.data.theme);
@@ -200,6 +227,13 @@
       route();
       watchScroll();
       registerWorker();
+
+      var fold = Store.state.lastFold;
+      if (fold && (fold.kept || fold.updated)) {
+        UI.toast('Your copy on this device was older than your live site — brought in ' +
+          (fold.kept + fold.updated) + ' newer ' + (fold.kept + fold.updated === 1 ? 'piece' : 'pieces') +
+          '. Publish when ready.', null, 9000);
+      }
 
       if (Store.state.loadError && Store.state.isAdmin) {
         console.info('[store] no published content yet:', Store.state.loadError);
@@ -233,7 +267,7 @@
     document.addEventListener('keydown', function (e) {
       var tag = (e.target && e.target.tagName) || '';
       if (/INPUT|TEXTAREA|SELECT/.test(tag) || e.target.isContentEditable) return;
-      if (!Store.state.isAdmin) return;
+      if (!Store.state.isAdmin || !Store.canEdit()) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();

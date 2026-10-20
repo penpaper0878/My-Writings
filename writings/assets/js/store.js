@@ -14,11 +14,20 @@
   'use strict';
 
   var LS = {
-    draft:  'pp.draft.v1',   // admin working copy of the whole site
-    admin:  'pp.admin.v1',   // { unlocked, token, owner, repo, branch, path }
-    prefs:  'pp.prefs.v1',   // per-visitor: ui language, forced light/dark
-    inbox:  'pp.inbox.v1'    // feedback drafts queued while offline
+    draft:   'pp.draft.v1',        // admin working copy of the whole site
+    meta:    'pp.draftmeta.v1',    // what the draft was based on, for safe merging
+    recent:  'pp.lastpublish.v1',  // the last publish, until GitHub Pages serves it
+    admin:   'pp.admin.v1',        // { unlocked, token, creds }
+    prefs:   'pp.prefs.v1',        // per-visitor: ui language, forced light/dark
+    inbox:   'pp.inbox.v1'         // feedback drafts queued while offline
   };
+
+  // How long a publish may take to appear on GitHub Pages before this device
+  // stops covering for it. Deploys take a minute or two; this is generous.
+  var RECENT_PUBLISH_MS = 15 * 60 * 1000;
+
+  // The settings blocks that merge as a unit when a publish meets the live file.
+  var SETTINGS_BLOCKS = ['site', 'theme', 'home', 'feedback'];
 
   var SCHEMA_VERSION = 1;
 
@@ -65,15 +74,24 @@
     }
   }
 
+  /* Returns false when the browser refuses — storage full, or blocked in a
+     private window. Callers that hold the author's writing must act on that;
+     losing a draft silently is how work disappears on refresh. */
   function writeLS(key, value) {
     try {
       global.localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (err) {
-      // Quota exceeded, or storage blocked in private mode. The app keeps
-      // working from memory; only persistence across reloads is lost.
       return false;
     }
+  }
+
+  function removeLS(key) {
+    try { global.localStorage.removeItem(key); } catch (err) { /* ignore */ }
+  }
+
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
   }
 
   function today() {
@@ -87,22 +105,48 @@
 
   var DEFAULT_STYLE = {
     preset: 'inherit',   // 'inherit' = follow the site theme
+
+    /* --- the writing itself --- */
     font: '',            // '' = follow the language default
     size: 1,             // multiplier on the base reading size
+    weight: 400,         // 300 light … 800 extra bold
+    italic: false,
+    underline: false,
     lineHeight: 1.85,
     letterSpacing: 0,
     align: 'left',       // left | center | right | justify
     textColor: '',
+    textShadow: false,
+
+    /* --- the heading, styled separately. Empty values follow the writing
+       (or, with no piece font set, the site's heading font). --- */
+    titleFont: '',
+    titleSize: 1,        // multiplier on the default heading size
+    titleWeight: 0,      // 0 = the site's heading weight
+    titleItalic: false,
+    titleUnderline: false,
+    titleColor: '',
+    titleAlign: '',      // '' = same as the writing
+
+    /* --- background --- */
     bgType: 'inherit',   // inherit | solid | gradient | image
     bgColor: '#101418',
+    gradStops: [],       // [{ c: '#hex', p: 0..100 }]; empty = the two below
     gradFrom: '#1b2735',
     gradTo: '#090a0f',
     gradAngle: 160,
+    gradKind: 'linear',  // linear | radial
     bgImage: '',
     bgDim: 0.35,
     bgBlur: 0,
-    textShadow: false,
-    frame: 'none'        // none | rule | box | quotes
+
+    /* --- frame around the writing --- */
+    frame: 'none',       // see Theme.FRAMES
+    frameColor: '',      // '' = the accent colour
+    frameWidth: 2,
+    frameRadius: 14,
+    framePad: 24,
+    frameStyle: 'solid'  // solid | dashed | dotted | double
   };
 
   var DEFAULTS = {
@@ -133,6 +177,8 @@
       gradFrom: '',
       gradTo: '',
       gradAngle: 160,
+      gradStops: [],
+      gradKind: 'linear',
       bgImage: '',
       bgDim: 0.45,
       bgBlur: 0,
@@ -140,6 +186,10 @@
       fontGu: 'Hind Vadodara',
       fontHi: 'Hind',
       fontUi: 'Inter',
+      headEn: '',          // heading fonts; '' = same as the body font
+      headGu: '',
+      headHi: '',
+      headWeight: 620,
       baseSize: 17,
       radius: 18,
       cardStyle: 'paper',  // paper | glass | solid | outline | minimal
@@ -196,10 +246,15 @@
 
   var state = {
     data: null,          // the live, in-memory site
-    published: null,     // what data/content.json held at boot
+    published: null,     // the live site as last loaded, or null if it could not be
+    base: null,          // what the current edits started from; see snapshotBase()
     isAdmin: false,      // has the admin unlocked this device?
     dirty: false,        // draft differs from published?
-    loadError: ''
+    loadFailed: false,   // the live content could not be loaded
+    loadError: '',
+    saveFailed: false,   // the latest change could not be stored on this device
+    pendingLive: false,  // published from here, GitHub Pages not serving it yet
+    lastFold: null       // what loading folded into a waiting draft
   };
 
   /* ---------------------------------------------------------------- normalise */
@@ -219,13 +274,25 @@
       draft: false,
       cover: '',
       credit: '',
+      updatedAt: '',
       style: clone(DEFAULT_STYLE)
     });
     if (!e.id) e.id = uid('e');
     if (!Array.isArray(e.tags)) e.tags = [];
     if (!Array.isArray(e.collections)) e.collections = [];
     e.style = deepDefaults(e.style, DEFAULT_STYLE);
+    e.style.gradStops = normaliseStops(e.style.gradStops);
     return e;
+  }
+
+  function normaliseStops(stops) {
+    if (!Array.isArray(stops)) return [];
+    return stops.filter(function (st) { return st && typeof st.c === 'string'; })
+      .slice(0, 8)
+      .map(function (st) {
+        var p = Number(st.p);
+        return { c: st.c, p: isFinite(p) ? Math.max(0, Math.min(100, p)) : 0 };
+      });
   }
 
   function normalise(raw) {
@@ -241,6 +308,7 @@
         return col;
       });
     if (!Array.isArray(data.site.links)) data.site.links = [];
+    data.theme.gradStops = normaliseStops(data.theme.gradStops);
     return data;
   }
 
@@ -345,9 +413,16 @@
     var draft = readLS(LS.draft, null);
     if (draft) {
       var draftData = normalise(draft);
+      var meta = draftMeta();
+      var base = (meta && meta.base) || null;
+      if (state.published) {
+        try { draftData = fold(draftData, state.published, meta, base).data; } catch (err) { /* keep draft */ }
+      }
       if (!state.published || !sameContent(draftData, state.published)) {
         state.data = draftData;
         state.dirty = true;
+        state.base = base || state.base;
+        writeLS(LS.draft, state.data);
       }
     }
     emit('change');
@@ -376,66 +451,282 @@
 
   /* --------------------------------------------------------------- lifecycle */
 
-  function markDirty() {
-    state.data.updatedAt = new Date().toISOString();
-    state.dirty = true;
-    writeLS(LS.draft, state.data);
-    emit('change');
+  /* ------------------------------------------------------------ draft base */
+  /* A publish has to tell apart "deleted here" from "never seen here". Without
+     that, it either resurrects deletions or — far worse — erases whatever this
+     device had not loaded. The base is a snapshot of the site as it stood when
+     the current round of edits began: which pieces existed, and what each
+     settings block held. Taken whenever the data is clean, saved with the
+     draft on the first change, and cleared by a successful publish. */
+
+  function snapshotBase(data) {
+    var ids = {};
+    (data.entries || []).forEach(function (e) { ids[e.id] = e.updatedAt || ''; });
+    var cols = {};
+    (data.collections || []).forEach(function (c) { cols[c.id] = true; });
+    var blocks = {};
+    SETTINGS_BLOCKS.forEach(function (k) { blocks[k] = JSON.stringify(data[k] || {}); });
+    return { ids: ids, cols: cols, blocks: blocks, takenAt: new Date().toISOString() };
   }
 
+  function draftMeta() {
+    return readLS(LS.meta, null);
+  }
+
+  function setCleanBase() {
+    state.base = snapshotBase(state.data);
+  }
+
+  /* ------------------------------------------------------------ lifecycle */
+
+  function markDirty() {
+    if (!state.dirty) {
+      // First change since the data was clean: record what it started from.
+      var meta = draftMeta() || {};
+      if (!meta.base) {
+        meta.base = state.base || snapshotBase(state.published || normalise(DEFAULTS));
+        writeLS(LS.meta, meta);
+      }
+    }
+    state.data.updatedAt = new Date().toISOString();
+    state.dirty = true;
+    var saved = writeLS(LS.draft, state.data);
+    var changed = saved === state.saveFailed;
+    state.saveFailed = !saved;
+    emit('change');
+    if (changed) emit('save-state');
+  }
+
+  /* After a successful publish. The draft is gone, but the published copy is
+     kept on this device until GitHub Pages starts serving it — otherwise a
+     refresh in that minute shows the previous version and the newest piece
+     appears to have vanished. */
   function markPublished(data) {
-    state.published = clone(data);
+    state.data = normalise(data);
+    state.published = clone(state.data);
     state.dirty = false;
-    try { global.localStorage.removeItem(LS.draft); } catch (err) { /* ignore */ }
+    state.saveFailed = false;
+    state.loadFailed = false;
+    state.pendingLive = true;
+    removeLS(LS.draft);
+    removeLS(LS.meta);
+    writeLS(LS.recent, { at: data.updatedAt || '', savedAt: Date.now(), data: data });
+    setCleanBase();
     emit('change');
   }
 
   function discardDraft() {
-    try { global.localStorage.removeItem(LS.draft); } catch (err) { /* ignore */ }
-    state.data = normalise(state.published || DEFAULTS);
+    // Discarding needs something real to go back to.
+    if (!state.published) return false;
+    removeLS(LS.draft);
+    removeLS(LS.meta);
+    state.data = clone(state.published);
     state.dirty = false;
+    state.saveFailed = false;
+    setCleanBase();
     emit('change');
+    return true;
   }
 
-  function load() {
+  /* A real content file always has an entries list and a site block. Anything
+     else — an empty object, an error page, a truncated download — is a failed
+     load, not an empty site. */
+  function looksLikeContent(d) {
+    return !!d && typeof d === 'object' && !Array.isArray(d) &&
+      Array.isArray(d.entries) && !!d.site && typeof d.site === 'object';
+  }
+
+  /* Mobile connections drop requests. Three tries, a little apart, before
+     concluding the content really cannot be had. */
+  function fetchPublished(attempt) {
+    attempt = attempt || 1;
     var url = 'data/content.json?v=' + Date.now();
     return fetch(url, { cache: 'no-store' })
       .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
+        if (!res.ok) throw new Error('the server answered ' + res.status);
+        return res.text();
+      })
+      .then(function (text) {
+        var parsed;
+        try { parsed = JSON.parse(text); } catch (err) {
+          throw new Error('the content file could not be read');
+        }
+        if (!looksLikeContent(parsed)) throw new Error('the content file came back empty');
+        return parsed;
       })
       .catch(function (err) {
-        // file:// or a missing file. Not fatal: the draft or defaults carry on.
+        if (attempt >= 3) throw err;
+        return wait(600 * attempt).then(function () { return fetchPublished(attempt + 1); });
+      });
+  }
+
+  function load() {
+    return fetchPublished()
+      .then(function (published) {
+        state.loadFailed = false;
+        state.loadError = '';
+        return published;
+      }, function (err) {
+        state.loadFailed = true;
         state.loadError = String(err && err.message || err);
         return null;
       })
       .then(function (published) {
-        state.published = published ? normalise(published) : null;
-
-        var draft = readLS(LS.draft, null);
         var session = adminSession();
         state.isAdmin = !!session.unlocked;
 
+        // A publish from this device that GitHub Pages is not serving yet
+        // outranks the older file it is still handing out.
+        var recent = readLS(LS.recent, null);
+        state.pendingLive = false;
+        if (recent && recent.data && looksLikeContent(recent.data)) {
+          var fresh = Date.now() - (recent.savedAt || 0) < RECENT_PUBLISH_MS;
+          var served = (published && published.updatedAt) || '';
+          if (fresh && (!published || served < (recent.at || ''))) {
+            published = recent.data;
+            state.pendingLive = true;
+            state.loadFailed = false;
+          } else {
+            removeLS(LS.recent);
+          }
+        }
+
+        state.published = published ? normalise(published) : null;
+
+        var draft = readLS(LS.draft, null);
+        var meta = draftMeta();
+
         if (draft && state.isAdmin) {
           var draftData = normalise(draft);
-          // The published file may already match this draft — the author
-          // uploaded it by hand, or published from another device. Without
-          // this check the site would claim unpublished changes forever.
+          state.base = (meta && meta.base) || null;
+          if (state.published) {
+            // A draft can be older than what is live — written before another
+            // device published, or before a restore. Fold the live pieces in
+            // so the screen never shows less than the site actually has.
+            try {
+              var folded = fold(draftData, state.published, meta, state.base);
+              draftData = folded.data;
+              state.lastFold = folded.report;
+            } catch (err) {
+              state.lastFold = null;
+            }
+          }
           if (state.published && sameContent(draftData, state.published)) {
-            try { global.localStorage.removeItem(LS.draft); } catch (err) { /* ignore */ }
+            removeLS(LS.draft);
+            removeLS(LS.meta);
             state.data = clone(state.published);
             state.dirty = false;
+            setCleanBase();
           } else {
             state.data = draftData;
             state.dirty = true;
+            writeLS(LS.draft, state.data);
           }
-        } else {
-          state.data = clone(state.published || normalise(DEFAULTS));
+        } else if (state.published) {
+          state.data = clone(state.published);
           state.dirty = false;
+          setCleanBase();
+        } else {
+          // Nothing trustworthy to show. This used to fall through to an empty
+          // default site presented as the real one — an admin who then wrote a
+          // poem and pressed Publish erased everything that was live. Now the
+          // page says the load failed, and editing waits until it succeeds.
+          state.data = normalise(DEFAULTS);
+          state.dirty = false;
+          state.base = null;
         }
         emit('change');
         return state.data;
       });
+  }
+
+  /* Can the admin safely change things right now? Only with a real baseline:
+     the live content, or a draft of their own. */
+  function canEdit() {
+    return !!(state.published || state.dirty);
+  }
+
+  /* ------------------------------------------------------------ publish merge */
+  /* Fold the live file into what this device is about to publish. The rule is
+     simple and absolute: a publish may remove only what was removed on this
+     device. Pieces this device never saw are kept; a piece edited more
+     recently elsewhere wins over the older copy here; settings untouched here
+     follow the live site; and the passphrase is never dropped. */
+  function fold(localData, remote, meta, base) {
+    var local = clone(localData);
+    meta = meta || {};
+    var report = { kept: 0, updated: 0, deletedHere: 0, settings: [] };
+
+    if (!remote || !looksLikeContent(remote)) {
+      return { data: normalise(local), report: report };
+    }
+
+    if (!meta.replaced) {
+      var baseIds = (base && base.ids) || {};
+      var mine = {};
+      local.entries.forEach(function (e, i) { mine[e.id] = i; });
+
+      remote.entries.forEach(function (re) {
+        if (!re || !re.id) return;
+        var at = re.updatedAt || '';
+        if (mine[re.id] === undefined) {
+          var wasHere = Object.prototype.hasOwnProperty.call(baseIds, re.id);
+          var editedSince = at > (baseIds[re.id] || '');
+          if (wasHere && !editedSince) { report.deletedHere++; return; }
+          local.entries.push(normaliseEntry(clone(re)));
+          report.kept++;
+        } else {
+          var le = local.entries[mine[re.id]];
+          if (at && at > (le.updatedAt || '')) {
+            local.entries[mine[re.id]] = normaliseEntry(clone(re));
+            report.updated++;
+          }
+        }
+      });
+
+      var baseCols = (base && base.cols) || {};
+      var haveCol = {};
+      (local.collections || []).forEach(function (c) { haveCol[c.id] = true; });
+      (remote.collections || []).forEach(function (rc) {
+        if (!rc || !rc.id || haveCol[rc.id] || baseCols[rc.id]) return;
+        local.collections.push(clone(rc));
+      });
+
+      SETTINGS_BLOCKS.forEach(function (k) {
+        if (!remote[k]) return;
+        var untouched = base
+          ? JSON.stringify(local[k] || {}) === base.blocks[k]
+          : JSON.stringify(normalise({})[k]) === JSON.stringify(normalise(local)[k]);
+        if (untouched && JSON.stringify(remote[k]) !== JSON.stringify(local[k])) {
+          local[k] = clone(remote[k]);
+          report.settings.push(k);
+        }
+      });
+    }
+
+    if ((!local.admin || !local.admin.passHash) && remote.admin && remote.admin.passHash) {
+      local.admin = clone(remote.admin);
+    }
+    if (remote.publish) {
+      ['owner', 'repo', 'branch', 'path'].forEach(function (k) {
+        if (!local.publish[k] && remote.publish[k]) local.publish[k] = remote.publish[k];
+      });
+    }
+
+    var merged = normalise(local);
+    // Belt and braces: by construction every live piece is either in the
+    // result or was deleted here on purpose. If that ever stops being true,
+    // refuse rather than publish a loss.
+    if (!meta.replaced && merged.entries.length < remote.entries.length - report.deletedHere) {
+      throw new Error('Publishing was stopped: it would have removed writing that was not ' +
+                      'deleted on this device. Nothing was changed.');
+    }
+    return { data: merged, report: report };
+  }
+
+  function mergeForPublish(remote) {
+    var meta = draftMeta() || {};
+    return fold(state.data, remote, meta, meta.base || state.base || null);
   }
 
   /* Two versions hold the same site when everything but the timestamp matches;
@@ -487,6 +778,7 @@
 
   function addEntry(partial) {
     var e = normaliseEntry(partial);
+    e.updatedAt = new Date().toISOString();
     state.data.entries.unshift(e);
     markDirty();
     return e;
@@ -496,6 +788,8 @@
     var e = getEntry(id);
     if (!e) return null;
     Object.keys(patch).forEach(function (k) { e[k] = patch[k]; });
+    // Set after copying, so a patch carrying an old stamp cannot keep it.
+    e.updatedAt = new Date().toISOString();
     markDirty();
     return e;
   }
@@ -628,6 +922,11 @@
       state.data = incoming;
       if (!state.data.admin.passHash) state.data.admin = keptAdmin;
       if (!state.data.publish.owner) state.data.publish = keptPublish;
+      // "Replace all" means exactly this file — publishing should not fold the
+      // live pieces back in.
+      var meta = draftMeta() || {};
+      meta.replaced = true;
+      writeLS(LS.meta, meta);
     }
     markDirty();
     return state.data;
@@ -645,8 +944,13 @@
     deepDefaults: deepDefaults,
     readLS: readLS,
     writeLS: writeLS,
+    removeLS: removeLS,
 
     load: load,
+    canEdit: canEdit,
+    looksLikeContent: looksLikeContent,
+    mergeForPublish: mergeForPublish,
+    fold: fold,
     on: on,
     emit: emit,
     markDirty: markDirty,
@@ -671,6 +975,7 @@
     updateEntry: updateEntry,
     removeEntry: removeEntry,
     normaliseEntry: normaliseEntry,
+    normaliseStops: normaliseStops,
 
     getCollection: getCollection,
     addCollection: addCollection,
