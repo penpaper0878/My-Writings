@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T16:25:59.340Z",
+  "updatedAt": "2026-10-22T16:26:34.266Z",
   "site": {
     "name": "Versify",
     "nameGu": "",
@@ -590,14 +590,6 @@
     }
   ],
   "collections": [
-    {
-      "name": "New collection",
-      "order": 0,
-      "id": "c_mve4l2g4v9rlz",
-      "desc": "સફર ",
-      "cover": "",
-      "accent": "#0091ff"
-    },
     {
       "name": "સફર",
       "order": 1,
