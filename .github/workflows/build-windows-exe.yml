@@ -1,0 +1,63 @@
+name: Build Windows EXE (DroneInspect Pro)
+
+on:
+  push:
+    paths:
+      - "drone_inspector/**"
+      - ".github/workflows/build-windows-exe.yml"
+    tags:
+      - "drone-inspector-v*"
+  pull_request:
+    paths:
+      - "drone_inspector/**"
+      - ".github/workflows/build-windows-exe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed only to attach the .exe to a release on tag pushes
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: drone_inspector
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+
+      - name: Build single-file windowed EXE
+        run: >
+          python -m PyInstaller --noconfirm --clean --onefile --windowed
+          --name DroneInspectPro --collect-data docx drone_inspector.py
+
+      # Run the built EXE headless on a synthetic survey and require both reports.
+      - name: Smoke test the EXE
+        shell: pwsh
+        run: |
+          python -c "import numpy as np, cv2; img = np.full((1200,1800,3),150,np.uint8); cv2.polylines(img,[np.array([[200,200],[700,600],[1200,900]])],False,(60,60,60),4); cv2.circle(img,(1500,300),90,(30,70,150),-1); import os; os.makedirs('sample',exist_ok=True); cv2.imwrite('sample/DJI_0001.JPG',img)"
+          $p = Start-Process -FilePath dist\DroneInspectPro.exe -ArgumentList '--cli','--asset','bridge','--input','sample','--output','smoke_out','--gsd','0.2' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "EXE exited with $($p.ExitCode)" }
+          if (-not (Test-Path smoke_out\Inspection_Report.html)) { throw "HTML report missing" }
+          if (-not (Test-Path smoke_out\Inspection_Report.docx)) { throw "DOCX report missing" }
+          Get-Content smoke_out\findings.csv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DroneInspectPro-windows-x64
+          path: drone_inspector/dist/DroneInspectPro.exe
+          if-no-files-found: error
+
+      - name: Attach to GitHub release (tag pushes only)
+        if: startsWith(github.ref, 'refs/tags/drone-inspector-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: drone_inspector/dist/DroneInspectPro.exe
