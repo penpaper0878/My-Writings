@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T16:34:51.861Z",
+  "updatedAt": "2026-10-22T16:41:02.764Z",
   "site": {
     "name": "Versify",
     "nameGu": "",
@@ -377,9 +377,15 @@
       "date": "2026-03-25",
       "id": "e_mvdo9umyx8qnc",
       "title": "વાસ્તવિકતા નું પ્રતિબિંબ",
-      "body": "એટલું સહેલું નથી કંઇ જીવનમાં,\nસાથની અપેક્ષા કરવી એકલતામાં,\nધાર્યું તો હોય કે રાખીશું,\nપણ આ મન રહેતું નથી આ કાબુમાં,\nખૂટતી લાગે હાસ્યોની ક્ષણો,\nસમય સાથે છૂટતાં સંબધોમાં,\nભલે કરે લાગણીઓ પ્રયત્ન,\nપણ હકીકત ની જાણ છે આખાયે ગામમાં.",
+      "body": "એટલું સહેલું નથી કંઇ જીવનમાં,\nસાથની અપેક્ષા કરવી એકલતામાં,\n\nધાર્યું તો હોય કે રાખીશું,\nપણ આ મન રહેતું નથી આ કાબુમાં,\n\nખૂટતી લાગે હાસ્યોની ક્ષણો,\nસમય સાથે છૂટતાં સંબધોમાં,\n\nભલે કરે લાગણીઓ પ્રયત્ન,\nપણ હકીકત ની જાણ છે આખાયે ગામમાં.",
       "excerpt": "",
-      "tags": [],
+      "tags": [
+        "મન",
+        "લાગણી",
+        "સંબંધ",
+        "અપેક્ષા",
+        "હાસ્ય"
+      ],
       "collections": [],
       "pinned": false,
       "draft": false,
@@ -388,32 +394,49 @@
       "style": {
         "preset": "inherit",
         "font": "Farsan",
-        "size": 1,
-        "lineHeight": 1.85,
-        "letterSpacing": 0.01,
-        "align": "justify",
+        "size": 1.15,
+        "lineHeight": 1.6,
+        "letterSpacing": 0.035,
+        "align": "center",
         "textColor": "#ffffff",
         "bgType": "gradient",
         "bgColor": "#468152",
-        "gradFrom": "#ffffff",
-        "gradTo": "#6f01a2",
-        "gradAngle": 270,
+        "gradFrom": "#6f01a2",
+        "gradTo": "#ffffff",
+        "gradAngle": 340,
         "bgImage": "",
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
         "frame": "box",
-        "weight": 400,
+        "weight": 600,
         "italic": false,
         "underline": false,
-        "titleFont": "",
+        "titleFont": "Hind Vadodara",
         "titleSize": 1,
         "titleWeight": 0,
         "titleItalic": false,
         "titleUnderline": false,
-        "titleColor": "",
-        "titleAlign": "",
-        "gradStops": [],
+        "titleColor": "#000000",
+        "titleAlign": "center",
+        "gradStops": [
+          {
+            "c": "#6f01a2",
+            "p": 25
+          },
+          {
+            "c": "#0031f5",
+            "p": 37
+          },
+          {
+            "c": "#4ae354",
+            "p": 26
+          },
+          {
+            "c": "#ffffff",
+            "p": 100
+          }
+        ],
         "gradKind": "linear",
         "frameColor": "",
         "frameWidth": 2,
@@ -421,7 +444,7 @@
         "framePad": 24,
         "frameStyle": "solid"
       },
-      "updatedAt": ""
+      "updatedAt": "2026-10-22T16:41:00.160Z"
     },
     {
       "type": "poem",
