@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T16:29:56.943Z",
+  "updatedAt": "2026-10-22T16:34:51.861Z",
   "site": {
     "name": "Versify",
     "nameGu": "",
@@ -429,7 +429,7 @@
       "date": "2025-12-25",
       "id": "e_mvdo3hb4vgtr8",
       "title": "समय के साथ",
-      "body": "नाते वो टूटे से लगते हैं,\n जब रिश्ते रूठे से लगते हैं,\n\nकैसे बढ़े आगे की साथ पाये,\n उनका जो पीछे छूटे से लगते है,\n\nवक्त का ये अजीब सितम,\n ख्याल उनके अच्छे आते हैं,\n\n मगर सच बताउ वो,\n सारे झूठे से लगते हैं।",
+      "body": "**नाते वो टूटे से लगते हैं,**\n** जब रिश्ते रूठे से लगते हैं,**\n\n**कैसे बढ़े आगे की साथ पाये,**\n** उनका जो पीछे छूटे से लगते है,**\n\n**वक्त का ये अजीब सितम,**\n** ख्याल उनके अच्छे आते हैं,**\n\n** मगर सच बताउ वो,**\n** सारे झूठे से लगते हैं।**",
       "excerpt": "",
       "tags": [],
       "collections": [],
@@ -439,17 +439,17 @@
       "credit": "",
       "style": {
         "preset": "inherit",
-        "font": "Anek Devanagari",
+        "font": "Eczar",
         "size": 1.05,
         "lineHeight": 1.9,
         "letterSpacing": 0.01,
         "align": "center",
-        "textColor": "#000000",
+        "textColor": "#ffffff",
         "bgType": "gradient",
         "bgColor": "#101418",
-        "gradFrom": "#fe62f1",
-        "gradTo": "#c9df5d",
-        "gradAngle": 180,
+        "gradFrom": "#80ff00",
+        "gradTo": "#df5ddb",
+        "gradAngle": 125,
         "bgImage": "",
         "bgDim": 0.35,
         "bgBlur": 0,
@@ -458,14 +458,31 @@
         "weight": 400,
         "italic": false,
         "underline": false,
-        "titleFont": "",
+        "titleFont": "Tiro Devanagari Hindi",
         "titleSize": 1,
-        "titleWeight": 0,
-        "titleItalic": false,
+        "titleWeight": 800,
+        "titleItalic": true,
         "titleUnderline": false,
-        "titleColor": "",
+        "titleColor": "#000000",
         "titleAlign": "",
-        "gradStops": [],
+        "gradStops": [
+          {
+            "c": "#80ff00",
+            "p": 0
+          },
+          {
+            "c": "#5eb07e",
+            "p": 25
+          },
+          {
+            "c": "#7294e3",
+            "p": 50
+          },
+          {
+            "c": "#df5ddb",
+            "p": 100
+          }
+        ],
         "gradKind": "linear",
         "frameColor": "",
         "frameWidth": 2,
@@ -473,7 +490,7 @@
         "framePad": 24,
         "frameStyle": "solid"
       },
-      "updatedAt": ""
+      "updatedAt": "2026-10-22T16:34:49.310Z"
     },
     {
       "type": "poem",
