@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T13:39:56.000Z",
+  "updatedAt": "2026-10-22T16:25:59.340Z",
   "site": {
     "name": "Versify",
     "nameGu": "",
@@ -34,7 +34,13 @@
     "baseSize": 17,
     "radius": 18,
     "cardStyle": "glass",
-    "density": "comfortable"
+    "density": "comfortable",
+    "gradStops": [],
+    "gradKind": "linear",
+    "headEn": "",
+    "headGu": "",
+    "headHi": "",
+    "headWeight": 620
   },
   "home": {
     "layout": "grid",
@@ -60,6 +66,76 @@
     "sortBy": "date-desc"
   },
   "entries": [
+    {
+      "type": "poem",
+      "lang": "gu",
+      "date": "2026-03-30",
+      "id": "e_mvjqyj2u9v7wj",
+      "title": "વિશ્વાસ",
+      "body": "ખચકાતા ડગલાં દૂર થયા વિશ્વાસે,\nમનના સપનાં જ્યારે હકીકત થઈ ગયા,\n\n સફર પર મિત્રોના અદમ્ય સંગાથે,\nઅંતરના ભાવો અભિભૂત થઈ ગયા,\n\nરહેલા જો કોઈ નિરર્થક વિચારો,\nકોણ જાણે વિસ્મયમાં બરખાસ્ત થઈ ગયા,\n\nભાવિના ઓછાયામાં કેટલા સવાલો,\nવર્તમાનના ઝંઝાળમાં દરખાસ્ત થઈ ગયા.****",
+      "excerpt": "",
+      "tags": [
+        "સફર",
+        "મન",
+        "વિશ્વાસ",
+        "વિચાર",
+        "મિત્ર",
+        "સંબંધ"
+      ],
+      "collections": [
+        "c_mvjr0xrewqtt8"
+      ],
+      "pinned": false,
+      "draft": false,
+      "cover": "",
+      "credit": "",
+      "updatedAt": "2026-10-22T16:25:56.837Z",
+      "style": {
+        "preset": "inherit",
+        "font": "Anek Gujarati",
+        "size": 1,
+        "weight": 500,
+        "italic": false,
+        "underline": false,
+        "lineHeight": 1.85,
+        "letterSpacing": 0,
+        "align": "center",
+        "textColor": "#2B2520",
+        "textShadow": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "#1E3A8A",
+        "titleAlign": "",
+        "bgType": "solid",
+        "bgColor": "#FBF6EA",
+        "gradStops": [
+          {
+            "c": "#1b2735",
+            "p": 0
+          },
+          {
+            "c": "#090a0f",
+            "p": 100
+          }
+        ],
+        "gradFrom": "#1b2735",
+        "gradTo": "#090a0f",
+        "gradAngle": 160,
+        "gradKind": "linear",
+        "bgImage": "",
+        "bgDim": 0.35,
+        "bgBlur": 0,
+        "frame": "lines",
+        "frameColor": "#7FA7D9",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 22,
+        "frameStyle": "solid"
+      }
+    },
     {
       "type": "poem",
       "lang": "gu",
@@ -97,8 +173,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "quotes"
-      }
+        "frame": "quotes",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -137,8 +231,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "rule"
-      }
+        "frame": "rule",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -178,8 +290,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "rule"
-      }
+        "frame": "rule",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -220,8 +350,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": true,
-        "frame": "none"
-      }
+        "frame": "none",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -254,8 +402,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "box"
-      }
+        "frame": "box",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -288,8 +454,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "none"
-      }
+        "frame": "none",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -322,8 +506,26 @@
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "none"
-      }
+        "frame": "none",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     },
     {
       "type": "poem",
@@ -365,8 +567,26 @@
         "bgDim": 0.5,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "box"
-      }
+        "frame": "box",
+        "weight": 400,
+        "italic": false,
+        "underline": false,
+        "titleFont": "",
+        "titleSize": 1,
+        "titleWeight": 0,
+        "titleItalic": false,
+        "titleUnderline": false,
+        "titleColor": "",
+        "titleAlign": "",
+        "gradStops": [],
+        "gradKind": "linear",
+        "frameColor": "",
+        "frameWidth": 2,
+        "frameRadius": 14,
+        "framePad": 24,
+        "frameStyle": "solid"
+      },
+      "updatedAt": ""
     }
   ],
   "collections": [
@@ -377,6 +597,14 @@
       "desc": "સફર ",
       "cover": "",
       "accent": "#0091ff"
+    },
+    {
+      "name": "સફર",
+      "order": 1,
+      "id": "c_mvjr0xrewqtt8",
+      "desc": "",
+      "cover": "",
+      "accent": ""
     }
   ],
   "feedback": {
@@ -396,7 +624,7 @@
   },
   "publish": {
     "owner": "penpaper0878",
-    "repo": "instatements",
+    "repo": "My-Writings",
     "branch": "main",
     "path": "writings/data/content.json"
   }
