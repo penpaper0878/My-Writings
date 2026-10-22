@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T16:27:17.681Z",
+  "updatedAt": "2026-10-22T16:29:56.943Z",
   "site": {
     "name": "Versify",
     "nameGu": "",
@@ -491,41 +491,54 @@
       "credit": "",
       "style": {
         "preset": "inherit",
-        "font": "Noto Serif Devanagari",
+        "font": "Poppins",
         "size": 1,
         "lineHeight": 1.85,
-        "letterSpacing": 0,
+        "letterSpacing": 0.05,
         "align": "center",
         "textColor": "",
         "bgType": "gradient",
         "bgColor": "#101418",
-        "gradFrom": "#18ecc9",
-        "gradTo": "#4CA1AF",
-        "gradAngle": 160,
+        "gradFrom": "#0B0C2A",
+        "gradTo": "#2B2E83",
+        "gradAngle": 165,
         "bgImage": "",
         "bgDim": 0.35,
         "bgBlur": 0,
         "textShadow": false,
-        "frame": "none",
+        "frame": "ornament",
         "weight": 400,
         "italic": false,
         "underline": false,
         "titleFont": "",
         "titleSize": 1,
         "titleWeight": 0,
-        "titleItalic": false,
+        "titleItalic": true,
         "titleUnderline": false,
-        "titleColor": "",
+        "titleColor": "#FFD86F",
         "titleAlign": "",
-        "gradStops": [],
+        "gradStops": [
+          {
+            "c": "#0B0C2A",
+            "p": 34
+          },
+          {
+            "c": "#1B1F4B",
+            "p": 47
+          },
+          {
+            "c": "#2B2E83",
+            "p": 74
+          }
+        ],
         "gradKind": "linear",
-        "frameColor": "",
+        "frameColor": "#FFD86F",
         "frameWidth": 2,
         "frameRadius": 14,
-        "framePad": 24,
+        "framePad": 20,
         "frameStyle": "solid"
       },
-      "updatedAt": ""
+      "updatedAt": "2026-10-22T16:29:54.971Z"
     },
     {
       "type": "poem",
