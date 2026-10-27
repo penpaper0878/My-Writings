@@ -94,7 +94,7 @@ except Exception:
     HAVE_DOCX = False
 
 APP_NAME = "DroneInspect Pro"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 CONFIG_PATH = Path.home() / ".droneinspect" / "config.json"
 SEVERITIES = ["Low", "Medium", "High", "Critical"]
 SEV_RANK = {s: i for i, s in enumerate(SEVERITIES)}
@@ -114,7 +114,7 @@ DEFAULT_CONFIG = {
         "include_media_appendix": True,
     },
     "processing": {
-        "max_process_side_px": 2400,       # images are downscaled to this for CV (GSD rescaled)
+        "max_process_side_px": 4096,       # larger images are downscaled to this for CV (GSD rescaled); full res preserves fine cracks
         "video_frame_interval_s": 2.0,
         "video_dedupe_corr": 0.985,        # skip frames whose HSV-hist correlation > this
         "max_frames_per_video": 300,
@@ -143,15 +143,25 @@ DEFAULT_CONFIG = {
         "structure_min_pct": 3.0, "pavement_min_pct": 8.0,
         "core_erode_px": 0,                # 0 = auto (crack kernel/2 + 3): ignores asset boundary edges
         "woody_texture_std": 16.0, "woody_v_max": 150, "woody_min_area_m2": 2.0,
-        "water_texture_std": 6.0, "water_min_pct": 1.0,
+        "water_texture_std": 6.0, "water_min_pct": 1.0, "sky_texture_std": 2.5,
         "vehicle_exclusion": True, "vehicle_area_m2": [2.5, 30.0],
         "pv_min_rectangularity": 0.55, "pv_min_grid_score": 0.25, "pv_min_modules": 2, "pv_min_area_pct": 0.3,
-        "pv_zone_close_m": 4.0, "pv_zone_close_pct": 4.0, "pv_perimeter_m": 1.0,
+        # module-scale repeat (m) when GSD is known: [min, max portrait pitch (module width + gap), max landscape pitch]
+        # -> roof ribs / cell-scale texture (< min) and parked cars / parking bays (landscape-like pitch, no module rows) rejected
+        "pv_pitch_m": [0.8, 1.45, 2.7],
+        "pv_zone_close_m": 2.5, "pv_zone_close_pct": 3.0,   # bridges inter-row gaps (row pitch - table depth) only
+        "pv_perimeter_m": 0.0,             # array zone = envelope of tables; land beyond the outer tables is NOT the plant
         "lattice_edge_density": 0.06,
+        "pipe_diameter_m": [0.2, 2.0], "pipe_min_len_frac": 0.4, "pipe_max_interior_std": 25.0,
         "on_structure_ring_frac": 0.8,     # vegetation counts only if >= 80 % of its boundary is asset surface
+        "framed_opening_min_side_m": 0.3,  # rectangular vegetation >= this (both sides) = land seen through an opening between members
         "straight_line_tortuosity": 1.03, "straight_line_min_frac": 0.2,  # joints/edges rejected as cracks
+        "straight_band_min_frac": 0.1,     # straight dark bands >= 10 % of frame (interrupted joints) rejected as cracks
+        "straight_band_min_px": 150,       # ... or >= 150 px (edge / shadow fragments cut by balusters, bars, markings)
         "thermal_border_pct": 2.0,         # uncooled-sensor vignetting margin ignored
         "thermal_pv_uniform_std_c": 0.8,
+        "thermal_pv_table_min_rect": 0.75,
+        "thermal_pv_row_max_dT": 10.0,     # row-completed table must be within 10 K of verified modules (open string ~ +3-8 K)  # module-grid-verified blocks must be table-like (not merged with ground)
         "thermal_equipment_max_pct": 12.0, # hot regions larger than this are sun-heated ground/roofs, not equipment
         "thermal_water_max_std_c": 0.3,
         "pair_visual_suffixes": ["_W", "_V"],   # DJI wide image paired with _T thermal for ROI transfer
@@ -189,6 +199,11 @@ DEFAULT_CONFIG = {
         "local_bg_fraction": 0.08,         # Gaussian sigma for local background = fraction of max(h,w)
         "electrical_fg_delta_c": 3.0,      # pixels this much above image median = equipment/conductor
         "electrical_min_report_c": 2.0,
+        "civil_noise_k": 3.5,              # civil/seepage/building/pipeline: anomaly > 3.5 x surface thermal spread
+        "civil_edge_grad_c_px": 0.5,       # gradients steeper than this (C/px) are member edges, not surface texture
+        "civil_max_anomaly_pct": 4.0,      # warm regions larger than this % of the frame = sun/shadow loading, not delamination
+        "pv_cell_min_dT": 5.0,             # cell-sized PV anomalies below this (K) are not reported
+        "pv_noise_k": 4.0,                 # ... nor below 4 x the array's module-to-module spread
     },
     "environment": {                       # entered in GUI; used for QA & corrections
         "ambient_temp_c": None, "irradiance_wm2": None, "wind_speed_ms": None,
@@ -204,19 +219,35 @@ DEFAULT_CONFIG = {
             # pavements (ASTM D6433 L/M/H at 10 / 76 mm; <3 mm hairline)
             "pavement_width_bands_mm": [[0.0, "Low"], [3.0, "Medium"], [10.0, "High"], [76.0, "Critical"]],
             "map_pattern_junctions_per_100px": 1.2,
+            "max_crack_width_mm": 15.0,    # wider linear features are joints / gaps / edges, not cracks
+            "crack_void_darkness": 0.6,    # relative darkness of an open crack void (photometric width of sub-pixel cracks)
         },
         "corrosion": {"hsv_lo": [3, 90, 40], "hsv_hi": [22, 255, 210], "min_area_pct": 0.05,
                       # ISO 4628-3 Ri grades: rusted area %
                       "ri_limits_pct": [0.05, 0.5, 1.0, 8.0, 40.0],
                       "ri_severity": ["Low", "Low", "Low", "Medium", "High", "Critical"]},
-        "efflorescence": {"s_max": 28, "v_min": 205, "bands_pct": [[0.5, "Low"], [2.0, "Medium"], [6.0, "High"]]},
+        "efflorescence": {"s_max": 28, "v_min": 205, "bands_pct": [[0.0, "Low"], [2.0, "Medium"], [6.0, "High"]],   # any deposit = Low
+                          "min_area_m2": 0.002},
         "vegetation": {"exg_min": 0.06, "bands_pct": [[1.0, "Low"], [5.0, "Medium"], [15.0, "High"], [35.0, "Critical"]],
                        # any growth ON a structure is a defect: % of asset surface in frame
-                       "on_structure_bands_pct": [[0.0, "Low"], [1.0, "Medium"], [5.0, "High"]]},
-        "spall": {"local_drop": 38, "min_area_pct": 0.03, "max_area_pct": 12.0, "max_solidity": 0.95, "max_rectangularity": 0.85,
+                       "on_structure_bands_pct": [[0.0, "Low"], [1.0, "Medium"], [5.0, "High"]],
+                       # any weed inside a PV array / switchyard / pipe RoW zone is a maintenance item: % of zone
+                       "zone_bands_pct": [[0.0, "Low"], [3.0, "Medium"], [10.0, "High"], [25.0, "Critical"]],
+                       "min_plant_m2": 0.03},          # smallest plant reported (noise / moss specks below)
+        # module glass fracture lines (~1-3 mm) are only resolvable on close-range imagery
+        "pv_glass": {"max_gsd_mm": 10.0, "min_off_axis_frac": 0.35},
+        "spall": {"local_drop": 38, "ring_drop": 25, "min_area_pct": 0.03, "min_area_m2": 0.01, "max_area_pct": 12.0, "max_solidity": 0.95, "max_rectangularity": 0.85,
+                  "min_thickness_m": 0.04,
                   "bands_pct": [[0.0, "Medium"], [1.0, "High"], [4.0, "Critical"]]},
-        "moisture": {"v_max": 80, "s_max": 60, "min_area_pct": 1.5, "bands_pct": [[1.5, "Low"], [5.0, "Medium"], [15.0, "High"]]},
-        "soiling": {"bands_pct": [[0.5, "Low"], [5.0, "Medium"], [15.0, "High"]]},   # % of verified module area
+        "moisture": {"drop": 30, "s_max": 120, "min_area_m2": 0.5, "min_area_pct": 0.3,
+                     "bands_pct": [[0.0, "Low"], [5.0, "Medium"], [15.0, "High"]]},   # any confirmed wet patch = Low
+        "soiling": {"bands_pct": [[0.0, "Low"], [5.0, "Medium"], [15.0, "High"]],   # % of verified module area; any patch = Low
+                    "dl_min": 8.0, "dl_sigma": 3.0,   # brighter than clean modules by >= max(8 L*, 3 sigma)
+                    "min_blob_m": 0.10,               # deposit must be wider than a frame + gap band
+                    "min_area_m2": 0.05,              # smallest reportable deposit area (~22 cm patch)
+                    "close_gsd_mm": 10.0, "min_blob_close_m": 0.06, "min_area_close_m2": 0.004,   # close-range limits
+                    "max_aspect": 2.2,                # deposits are compact; edge streaks / frame reflections are not
+                    "min_clean_ring_frac": 0.5},      # >= 50 % of its surroundings must be clean module glass
         # NETA MTS/ATS Table 100.18
         "thermal_electrical_c2c": [[0.99, "Low"], [3.0, "Medium"], [15.0, "Critical"]],
         "thermal_electrical_amb": [[0.99, "Low"], [10.0, "Medium"], [20.0, "High"], [40.0, "Critical"]],
@@ -253,7 +284,7 @@ DEFAULT_CONFIG = {
     "custom_assets": {
         "lattice_tower": {
             "label": "Telecom / Lattice Steel Tower (custom example)",
-            "roi": "tower", "veg_rule": "zone_woody", "zone_independent": True,   # roi: pv|structure|yard|pavement|canal|tower|linear|facade|full
+            "roi": "tower", "veg_rule": "zone_woody", "zone_independent": True, "max_process_side_px": 2400,   # roi: pv|structure|yard|pavement|canal|tower|linear|facade|full
             "detectors": ["quality", "corrosion", "vegetation"],
             "thermal_mode": "electrical",
             "map": {"corrosion": "corrosion_steel", "vegetation": "vegetation_row"},
@@ -418,7 +449,7 @@ KB = {
     },
     "vegetation_solar": {
         "name": "Vegetation / shading hazard in PV array",
-        "description": "Vegetation inside the PV array zone (between rows, under tables, 1 m perimeter strip). Vegetation on adjacent plots outside the array is not counted.",
+        "description": "Vegetation inside the PV array envelope (between rows and under/over tables). Land beyond the outermost tables - neighbouring plots, roads, fenced strips - is not counted.",
         "causes": ["Inadequate grass-cutting cycle", "Wind-blown seeds, high rainfall"],
         "consequences": ["Partial shading -> hot-spots, bypass-diode activation, mismatch loss", "Fire hazard near DC cables", "Cable damage by rodents"],
         "solution": ["Mechanical grass cutting below module lower edge", "Pre-emergent herbicide / gravel or anti-weed membrane where permitted"],
@@ -449,7 +480,7 @@ KB = {
     },
     "soiling_pv": {
         "name": "Module soiling (dust / bird droppings)",
-        "description": "Fraction of detected module area with soiling-like colour signature (brown/grey high-value pixels on dark cells).",
+        "description": "Deposits clearly brighter than the clean glass of the same table (local module-scale reference, any hue), after removing frames, inter-module gaps and cell grid; must be surrounded mostly by clean glass. Reported as % of verified module area.",
         "causes": ["Dust from nearby roads/agriculture", "Bird droppings", "Low tilt / infrequent cleaning", "Dew-cementation of dust"],
         "consequences": ["Energy loss (often 1-7 %/month in arid sites)", "Bird droppings cause localised hot-spots"],
         "solution": ["Water-based cleaning with soft brush (low TDS water) or robotic dry cleaning", "Spot-clean bird droppings"],
@@ -554,7 +585,7 @@ THERMAL_MODES = {
 ASSETS = {
     "bridge": {
         "label": "Bridge / Flyover / ROB / Culvert",
-        "roi": "structure", "veg_rule": "on_structure", "buffer_m": 0.5,
+        "roi": "structure", "veg_rule": "on_structure", "buffer_m": 0.5, "grey_vehicles": True,
         "detectors": ["quality", "crack", "spall", "corrosion", "efflorescence", "vegetation"],
         "thermal_mode": "civil_warm",
         "map": {"crack": "crack_concrete", "spall": "spalling", "corrosion": "corrosion_concrete", "vegetation": "vegetation_structure"},
@@ -572,7 +603,7 @@ ASSETS = {
     },
     "canal": {
         "label": "Canal (lined / unlined) & Structures",
-        "roi": "canal", "veg_rule": "prism_all_berm_woody", "buffer_m": 8.0,
+        "roi": "canal", "veg_rule": "prism_all_berm_woody", "buffer_m": 8.0, "grey_vehicles": True,
         "detectors": ["quality", "crack", "spall", "vegetation", "moisture"],
         "thermal_mode": "seepage_cold",
         "map": {"crack": "crack_lining", "spall": "spalling", "vegetation": "vegetation_canal"},
@@ -587,7 +618,7 @@ ASSETS = {
     },
     "ht_line": {
         "label": "HT / EHV Transmission Line",
-        "roi": "tower", "veg_rule": "zone_woody", "zone_independent": True, "min_coverage_pct": 0.3,
+        "roi": "tower", "veg_rule": "zone_woody", "zone_independent": True, "min_coverage_pct": 0.3, "max_process_side_px": 2400,
         "detectors": ["quality", "corrosion", "vegetation"],
         "thermal_mode": "electrical",
         "map": {"corrosion": "corrosion_steel", "vegetation": "vegetation_row"},
@@ -604,7 +635,7 @@ ASSETS = {
     },
     "solar": {
         "label": "Solar PV Plant (ground / rooftop)",
-        "roi": "pv", "veg_rule": "zone_all",
+        "roi": "pv", "veg_rule": "zone_all", "grey_vehicles": True, "max_process_side_px": 2400, "veg_zone_label": "between rows / under tables of the PV array",
         "detectors": ["quality", "solar", "vegetation"],   # MMS corrosion needs oblique close-ups -> checklist
         "thermal_mode": "pv",
         "map": {"vegetation": "vegetation_solar", "corrosion": "corrosion_steel"},
@@ -619,8 +650,8 @@ ASSETS = {
     },
     "road": {
         "label": "Road / Highway / Runway Pavement",
-        "roi": "pavement", "veg_rule": "on_structure", "buffer_m": 1.0,
-        "detectors": ["quality", "crack", "spall", "vegetation", "moisture"],
+        "roi": "pavement", "veg_rule": "on_structure", "buffer_m": 1.0, "grey_vehicles": True,
+        "detectors": ["quality", "crack", "spall", "vegetation"],   # RGB wet-patch detection unreliable under tree/vehicle shadows
         "thermal_mode": "civil_warm",
         "map": {"crack": "crack_pavement", "spall": "pothole", "vegetation": "vegetation_structure"},
         "components": ["Carriageway", "Paved / earthen shoulders", "Median & kerbs", "Side drains & culverts", "Road furniture & markings", "Embankment slopes"],
@@ -641,7 +672,9 @@ ASSETS = {
     },
     "dam": {
         "label": "Dam / Barrage / Embankment / Levee",
-        "roi": "structure", "earthen_fallback": True, "veg_rule": "zone_woody", "buffer_m": 2.0,
+        "roi": "structure", "earthen_fallback": True, "veg_rule": "zone_woody", "buffer_m": 2.0, "grey_vehicles": True,
+        "zone_frame": True,       # woody growth / seepage anywhere on the visible embankment & toe area
+        "veg_zone_label": "trees / shrubs on the embankment or near the toe (turf grass is not counted)",
         "detectors": ["quality", "crack", "spall", "efflorescence", "vegetation", "moisture"],
         "thermal_mode": "seepage_cold",
         "map": {"crack": "crack_concrete", "spall": "spalling", "vegetation": "vegetation_structure"},
@@ -653,7 +686,7 @@ ASSETS = {
     },
     "pipeline": {
         "label": "Pipeline (above-ground / corridor)",
-        "roi": "linear", "veg_rule": "zone_all", "buffer_m": 3.0,
+        "roi": "linear", "veg_rule": "zone_all", "buffer_m": 3.0, "min_coverage_pct": 0.5, "max_process_side_px": 2400, "veg_zone_label": "in the pipeline right-of-way",   # a pipe is a thin band in frame
         "detectors": ["quality", "corrosion", "vegetation", "moisture"],
         "thermal_mode": "pipeline",
         "map": {"corrosion": "corrosion_steel", "vegetation": "vegetation_row"},
@@ -664,7 +697,7 @@ ASSETS = {
     },
     "substation": {
         "label": "Substation / Switchyard",
-        "roi": "yard", "veg_rule": "zone_all", "buffer_m": 0.5,
+        "roi": "yard", "veg_rule": "zone_all", "buffer_m": 0.0, "max_process_side_px": 2400, "veg_zone_label": "inside the switchyard",   # weeds INSIDE the yard only
         "detectors": ["quality", "corrosion", "vegetation"],
         "thermal_mode": "electrical",
         "map": {"corrosion": "corrosion_steel", "vegetation": "vegetation_structure"},
@@ -936,7 +969,10 @@ def detect_cracks(gray, gsd, c, roi=None, bright=False, straight_min_px=None):
     """Returns (list of crack dicts, mask). gsd in mm/px of the processed image or None.
     straight_min_px: long straight segments (construction/expansion joints, member edges, lane lines,
     formwork & shadow lines) are erased first so a crack crossing a joint is measured on its own."""
-    g = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(cv2.medianBlur(gray, 5))  # suppress aggregate texture
+    # light Gaussian (not a 5x5 median, which erases every crack narrower than ~3 px, i.e. all hairline-to-2 mm
+    # cracks at close-range GSD); texture is handled by the adaptive threshold and the shape filters
+    g0 = cv2.GaussianBlur(gray, (0, 0), 0.8)
+    g = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(g0)
     k = int(c["blackhat_kernel_px"]) | 1
     ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
     resp = cv2.morphologyEx(g, cv2.MORPH_TOPHAT if bright else cv2.MORPH_BLACKHAT, ker)
@@ -949,10 +985,16 @@ def detect_cracks(gray, gsd, c, roi=None, bright=False, straight_min_px=None):
     if roi is not None:
         m &= roi.astype(np.uint8)
     if straight_min_px:
-        lines = cv2.HoughLinesP(m * 255, 1, np.pi / 360, threshold=int(straight_min_px * 0.6),
-                                minLineLength=int(straight_min_px), maxLineGap=4)
+        # joints / formwork lines / shadow & member edges are often only partly above the crack threshold:
+        # find them on a weaker mask with gap tolerance, and erase their full band width
+        lm = (resp > 0.6 * t).astype(np.uint8)
+        if roi is not None:
+            lm &= roi.astype(np.uint8)
+        lines = cv2.HoughLinesP(lm * 255, 1, np.pi / 360, threshold=int(straight_min_px * 0.6),
+                                minLineLength=int(straight_min_px), maxLineGap=max(4, int(0.03 * straight_min_px)))
+        th_erase = max(7, int(c["max_mean_width_px"]) + 3)
         for x1, y1, x2, y2 in (lines.reshape(-1, 4) if lines is not None else []):
-            cv2.line(m, (int(x1), int(y1)), (int(x2), int(y2)), 0, 7)
+            cv2.line(m, (int(x1), int(y1)), (int(x2), int(y2)), 0, th_erase)
     n, lab, st, _ = cv2.connectedComponentsWithStats(m, 8)
     keep = np.zeros_like(m)
     cracks = []
@@ -987,6 +1029,8 @@ def detect_cracks(gray, gsd, c, roi=None, bright=False, straight_min_px=None):
                        "mask": (x, y, comp),
                        "w_med_px": float(np.median(wv)), "w_max_px": float(np.percentile(wv, 95)),
                        "angle": ang, "junctions": junc})
+    if cracks and not bright:
+        crack_widths_photometric(g0, cracks, c, ker)
     for cr in cracks:
         x, y, comp = cr["mask"]
         keep[y:y + comp.shape[0], x:x + comp.shape[1]] |= comp
@@ -995,6 +1039,52 @@ def detect_cracks(gray, gsd, c, roi=None, bright=False, straight_min_px=None):
             cr["w_med_mm"] = cr["w_med_px"] * gsd
             cr["w_max_mm"] = cr["w_max_px"] * gsd
     return cracks, keep
+
+
+def crack_widths_photometric(g0, cracks, c, ker):
+    """Crack width from the integrated darkness deficit across the crack (blur- and threshold-independent):
+    width = deficit per unit length / (local surface level x void darkness). The thresholded-mask width is
+    >= ~3 px for any crack (blur + morphology) and over-states hairline cracks 2-6x. Void darkness = observed
+    relative depth where the crack is resolved, else c["crack_void_darkness"] (sub-pixel cracks)."""
+    g0 = g0.astype(np.float32)
+    clo = cv2.morphologyEx(g0, cv2.MORPH_CLOSE, ker)
+    bh = clo - g0
+    H, W = g0.shape
+    r = int(c["max_mean_width_px"] // 2 + 3)
+    disk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+    kap0 = c.get("crack_void_darkness", 0.6)
+    for cr in cracks:
+        x, y, comp = cr["mask"]
+        h, w = comp.shape
+        p = r + 3
+        x0, y0, x1, y1 = max(0, x - p), max(0, y - p), min(W, x + w + p), min(H, y + h + p)
+        M = np.zeros((y1 - y0, x1 - x0), np.uint8)
+        M[y - y0:y - y0 + h, x - x0:x - x0 + w] = comp
+        Md = dilate(M, 2)
+        ring = (dilate(M, r) > 0) & (Md == 0)
+        b = bh[y0:y1, x0:x1]
+        bias = float(np.median(b[ring])) if ring.any() else 0.0      # surface texture level
+        dd = np.maximum(b - bias, 0) * Md
+        S = cv2.filter2D(dd, -1, disk.astype(np.float32), borderType=cv2.BORDER_CONSTANT) / (2 * r + 1)
+        cl = np.maximum(clo[y0:y1, x0:x1], 1.0)
+        depth = cv2.dilate(dd / cl, disk)
+        sk = skeletonize(M)
+        if not sk.any():
+            continue
+        # where branches meet, the disk holds 2+ crack arms: measure away from junctions
+        s8 = np.pad(sk.astype(np.uint8), 1)
+        nb = sum(np.roll(np.roll(s8, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                 if dy or dx)[1:-1, 1:-1]
+        far = sk & (dilate((sk & (nb >= 3)).astype(np.uint8), r) == 0)
+        if far.sum() >= 0.3 * sk.sum():
+            sk = far
+        wmap = np.zeros(sk.shape, np.float32)
+        wmap[sk] = S[sk] / (np.maximum(depth[sk], kap0) * cl[sk])
+        # max width = widest SECTION, not the noisiest pixel: average along the crack over ~3 px first
+        skf = sk.astype(np.float32)
+        wsm = cv2.GaussianBlur(wmap, (0, 0), 3.0) / np.maximum(cv2.GaussianBlur(skf, (0, 0), 3.0), 1e-6)
+        cr["w_med_px"] = float(np.median(wmap[sk]))
+        cr["w_max_px"] = float(np.percentile(wsm[sk], 95))
 
 
 def color_mask_hsv(bgr, lo, hi, open_k=3):
@@ -1018,22 +1108,33 @@ def efflorescence_mask(bgr, c):
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     m = ((hsv[..., 1] <= c["s_max"]) & (hsv[..., 2] >= c["v_min"])).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-    # remove sky / large uniform bright areas touching top border
-    n, lab, st, _ = cv2.connectedComponentsWithStats(m, 8)
+    # shapes are judged on the gap-closed object (noise/texture fragments a white panel into pieces)
+    mc = fill_holes(cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8)))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(mc, 8)
     H, W = m.shape
+    drop = np.zeros(n, bool)
     for i in range(1, n):
         x, y, w, h, a = st[i]
-        if (y == 0 and a > 0.02 * H * W) or a > 0.25 * H * W:
-            m[lab == i] = 0
+        if (y == 0 and a > 0.02 * H * W) or a > 0.25 * H * W:      # sky / large uniform bright areas
+            drop[i] = True
             continue
-        # efflorescence is textured; uniform painted surfaces/sky are smooth
-    return m
+        # salt deposits / leaching streaks have irregular outlines; lane & kerb markings, painted bands,
+        # AC units, signs, window frames and white vehicle panels are rectilinear
+        if rectangularity(lab[y:y + h, x:x + w] == i)[0] > c.get("max_rectangularity", 0.85):
+            drop[i] = True
+    return (m & (1 - drop[lab].astype(np.uint8))).astype(np.uint8)
 
 
-def spall_mask(gray, c, exclude=None):
+def spall_mask(gray, c, exclude=None, min_thick_px=None, gsd=None):
+    """min_thick_px: a spall/pothole is an areal depression; components most of whose area is thinner
+    than this (railing/baluster shadows, graffiti strokes, joints, crack networks) are rejected."""
     H, W = gray.shape
     k = max(61, (max(H, W) // 8) | 1)        # background window must be >> defect size
-    local = cv2.blur(gray.astype(np.float32), (k, k))
+    # robust surface level: median (computed at 1/4 scale) is not pulled down/up by the dark defect itself
+    # or by bright neighbours (footpath beside asphalt, white vehicle, bright patch)
+    f = 4
+    sm = cv2.resize(gray, (max(1, W // f), max(1, H // f)), interpolation=cv2.INTER_AREA)
+    local = cv2.resize(cv2.medianBlur(sm, max(3, (k // f) | 1)), (W, H), interpolation=cv2.INTER_LINEAR).astype(np.float32)
     dark = ((local - gray.astype(np.float32)) > c["local_drop"]).astype(np.uint8)
     dark = cv2.morphologyEx(dark, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
     dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
@@ -1045,28 +1146,106 @@ def spall_mask(gray, c, exclude=None):
     for i in range(1, n):
         x, y, w, h, a = st[i]
         pct = 100.0 * a / tot
-        if not (c["min_area_pct"] <= pct <= c["max_area_pct"]):
-            continue
-        if max(w, h) / max(1, min(w, h)) > 4:            # elongated -> crack/shadow edge, not spall
+        small = (a * (gsd / 1000.0) ** 2 < c["min_area_m2"]) if gsd else (pct < c["min_area_pct"])
+        if small or pct > c["max_area_pct"]:
             continue
         comp = (lab[y:y + h, x:x + w] == i).astype(np.uint8)
-        cnts, _ = cv2.findContours(comp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        hull = cv2.convexHull(max(cnts, key=cv2.contourArea))
-        solidity = a / max(cv2.contourArea(hull), 1)
-        if rectangularity(comp)[0] > c.get("max_rectangularity", 0.85):   # man-made object / cast shadow
+        # shape tests on the WHOLE dark object: a dark plate / recess / cast shadow larger than ~half the
+        # background window is flagged only as window-shaped (concave) fragments that pass every shape test.
+        # Grow the fragment to all connected pixels darker than midway between it and its surroundings.
+        p = k // 2
+        x0, y0, x1, y1 = max(0, x - p), max(0, y - p), min(W, x + w + p), min(H, y + h + p)
+        cf = np.zeros((y1 - y0, x1 - x0), np.uint8)
+        cf[y - y0:y - y0 + h, x - x0:x - x0 + w] = comp
+        g = gray[y0:y1, x0:x1]
+        ring = (dilate(cf, 9) > 0) & (cf == 0)
+        if ring.any():
+            t_mid = 0.5 * (float(np.median(g[cf > 0])) + float(np.percentile(g[ring], 75)))
+            grow = cv2.morphologyEx((g < t_mid).astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+            if exclude is not None:
+                grow[exclude[y0:y1, x0:x1] > 0] = 0
+            gn, gl = cv2.connectedComponents(grow | cf, connectivity=8)
+            ids = np.unique(gl[cf > 0])
+            obj = np.isin(gl, ids[ids > 0]).astype(np.uint8)
+        else:
+            obj = cf
+        oa = int(obj.sum())
+        if 100.0 * oa / tot > c["max_area_pct"]:          # part of a large dark area (shaded member, roadway)
             continue
+        touch = ((obj[0].any() and y0 > 0) or (obj[-1].any() and y1 < H) or (obj[:, 0].any() and x0 > 0) or (obj[:, -1].any() and x1 < W))
+        if touch:                                          # grown object exceeds the analysis window: large dark area
+            continue
+        # a spall / pothole is clearly darker than ITS OWN surroundings (same surface); mottling of a dark
+        # surface next to a bright one only looks dark against the wide-window background
+        rr_ = max(3, int(0.5 * math.sqrt(oa)))
+        ring2 = (dilate(obj, rr_) > 0) & (obj == 0)
+        if exclude is not None:
+            ring2 &= exclude[y0:y1, x0:x1] == 0
+        # 30th percentile: darker on ALL sides (a bright marking / kerb on one side must not carry the test);
+        # tested on the grown object AND on the detected fragment itself (the grown object can be window-clipped)
+        if ring2.sum() > 10 and float(np.percentile(g[ring2], 30)) - float(np.median(g[obj > 0])) < c["ring_drop"]:
+            continue
+        if ring2.sum() < 0.5 * ((dilate(obj, rr_) > 0) & (obj == 0)).sum():
+            continue          # surroundings mostly vehicle / shadow / vegetation: contrast cannot be verified
+        ys_, xs_ = np.nonzero(obj)
+        ow, oh = int(xs_.max() - xs_.min() + 1), int(ys_.max() - ys_.min() + 1)
+        obj = obj[ys_.min():ys_.max() + 1, xs_.min():xs_.max() + 1]
+        if max(ow, oh) / max(1, min(ow, oh)) > 4:         # elongated -> crack/shadow edge, not spall
+            continue
+        cnts, _ = cv2.findContours(obj, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        hull = cv2.convexHull(max(cnts, key=cv2.contourArea))
+        solidity = oa / max(cv2.contourArea(hull), 1)
+        if rectangularity(obj)[0] > c.get("max_rectangularity", 0.85):   # man-made object / cast shadow
+            continue
+        if min_thick_px and min_thick_px > 2:
+            kk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (int(min_thick_px) | 1, int(min_thick_px) | 1))
+            body = cv2.morphologyEx(obj, cv2.MORPH_OPEN, kk)
+            if body.sum() < 0.5 * oa:
+                continue
+            # shape of the body once thin attachments (kerb / edge lines it touched) are stripped: drain spouts,
+            # bolt plates, hatches and recesses are rectangular
+            if rectangularity(body)[0] > c.get("max_rectangularity", 0.85):
+                continue
         if solidity <= c["max_solidity"]:
             out[y:y + h, x:x + w] |= comp
     return out
 
 
-def moisture_mask(bgr, c, exclude=None):
+def moisture_mask(bgr, c, exclude=None, gsd=None):
+    """Wet patch / seepage candidate: a broad, irregular area clearly DARKER than its own surroundings (wet soil,
+    damp concrete), not saturated-coloured. Cast shadows are removed by the caller (exclusion near vegetation,
+    structures, vehicles); low confidence - corroborate with thermal (cold anomaly)."""
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-    m = ((hsv[..., 2] <= c["v_max"]) & (hsv[..., 1] <= c["s_max"])).astype(np.uint8)
+    v, s_ = hsv[..., 2], hsv[..., 1]
+    H, W = v.shape
+    f = 4
+    k = max(31, (max(H, W) // (8 * f)) | 1)
+    sm = cv2.resize(v, (max(1, W // f), max(1, H // f)), interpolation=cv2.INTER_AREA)
+    local = cv2.resize(cv2.medianBlur(sm, min(k, 255)), (W, H), interpolation=cv2.INTER_LINEAR).astype(np.int16)
+    m = (((local - v.astype(np.int16)) > c["drop"]) & (s_ <= c["s_max"])).astype(np.uint8)
     if exclude is not None:
         m[exclude > 0] = 0
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
-    return mask_components(m, int(c["min_area_pct"] / 100.0 * m.size * 0.2))
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+    min_px = int(c["min_area_m2"] * (1000.0 / gsd) ** 2) if gsd else int(c["min_area_pct"] / 100.0 * H * W)
+
+    def wet(st, i, lab):
+        x, y, w, h, a = st
+        if a < min_px:
+            return False
+        comp = lab[y:y + h, x:x + w] == i
+        r_, rect_ = rectangularity(comp)
+        if r_ > 0.85:                                  # slabs, roofs, tanks, shadows of boxes
+            return False
+        if rect_ is not None and max(rect_[1]) > 3.5 * max(1.0, min(rect_[1])):
+            return False                               # roads, tracks, channels, drains: long bands, not seepage blobs
+        pad = max(3, int(0.5 * math.sqrt(a)))
+        x0, y0, x1, y1 = max(0, x - pad), max(0, y - pad), min(W, x + w + pad), min(H, y + h + pad)
+        cc = (lab[y0:y1, x0:x1] == i).astype(np.uint8)
+        ring = (dilate(cc, pad) > 0) & (cc == 0)
+        vv = v[y0:y1, x0:x1]
+        return ring.sum() > 10 and float(np.median(vv[ring])) - float(np.median(vv[cc > 0])) >= 0.7 * c["drop"]
+    return keep_components(m, wet)
 
 
 def pv_panel_mask(bgr):
@@ -1078,47 +1257,154 @@ def pv_panel_mask(bgr):
     return mask_components(m, int(0.005 * m.size))
 
 
-def soiling_mask(bgr, panel):
-    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
-    dust = ((h >= 5) & (h <= 35) & (s >= 30) & (v > 80)) | ((s < 40) & (v > 150))
-    m = (dust & (panel > 0)).astype(np.uint8)
-    return cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))   # removes thin cell gaps / frames
+def soiling_mask(bgr, panel, c, gsd=None, mod_px=None):
+    """Soiling / bird droppings / deposits = blobs clearly BRIGHTER than the clean module surface of the
+    same table. Dust, droppings and salt raise reflectance of dark blue/black cells whatever their hue.
+    Reference = median lightness of the table's module surface (shadow strips below it, cell gaps and
+    frames above it, are excluded by percentile trimming). Thin bright lines (cell gaps, frames,
+    busbars) are removed by an opening sized to the smallest reportable deposit; specular glare
+    (large, saturated) is rejected."""
+    # cell-scale median removes busbar / cell-gap texture so the clean-module spread (MAD) is honest
+    L = cv2.medianBlur(cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)[..., 0], 5).astype(np.float32)
+    out = np.zeros(panel.shape, np.uint8)
+    clean = np.zeros(panel.shape, np.uint8)      # clean module surface of each table
+    n, lab, st, _ = cv2.connectedComponentsWithStats(panel.astype(np.uint8), 8)
+    sig = (0.5 * 1000.0 / gsd) if gsd else 15.0          # ~half a module: follows sky-reflection / exposure gradients
+    for i in range(1, n):
+        x, y, w, h, a = st[i]
+        sel = lab[y:y + h, x:x + w] == i
+        Lt = L[y:y + h, x:x + w]
+        vals = Lt[sel]
+        if vals.size < 50:
+            continue
+        lo, hi = np.percentile(vals, [25, 75])
+        # local clean-module reference: table pixels clipped to the inter-quartile range (deposits, shadows and
+        # frames do not pull it), smoothed by normalised convolution at module scale
+        wgt = sel.astype(np.float32)
+        refm = cv2.GaussianBlur(np.clip(Lt, lo, hi) * wgt, (0, 0), sig) / np.maximum(cv2.GaussianBlur(wgt, (0, 0), sig), 1e-3)
+        res = (Lt - refm)[sel]
+        core = res[(res >= np.percentile(res, 25)) & (res <= np.percentile(res, 75))]
+        mad = float(np.median(np.abs(core - np.median(core)))) * 1.4826 * 1.9   # IQR-trimmed MAD -> full-spread sigma
+        out[y:y + h, x:x + w] |= ((Lt - refm > max(c["dl_min"], c["dl_sigma"] * mad)) & sel).astype(np.uint8)
+        tol = max(c["dl_min"], 2.5 * mad)
+        clean[y:y + h, x:x + w] |= ((np.abs(Lt - refm) <= tol) & sel).astype(np.uint8)
+    # remove the module grid (frames, inter-module gaps, cell gaps): bright straight lines along the array axes
+    _, rect = rectangularity(panel)
+    if rect is not None and out.any():
+        H, W = out.shape
+        M = cv2.getRotationMatrix2D((W / 2, H / 2), ((rect[2] + 45.0) % 90.0) - 45.0, 1.0)
+        cs, sn = abs(M[0, 0]), abs(M[0, 1])
+        Wr, Hr = int(round(H * sn + W * cs)), int(round(H * cs + W * sn))
+        M[0, 2] += (Wr - W) / 2
+        M[1, 2] += (Hr - H) / 2
+        r = cv2.warpAffine(out, M, (Wr, Hr), flags=cv2.INTER_NEAREST)
+        Lk = max(9, int(0.6 * 1000.0 / gsd)) if gsd else max(9, min(H, W) // 60)   # >= 0.6 m runs = grid lines
+        lines = cv2.morphologyEx(r, cv2.MORPH_OPEN, np.ones((1, Lk), np.uint8)) | cv2.morphologyEx(r, cv2.MORPH_OPEN, np.ones((Lk, 1), np.uint8))
+        bw = (max(5, int(round(0.15 * 1000.0 / gsd)) + 2) if gsd else 7) | 1      # thicker than any frame/gap band
+        blobs = cv2.morphologyEx(r, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (bw, bw)))
+        lines = cv2.dilate(lines & (1 - cv2.dilate(blobs, np.ones((3, 3), np.uint8))), np.ones((3, 3), np.uint8))   # thin lines only
+        # grid neighbourhood = thin line arms grown by the blob size, so the crossings between arms are covered
+        grid_all = cv2.warpAffine(cv2.dilate(lines, np.ones((bw, bw), np.uint8)), cv2.invertAffineTransform(M), (W, H), flags=cv2.INTER_NEAREST)
+        back = cv2.warpAffine(lines, cv2.invertAffineTransform(M), (W, H), flags=cv2.INTER_NEAREST)
+        out = out & (1 - back)
+    else:
+        grid_all = np.zeros_like(out)
+    # mapping GSD: a deposit must be wider than a frame + gap band (~0.1 m), else grid-line fragments pass.
+    # close range (<= close_gsd_mm): frames are resolved as long lines and removed, so droppings (~4 cm) count
+    close = bool(gsd) and gsd <= c["close_gsd_mm"]
+    if gsd:
+        dk = (max(5, int(round((c["min_blob_close_m"] if close else c["min_blob_m"]) * 1000.0 / gsd)) + (0 if close else 2))) | 1
+    else:
+        dk = 5
+    out = cv2.morphologyEx(out, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dk, dk)))
+    # frame/gap crossings survive line removal as small crosses: a deposit lies mostly on the glass, not on the grid
+    out = keep_components(out, lambda st_, j, lb: float(np.mean(grid_all[st_[1]:st_[1] + st_[3], st_[0]:st_[0] + st_[2]]
+                                                              [lb[st_[1]:st_[1] + st_[3], st_[0]:st_[0] + st_[2]] == j])) < 0.5)
+    # a deposit sits ON the glass: its surroundings are mostly clean module surface. Bright ground or
+    # gravel at a table edge is ringed by dark table shadow / land outside the array and is rejected.
+    min_px = (max(40, int((c["min_area_close_m2"] if close else c["min_area_m2"]) * (1000.0 / gsd) ** 2))) if gsd else 40
+    rr = max(3, dk)
+
+    def on_glass(st_, j, lb):
+        x, y, w, h, a = st_
+        if a < min_px:
+            return False
+        r_, rect_ = rectangularity(lb[y:y + h, x:x + w] == j)
+        if close and rect_ is not None and max(rect_[1]) > c["max_aspect"] * max(1.0, min(rect_[1])):
+            return False                 # streak along a frame / edge reflection, not a compact deposit
+        Hh, Ww = lb.shape
+        x0, y0, x1, y1 = max(0, x - rr), max(0, y - rr), min(Ww, x + w + rr), min(Hh, y + h + rr)
+        comp = (lb[y0:y1, x0:x1] == j).astype(np.uint8)
+        ring = dilate(comp, rr) & (1 - comp)
+        tot = ring.sum() + 2 * rr * ((x - rr < 0) * h + (y - rr < 0) * w + (x + w + rr > Ww) * h + (y + h + rr > Hh) * w)
+        return tot > 0 and float((ring & clean[y0:y1, x0:x1]).sum()) / tot >= c["min_clean_ring_frac"]
+    out = keep_components(out, on_glass)
+    if mod_px:   # glare: module-sized, mostly saturated
+        out = keep_components(out, lambda st_, j, lb: not (st_[4] > 0.5 * mod_px and
+                              float(np.mean(L[st_[1]:st_[1] + st_[3], st_[0]:st_[0] + st_[2]][lb[st_[1]:st_[1] + st_[3], st_[0]:st_[0] + st_[2]] == j] >= 250)) > 0.5))
+    return out
 
 
-def pv_glass_breakage(gray, panels, c):
+def off_axis_fraction(comp, sk):
+    """Share of skeleton pixels whose local direction (structure tensor) is > 15 deg off both array axes."""
+    f = cv2.GaussianBlur(comp.astype(np.float32), (0, 0), 1.0)
+    gx, gy = cv2.Sobel(f, cv2.CV_32F, 1, 0), cv2.Sobel(f, cv2.CV_32F, 0, 1)
+    jxx, jyy, jxy = (cv2.GaussianBlur(v, (0, 0), 2.0) for v in (gx * gx, gy * gy, gx * gy))
+    t = np.degrees(0.5 * np.arctan2(2 * jxy, jxx - jyy))[sk > 0] % 90.0
+    return float((np.minimum(t, 90.0 - t) > 15.0).mean()) if t.size else 0.0
+
+
+def pv_glass_breakage(gray, panels, c, min_off_axis=0.35):
     """Fracture networks inside VERIFIED modules only. The regular cell/frame grid is removed first
     (morphological opening with long line kernels along the array axes) so only non-grid, branched
-    bright lines remain. Returns list of (bbox, junctions)."""
+    bright lines remain. Threshold adapts to the image noise (like detect_cracks); remnants of the
+    grid (mostly axis-aligned) are rejected; fragments of one fracture star are merged into one
+    pattern. Returns list of (bbox, junctions)."""
     H, W = gray.shape
     _, rect = rectangularity(panels)            # array axis from the largest verified block
-    ang = rect[2] if rect else 0.0
+    ang = ((rect[2] if rect else 0.0) + 45.0) % 90.0 - 45.0    # minAreaRect angle is only defined modulo 90 deg
     M = cv2.getRotationMatrix2D((W / 2, H / 2), ang, 1.0)
+    cs, sn = abs(M[0, 0]), abs(M[0, 1])
+    Wr, Hr = int(round(H * sn + W * cs)), int(round(H * cs + W * sn))   # canvas holds the whole rotated frame
+    M[0, 2] += (Wr - W) / 2
+    M[1, 2] += (Hr - H) / 2
     Mi = cv2.invertAffineTransform(M)
-    g = cv2.warpAffine(cv2.createCLAHE(2.0, (8, 8)).apply(gray), M, (W, H))
-    pm = cv2.warpAffine(erode(panels, 3), M, (W, H), flags=cv2.INTER_NEAREST)
+    g = cv2.warpAffine(cv2.createCLAHE(2.0, (8, 8)).apply(gray), M, (Wr, Hr))
+    pm = cv2.warpAffine(erode(panels, 3), M, (Wr, Hr), flags=cv2.INTER_NEAREST)
     resp = cv2.morphologyEx(g, cv2.MORPH_TOPHAT, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
     L = max(15, min(H, W) // 40)
     grid = np.maximum(cv2.morphologyEx(resp, cv2.MORPH_OPEN, np.ones((1, L), np.uint8)),
                       cv2.morphologyEx(resp, cv2.MORPH_OPEN, np.ones((L, 1), np.uint8)))
     grid = cv2.dilate(grid, np.ones((3, 3), np.uint8))
     res = cv2.subtract(resp, grid)
-    m = ((res > max(c["min_contrast"] * 2, 25)) & (pm > 0)).astype(np.uint8)
+    v = res[pm > 0].astype(np.float32)
+    if v.size == 0:
+        return []
+    t = max(c["min_contrast"] * 2, 25, float(v.mean() + c.get("sigma_k", 3.0) * v.std()))   # sparse defect vs noise
+    m = ((res > t) & (pm > 0)).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
-    out = []
+    keep = np.zeros_like(m)
     n, lab, st, _ = cv2.connectedComponentsWithStats(m, 8)
     for i in range(1, n):
         x, y, w, h, a = st[i]
         if max(w, h) < c["min_length_px"] * 0.6:
             continue
-        sk = skeletonize(lab[y:y + h, x:x + w] == i)
-        j = skeleton_junctions(sk)
-        if j >= 2 and skeleton_length(sk) >= c["min_length_px"]:
-            pts = np.array([[x, y], [x + w, y], [x, y + h], [x + w, y + h]], np.float32)
-            bp = cv2.transform(pts[None], Mi)[0]
-            x0, y0 = np.clip(bp.min(0), 0, [W - 1, H - 1]).astype(int)
-            x1, y1 = np.clip(bp.max(0), 0, [W - 1, H - 1]).astype(int)
-            out.append(([int(x0), int(y0), int(x1 - x0 + 1), int(y1 - y0 + 1)], j))
+        comp = lab[y:y + h, x:x + w] == i
+        sk = skeletonize(comp)
+        if skeleton_junctions(sk) >= 2 and skeleton_length(sk) >= c["min_length_px"] and off_axis_fraction(comp, sk) >= min_off_axis:
+            keep[y:y + h, x:x + w] |= comp.astype(np.uint8)
+    out = []
+    r = max(3, int(c["min_length_px"] * 0.25))          # fragments of one fracture star -> one pattern
+    n, lab, st, _ = cv2.connectedComponentsWithStats(cv2.dilate(keep, np.ones((2 * r + 1, 2 * r + 1), np.uint8)), 8)
+    for i in range(1, n):
+        x, y, w, h, a = st[i]
+        j = skeleton_junctions(skeletonize(keep[y:y + h, x:x + w] & (lab[y:y + h, x:x + w] == i)))
+        x, y, w, h = x + r, y + r, w - 2 * r, h - 2 * r
+        pts = np.array([[x, y], [x + w, y], [x, y + h], [x + w, y + h]], np.float32)
+        bp = cv2.transform(pts[None], Mi)[0]
+        x0, y0 = np.clip(bp.min(0), 0, [W - 1, H - 1]).astype(int)
+        x1, y1 = np.clip(bp.max(0), 0, [W - 1, H - 1]).astype(int)
+        out.append(([int(x0), int(y0), int(x1 - x0 + 1), int(y1 - y0 + 1)], j))
     return out
 
 
@@ -1222,7 +1508,10 @@ def scene_masks(bgr, gsd, rc):
     woody = keep_components(woody, lambda st, i, lab: st[4] >= min_tree)
     # sky: bright, blue or neutral, connected to top border
     skyc = ((v > 150) & (((h >= 90) & (h <= 130)) | (s < 30))).astype(np.uint8)
-    sky = keep_components(skyc, lambda st, i, lab: st[1] == 0 and st[4] > 0.02 * H * W)
+    # sky is smooth: bright concrete/steel touching the top edge (close-range members, nadir decks) is textured
+    sky = keep_components(skyc, lambda st, i, lab: st[1] == 0 and st[4] > 0.02 * H * W and
+                          float(np.median(tex[st[1]:st[1] + st[3], st[0]:st[0] + st[2]][lab[st[1]:st[1] + st[3], st[0]:st[0] + st[2]] == i]))
+                          < rc.get("sky_texture_std", 2.5))
     # water: smooth, blue/cyan/green-dark, large
     smooth = local_std(gray, 9) < rc["water_texture_std"]
     wat = smooth & (v < 180) & ((((h >= 75) & (h <= 130)) & (s > 30)) | ((h >= 35) & (h < 75) & (s > 50) & (v < 120)))
@@ -1247,20 +1536,41 @@ def scene_masks(bgr, gsd, rc):
                 return False
             L, S = max(rect[1]), max(1.0, min(rect[1]))
             return r > 0.72 and 1.3 <= L / S <= 3.6
-        veh = dilate(keep_components(cand, is_vehicle), 4)
+        veh = keep_components(cand, is_vehicle)
+        f = 4
+        sm = cv2.resize(gray, (max(1, W // f), max(1, H // f)), interpolation=cv2.INTER_AREA)
+        kv = (int(min(251, max(15, (12.0 * px_per_m(gsd) / f) if gsd else min(H, W) / (8 * f)))) | 1)
+        loc = cv2.resize(cv2.medianBlur(sm, kv), (W, H), interpolation=cv2.INTER_LINEAR).astype(np.int16)
+        g16 = gray.astype(np.int16)
+        # any-colour vehicles (silver/grey/beige) stand out from the local road surface: contrast-based candidates.
+        # Only where vehicles park/drive ON the asset (roads, decks, service roads, crests, PV O&M tracks):
+        # elsewhere grey rectangles of car size are asset components (transformers, kiosks, pipe supports)
+        for con in (((g16 - loc) > 35, (loc - g16) > 35) if rc.get("grey_vehicles", True) else ()):
+            con = con.astype(np.uint8)
+            con[veg > 0] = 0
+            con = cv2.morphologyEx(con, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
+            veh |= keep_components(fill_holes(con, int(hi)), is_vehicle)
+        # cast shadow: darker-than-road pixels within ~1.2 m of a vehicle (bounded by distance, not shape)
+        if veh.any():
+            reach = max(4, int(1.2 * px_per_m(gsd)) if gsd else int(0.01 * min(H, W)))
+            veh |= (((loc - g16) > 25) & (dilate(veh, reach) > 0)).astype(np.uint8)
+        veh = dilate(veh, 4)
     grey = ((s < rc["grey_s_max"]) & (v >= rc["grey_v_min"]) & (v <= rc["grey_v_max"])).astype(np.uint8)
     grey[(veg > 0) | (sky > 0) | (water > 0)] = 0
     return {"veg": veg, "woody": woody.astype(np.uint8), "sky": sky, "water": water, "vehicle": veh,
             "grey": grey, "gray": gray, "hsv": hsv, "tex": tex}
 
 
-def grid_periodicity(gray, comp, rect):
+def grid_periodicity(gray, comp, rect, per_axis=False):
     """PV-module verification: strength of periodic cell/frame lines inside the component
     (normalised autocorrelation peak of the edge profile along both module axes).
-    PV arrays score high; car roofs, sheds, water and tarpaulins score low."""
+    PV arrays score high; car roofs, water and tarpaulins score low. per_axis=True returns
+    [(score, lag_px), (score, lag_px)] for the two component axes (the repeat length matters:
+    corrugated-roof ribs and rows of parked cars are periodic too)."""
     (cx, cy), (rw, rh), ang = rect
+    res = [(0.0, 0), (0.0, 0)]
     if rw < 12 or rh < 12:
-        return 0.0
+        return res if per_axis else 0.0
     M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)
     H, W = gray.shape
     g = cv2.warpAffine(gray, M, (W, H), flags=cv2.INTER_LINEAR)
@@ -1269,10 +1579,9 @@ def grid_periodicity(gray, comp, rect):
     y0, y1 = int(cy - rh / 2 + 0.1 * rh), int(cy + rh / 2 - 0.1 * rh)
     x0, y0, x1, y1 = max(0, x0), max(0, y0), min(W, x1), min(H, y1)
     if x1 - x0 < 10 or y1 - y0 < 10:
-        return 0.0
+        return res if per_axis else 0.0
     sub = g[y0:y1, x0:x1].astype(np.float32)
     msub = m[y0:y1, x0:x1].astype(np.float32)
-    best = 0.0
     for axis, sob in ((0, cv2.Sobel(sub, cv2.CV_32F, 1, 0)), (1, cv2.Sobel(sub, cv2.CV_32F, 0, 1))):
         e = np.abs(sob) * msub
         prof = e.sum(axis) / np.maximum(msub.sum(axis), 1)
@@ -1285,11 +1594,23 @@ def grid_periodicity(gray, comp, rect):
         ok = (lags >= 3) & (lags <= n // 3)
         if ok.sum() < 3:
             continue
-        a = ac[ok]
-        peaks = [a[k] for k in range(1, len(a) - 1) if a[k] >= a[k - 1] and a[k] >= a[k + 1]]
+        a, lg = ac[ok], lags[ok]
+        peaks = [(float(a[k]), int(lg[k])) for k in range(1, len(a) - 1) if a[k] >= a[k - 1] and a[k] >= a[k + 1]]
         if peaks:
-            best = max(best, float(max(peaks)))
-    return best
+            res[axis] = max(peaks)
+    return res if per_axis else max(0.0, res[0][0], res[1][0])
+
+
+def module_lattice(ax, gsd_mm, rc):
+    """ax = grid_periodicity(..., per_axis=True). True if the dominant repeat is a MODULE pitch: portrait pitch
+    (module width + gap) is unique to PV; a landscape-length pitch is shared with parked cars / parking bays,
+    so it also needs module rows across. Roof ribs / cell-scale texture repeat far below module pitch."""
+    k = int(ax[1][0] > ax[0][0])
+    if ax[k][0] < rc["pv_min_grid_score"]:
+        return False
+    lo, mid, hi = rc["pv_pitch_m"]
+    per, (sc2, lag2) = ax[k][1] * gsd_mm / 1000.0, ax[1 - k]
+    return lo <= per <= mid or (mid < per <= hi and sc2 >= rc["pv_min_grid_score"] and 0.75 * lo <= lag2 * gsd_mm / 1000.0 <= mid)
 
 
 def pv_array_roi(bgr, gsd, rc, pv, scene):
@@ -1302,25 +1623,48 @@ def pv_array_roi(bgr, gsd, rc, pv, scene):
     gray = scene["gray"]
     scores = []
 
-    def verify(st, i, lab):
-        x, y, w, h, a = st
-        if a < min_a:
-            return False
-        comp = np.zeros((H, W), np.uint8)
-        comp[y:y + h, x:x + w] = lab[y:y + h, x:x + w] == i
+    def check(comp):
         r, rect = rectangularity(comp)
         if r < rc["pv_min_rectangularity"]:
             return False
-        sc = grid_periodicity(gray, comp, rect)
+        ax = grid_periodicity(gray, comp, rect, per_axis=True)
+        sc = max(0.0, ax[0][0], ax[1][0])
         scores.append(sc)
-        return sc >= rc["pv_min_grid_score"]
-    panels = keep_components(cand, verify)
+        if sc < rc["pv_min_grid_score"] or not gsd:
+            return sc >= rc["pv_min_grid_score"]
+        return module_lattice(ax, gsd, rc)          # GSD known: repeat length must be a module pitch
+
+    panels = np.zeros((H, W), np.uint8)
+    n, lab, st, _ = cv2.connectedComponentsWithStats(cand.astype(np.uint8), 8)
+    for i in range(1, n):
+        x, y, w, h, a = st[i]
+        if a < min_a:
+            continue
+        comp = (lab == i).astype(np.uint8)
+        if check(comp):
+            panels |= comp
+            continue
+        if a < 3 * min_a:
+            continue
+        # dark modules merged with similar-looking ground (asphalt, wet soil, shade): split the region once
+        # into its darker and lighter brightness classes and verify each part on its own
+        v = gray[comp > 0]
+        t, _ = cv2.threshold(v.reshape(-1, 1), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        for part in ((gray <= t) & (comp > 0), (gray > t) & (comp > 0)):
+            part = cv2.morphologyEx(part.astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+            pn, pl, ps, _ = cv2.connectedComponentsWithStats(part, 8)
+            for j in range(1, pn):
+                if ps[j, 4] >= min_a:
+                    sub = (pl == j).astype(np.uint8)
+                    if check(sub):
+                        panels |= sub
     panels = fill_holes(panels, int(0.05 * H * W))
     scene["vehicle"][panels > 0] = 0            # a verified module grid is never a vehicle
     zr = buffer_px(gsd, rc["pv_zone_close_m"], rc["pv_zone_close_pct"], (H, W))
     zone = fill_holes(erode(dilate(panels, zr), zr))      # closing bridges inter-row gaps
     # array zone = modules + inter-row / under-table ground; a thin perimeter strip (shading risk)
-    zone = dilate(zone, buffer_px(gsd, rc["pv_perimeter_m"], 1.0, (H, W)))
+    if rc["pv_perimeter_m"] > 0:
+        zone = dilate(zone, buffer_px(gsd, rc["pv_perimeter_m"], 1.0, (H, W)))
     return panels, zone, {"pv_grid_scores": [round(s, 2) for s in scores]}
 
 
@@ -1343,9 +1687,57 @@ def elongated(st, i, lab, H, W, min_aspect=3.0, min_span=0.5):
     return L / S >= min_aspect or L >= min_span * max(H, W)
 
 
-def linear_structure_roi(bgr, scene, rc):
-    """Pipelines etc.: elongated uniform-colour segments (k-means in Lab on a downsampled frame)."""
+def pipe_band_roi(gray, gsd, rc):
+    """Pipe = two long, straight, parallel edges one pipe diameter apart (rc["pipe_diameter_m"]) with a
+    uniform interior. Returns the union of such bands."""
+    H, W = gray.shape
+    f = max(1, int(max(H, W) // 2000))                      # work at <= ~2000 px
+    g = cv2.resize(gray, (W // f, H // f), interpolation=cv2.INTER_AREA) if f > 1 else gray
+    h, w = g.shape
+    gp = (gsd * f) if gsd else None
+    dmin, dmax = ((rc["pipe_diameter_m"][0] * 1000 / gp, rc["pipe_diameter_m"][1] * 1000 / gp) if gp else (4, 0.05 * min(h, w)))
+    e = cv2.Canny(cv2.GaussianBlur(g, (0, 0), 1.2), 30, 90)
+    L = int(rc["pipe_min_len_frac"] * max(h, w))
+    lines = cv2.HoughLinesP(e, 1, np.pi / 360, threshold=int(L * 0.5), minLineLength=L, maxLineGap=int(0.02 * max(h, w)))
+    out = np.zeros((h, w), np.uint8)
+    if lines is None:
+        return cv2.resize(out, (W, H), interpolation=cv2.INTER_NEAREST)
+    segs = []
+    for x1, y1, x2, y2 in lines.reshape(-1, 4):
+        a = math.atan2(y2 - y1, x2 - x1) % math.pi
+        nx, ny = -math.sin(a), math.cos(a)
+        segs.append((a, x1 * nx + y1 * ny, (x1, y1, x2, y2)))
+    for i in range(len(segs)):
+        for j in range(i + 1, len(segs)):
+            a1, r1, s1 = segs[i]
+            a2, r2, s2 = segs[j]
+            if abs(((a1 - a2) + math.pi / 2) % math.pi - math.pi / 2) > math.radians(2):
+                continue
+            dr = abs(r1 - r2)
+            if not (dmin <= dr <= dmax):
+                continue
+            poly = np.array([[s1[0], s1[1]], [s1[2], s1[3]], [s2[2], s2[3]], [s2[0], s2[1]]], np.int32)
+            hull = cv2.convexHull(poly)
+            band = np.zeros((h, w), np.uint8)
+            cv2.fillPoly(band, [hull], 1)
+            if band.sum() < 0.5 * dr * L:
+                continue
+            inner = g[erode(band, 1) > 0]
+            ring = g[(dilate(band, max(3, int(dr))) > 0) & (band == 0)]
+            # a pipe is a uniform body distinct from the ground on both sides
+            if inner.size and ring.size and inner.std() < rc["pipe_max_interior_std"] and abs(float(np.median(inner)) - float(np.median(ring))) > 12:
+                out |= band
+    return cv2.resize(out, (W, H), interpolation=cv2.INTER_NEAREST)
+
+
+def linear_structure_roi(bgr, scene, rc, gsd=None):
+    """Pipelines etc.: parallel-edge bands of pipe diameter; fallback = elongated uniform-colour segments
+    (k-means in Lab on a downsampled frame)."""
     H, W = bgr.shape[:2]
+    band = pipe_band_roi(scene["gray"], gsd, rc)
+    if band.any():
+        band[(scene["veg"] > 0) | (scene["water"] > 0)] = 0
+        return fill_holes(band, int(0.02 * H * W))
     s = 400.0 / max(H, W)
     small = cv2.resize(bgr, (max(8, int(W * s)), max(8, int(H * s))), interpolation=cv2.INTER_AREA)
     lab = cv2.cvtColor(small, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
@@ -1409,7 +1801,9 @@ def asset_roi(asset, bgr, gsd, cfg, scene, mask_path=None):
         if kind == "structure" and asset.get("earthen_fallback") and roi.mean() * 100 < rc["structure_min_pct"] * 2:
             roi = ((scene["sky"] == 0) & (scene["water"] == 0) & (scene["vehicle"] == 0)).astype(np.uint8)
             method = "auto: earthen embankment face (frame minus sky/water/vehicles)"
-        zone = dilate(roi, buffer_px(gsd, asset.get("buffer_m", 0.5), 1.5, (H, W)))
+        zone = dilate(roi, buffer_px(gsd, asset.get("buffer_m", 0.5), 1.5, (H, W))) if asset.get("buffer_m", 0.5) > 0 else roi.copy()
+        if asset.get("zone_frame"):        # embankments: the whole visible earth structure (slopes, toe) minus water/sky
+            zone = ((scene["water"] == 0) & (scene["sky"] == 0)).astype(np.uint8)
     elif kind == "pavement":
         p = ((scene["hsv"][..., 1] < rc["grey_s_max"]) & (scene["hsv"][..., 2] >= 20) & (scene["hsv"][..., 2] <= 215)).astype(np.uint8)
         p[(scene["veg"] > 0) | (scene["sky"] > 0) | (scene["water"] > 0)] = 0
@@ -1433,7 +1827,7 @@ def asset_roi(asset, bgr, gsd, cfg, scene, mask_path=None):
         zone = np.ones((H, W), np.uint8)    # corridor = framed scene; only woody vegetation counts
         method = "auto: lattice tower/gantry members; corridor = frame (woody vegetation only)"
     elif kind == "linear":
-        roi = linear_structure_roi(bgr, scene, rc)
+        roi = linear_structure_roi(bgr, scene, rc, gsd)
         zone = dilate(roi, buffer_px(gsd, asset.get("buffer_m", 3.0), 5, (H, W)))
         method = "auto: elongated linear structure (pipe) + RoW buffer"
     elif kind == "facade":
@@ -1454,10 +1848,13 @@ def asset_roi(asset, bgr, gsd, cfg, scene, mask_path=None):
             "method": method, "cover_pct": cover, "extra": extra}
 
 
-def on_structure_vegetation(veg, roi, ring_px, min_frac):
+def on_structure_vegetation(veg, roi, ring_px, min_frac, opening_min_side_px=None, opening_rect=0.9):
     """Vegetation counts as growing ON the asset (deck, joints, piers, facade, pavement) only when its
     surrounding ring is mostly asset surface. Ring pixels outside the frame count as NOT asset, so
-    fields/verges running out of the frame between piers or beside a road are rejected."""
+    fields/verges running out of the frame between piers or beside a road are rejected.
+    Background land seen THROUGH an opening framed by members (between girders, below the deck soffit and
+    above a pier cap) is also ringed by asset: it is recognised by its outline - a large near-perfect
+    rectangle cut by straight member edges - whereas plants/moss have irregular outlines."""
     Hh, Ww = veg.shape
     roi_p = np.pad(roi.astype(np.uint8), ring_px + 2)
 
@@ -1470,14 +1867,38 @@ def on_structure_vegetation(veg, roi, ring_px, min_frac):
         r = roi_p[y:y + h + 2 * pad, x:x + w + 2 * pad]
         if x == 0 or y == 0 or x + w >= Ww or y + h >= Hh:   # runs out of frame -> land, not growth on asset
             return False
+        if opening_min_side_px and min(w, h) >= opening_min_side_px:
+            rr, rect = rectangularity(comp)
+            if rect is not None and rr >= opening_rect and min(rect[1]) >= opening_min_side_px:
+                return False                                  # view through a framed opening
         return ring.sum() > 0 and (ring & r).sum() / ring.sum() >= min_frac
     return keep_components(veg, ok)
 
 
 def is_straight_line(cr, shape, rc):
-    """Construction joints, member edges, formwork lines, shadow edges: long and ~perfectly straight."""
+    """Construction joints, member edges, formwork lines, shadow edges: long and ~perfectly straight.
+    The 8-connected skeleton length of a perfectly straight digital line is chord x (max(|cos|,|sin|) +
+    (sqrt2-1) min(|cos|,|sin|)), up to 8 % longer than the chord at 22.5 deg - normalise by it, otherwise only
+    lines within ~4 deg of 0/45/90 deg can ever pass the 3 % tortuosity test."""
     ln = cr["length_px"]
-    return ln >= rc["straight_line_min_frac"] * max(shape) and ln / max(cr["chord_px"], 1.0) < rc["straight_line_tortuosity"]
+    a = math.radians(cr.get("angle", 0.0))
+    ca, sa = abs(math.cos(a)), abs(math.sin(a))
+    digital = max(ca, sa) + (math.sqrt(2) - 1) * min(ca, sa)
+    if ln >= rc["straight_line_min_frac"] * max(shape) and \
+            ln / max(cr["chord_px"] * digital, 1.0) < rc["straight_line_tortuosity"]:
+        return True
+    # straight BAND (joint gap, member edge, bar shadow) cut short by a lane line / plant / vehicle, whose skeleton
+    # is ragged: all its pixels lie within its own thickness (+1 % of length) of one straight line
+    if cr["chord_px"] >= min(rc.get("straight_band_min_frac", 0.1) * max(shape), rc.get("straight_band_min_px", 150)):
+        x, y, comp = cr["mask"]
+        ys, xs = np.nonzero(comp)
+        pts = np.vstack([xs, ys]).astype(np.float64)
+        pts -= pts.mean(1, keepdims=True)
+        _, evec = np.linalg.eigh(np.cov(pts))
+        across = float(np.ptp(evec[:, 0] @ pts))
+        thick = len(xs) / max(cr["chord_px"], 1.0)
+        return across <= thick + max(2.0, 0.01 * cr["chord_px"])
+    return False
 
 
 def project_to_ground(md, cx, cy, W, H, gsd_mm):
@@ -1608,15 +2029,16 @@ def thermal_roi(Ts, mode, cfg, gsd_mm, given=None):
     valid = np.zeros((H, W), np.uint8)
     valid[b:H - b, b:W - b] = 1
     med = float(np.median(Ts))
-    sky = keep_components((Ts < med - 10).astype(np.uint8), lambda st, i, lab: st[1] == 0 and st[4] > 0.02 * H * W)
+    # sky: very cold; also patches seen below a deck / between members (not connected to the top edge)
+    sky = keep_components((Ts < med - 10).astype(np.uint8), lambda st, i, lab: st[4] > (0.02 if st[1] == 0 else 0.005) * H * W)
     valid &= (1 - sky)
     if given is not None:
         return (given.astype(np.uint8) & valid), "transferred from paired visual image / manual mask"
     if mode == "pv":
         pv = cfg["pv"]
         mod_px = pv["module_length_m"] * pv["module_width_m"] * (1000.0 / gsd_mm) ** 2 if gsd_mm else None
-        ls = local_std(Ts, 7)
-        thr = rc["thermal_pv_uniform_std_c"]
+        ls = local_std(cv2.medianBlur(Ts.astype(np.float32), 5), 7)   # module frames / gaps (1-2 px lines) don't split blocks
+        thr = thr0 = rc["thermal_pv_uniform_std_c"]
         lg = np.log(ls[valid > 0] + 0.02)          # modules (glass, uniform) vs ground (textured): split if bimodal
         lg = lg[(lg >= np.percentile(lg, 2)) & (lg <= np.percentile(lg, 90))]   # drop edge/outlier texture
         if lg.size > 100:
@@ -1626,24 +2048,97 @@ def thermal_roi(Ts, mode, cfg, gsd_mm, given=None):
             lo_m, hi_m = lg[lg <= t].mean() if (lg <= t).any() else 0, lg[lg > t].mean() if (lg > t).any() else 0
             if hi_m - lo_m > 0.6:                   # clearly two texture classes
                 thr = min(thr, float(np.exp(t) - 0.02))
-        uni = (ls < thr).astype(np.uint8) & valid
-        uni = cv2.morphologyEx(uni, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
         min_a = 2 * mod_px if mod_px else 0.01 * H * W
 
-        def blocky(st, i, lab):
-            return st[4] >= min_a and rectangularity(lab[st[1]:st[1] + st[3], st[0]:st[0] + st[2]] == i)[0] >= 0.5
-        arr = keep_components(uni, blocky)
+        def blocks(t, min_rect):
+            uni = cv2.morphologyEx((ls < t).astype(np.uint8) & valid, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+            return keep_components(uni, lambda st, i, lab: st[4] >= min_a and
+                                   rectangularity(lab[st[1]:st[1] + st[3], st[0]:st[0] + st[2]] == i)[0] >= min_rect)
+        arr = blocks(thr, 0.5)
+        how = "auto: PV array (uniform rectangular module blocks, hull-filled)"
+        if gsd_mm:
+            # PV evidence = module frames / gaps repeating at the module pitch. Cast shadows, roads, roofs, vehicle
+            # bodies and grass are smooth rectangles too (often smoother than modules, so the adaptive threshold
+            # alone selects them); test blocks at the adaptive and at nominal thresholds (a stricter one detaches
+            # tables from ground of similar temperature).
+            lat = np.zeros((H, W), np.uint8)
+            unver = []
+            for t in {thr, thr0, 0.75 * thr0}:
+                bl = blocks(t, rc["thermal_pv_table_min_rect"])
+                ok = keep_components(bl, lambda st, i, lab: module_lattice(
+                    grid_periodicity(Ts, lab == i, rectangularity(lab == i)[1], per_axis=True), gsd_mm, rc))
+                lat |= ok
+                unver.append(bl & (1 - ok))
+            if lat.any():
+                # row completion: a uniform rectangular block with the SAME table depth and orientation lying in the
+                # row of a verified table is a table too, even when its grid is washed out (e.g. an offline string
+                # running uniformly warm has little frame contrast)
+                refs = []
+                t_mod = float(np.median(Ts[lat > 0]))
+                for c_ in cv2.findContours(lat, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
+                    (cx, cy), (rw, rh), an = cv2.minAreaRect(c_)
+                    if rw < rh:
+                        rw, rh, an = rh, rw, an + 90.0
+                    refs.append((cx, cy, rw, rh, math.radians(an)))
+                for bl in unver:
+                    for c_ in cv2.findContours(bl, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
+                        (cx, cy), (rw, rh), an = cv2.minAreaRect(c_)
+                        if rw < rh:
+                            rw, rh, an = rh, rw, an + 90.0
+                        cm = np.zeros((H, W), np.uint8)
+                        cv2.drawContours(cm, [c_], -1, 1, -1)
+                        if abs(float(np.median(Ts[cm > 0])) - t_mod) > rc["thermal_pv_row_max_dT"]:
+                            continue                     # roofs / sheds in line with a row are far hotter than modules
+                        for (qx, qy, qw, qh, qa) in refs:
+                            dang = abs(((math.degrees(qa) - an) + 90.0) % 180.0 - 90.0)
+                            perp = abs(-(cx - qx) * math.sin(qa) + (cy - qy) * math.cos(qa))
+                            same_depth = abs(rh - qh) <= 0.2 * qh or abs(2 * rh - qh) <= 0.2 * qh   # table or one module row
+                            if dang < 5 and same_depth and perp <= 0.5 * qh:
+                                cv2.drawContours(lat, [c_], -1, 1, -1)
+                                break
+                arr, how = lat, how + "; module grid verified"
+            else:
+                how += "; module grid not resolved - unverified"
         # each table/block -> its convex hull, so anomalous modules at a block edge stay inside the array
         out = np.zeros((H, W), np.uint8)
         cnts, _ = cv2.findContours(arr, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for c in cnts:
             cv2.fillPoly(out, [cv2.convexHull(c)], 1)
-        return out & valid, "auto: PV array (uniform rectangular module blocks, hull-filled)"
-    if mode == "seepage_cold":
+        return out & valid, how
+    if mode in ("seepage_cold", "civil_warm"):    # open water is never the asset (river under a bridge, canal)
         cold = ((Ts < med - 1.0) & (local_std(Ts, 9) < rc["thermal_water_max_std_c"])).astype(np.uint8)
         water = dilate(keep_components(cold, lambda st, i, lab: st[4] > 0.1 * H * W), 8)   # incl. shoreline
         return valid & (1 - water), "auto: frame minus border, sky and open water"
     return valid, "auto: frame minus border and sky"
+
+
+def merge_adjacent(comps, gap_px, max_ddT):
+    """One fault seen through module frames / row gaps appears as several touching patches with the same dT
+    (open string, PID patchwork): merge patches whose boxes are within gap_px and dT differs <= max_ddT."""
+    comps = [dict(c) for c in comps]
+    merged = True
+    while merged:
+        merged = False
+        for i in range(len(comps)):
+            for j in range(i + 1, len(comps)):
+                a, b = comps[i], comps[j]
+                ax0, ay0, aw, ah = a["bbox"]
+                bx0, by0, bw, bh = b["bbox"]
+                if (bx0 > ax0 + aw + gap_px or ax0 > bx0 + bw + gap_px or by0 > ay0 + ah + gap_px or ay0 > by0 + bh + gap_px
+                        or abs(a["dT"] - b["dT"]) > max_ddT):
+                    continue
+                x0, y0 = min(ax0, bx0), min(ay0, by0)
+                x1, y1 = max(ax0 + aw, bx0 + bw), max(ay0 + ah, by0 + bh)
+                top = a if abs(a["dT"]) >= abs(b["dT"]) else b
+                comps[i] = {**top, "bbox": [x0, y0, x1 - x0, y1 - y0], "area_px": a["area_px"] + b["area_px"],
+                            "aspect": max(x1 - x0, y1 - y0) / max(1, min(x1 - x0, y1 - y0))}
+                del comps[j]
+                merged = True
+                break
+            if merged:
+                break
+    comps.sort(key=lambda c: -abs(c["dT"]))
+    return comps
 
 
 def analyze_thermal(T, mode, cfg, gsd_mm, given_roi=None):
@@ -1696,9 +2191,17 @@ def analyze_thermal(T, mode, cfg, gsd_mm, given_roi=None):
     if mode == "pv":
         vals = Ts[roi > 0]
         lo, hi = np.percentile(vals, [10, 90])
-        ref = float(np.median(vals[(vals >= lo) & (vals <= hi)]))          # array reference (modules only)
+        core = vals[(vals >= lo) & (vals <= hi)]
+        ref = float(np.median(core))                                        # array reference (modules only)
+        noise = float(np.median(np.abs(core - ref))) * 1.4826 * 1.6        # trimmed MAD -> module-to-module spread
+        stats["module_sigma"] = round(noise, 2)
         bands = th["thermal_pv"]
-        comps = thermal_components(((Ts - ref) > bands[0][0]) & (roi > 0), Ts - ref, Ts, minpx)
+        hot = (((Ts - ref) > bands[0][0]) & (roi > 0)).astype(np.uint8)
+        if gsd_mm:   # cooler module frames / inter-module gaps (~0.1 m) must not split a hot string / PID patchwork
+            k = 2 * max(1, int(round(100.0 / gsd_mm))) + 1
+            hot = cv2.morphologyEx(hot, cv2.MORPH_CLOSE, np.ones((k, k), np.uint8)) & (roi > 0)
+        comps = merge_adjacent(thermal_components(hot, Ts - ref, Ts, minpx),
+                               max(2, int(round(300.0 / gsd_mm))) if gsd_mm else 4, 2.0)
         pv = cfg["pv"]
         mod_area = pv["module_length_m"] * pv["module_width_m"]
         for cpt in comps[:25]:
@@ -1721,6 +2224,10 @@ def analyze_thermal(T, mode, cfg, gsd_mm, given_roi=None):
                 else:
                     pat = "string"
                 cpt["modules_affected"] = max(1, round(r)) if pat in ("multi_module", "string") else 1
+                # single-cell differences of a few K are normal cell mismatch / soiling specks: a cell hot-spot
+                # must clear both an absolute floor and the array's own temperature spread
+                if pat == "cell" and cpt["dT"] < max(tc["pv_cell_min_dT"], tc["pv_noise_k"] * noise):
+                    continue
                 if pat in ("string", "multi_module"):   # energy-significant patterns
                     sev = max(sev, "High" if pat == "string" else "Medium", key=lambda s: SEV_RANK[s])
             cpt.update(severity=sev, ref=ref, pattern=pat)
@@ -1733,7 +2240,15 @@ def analyze_thermal(T, mode, cfg, gsd_mm, given_roi=None):
     bgm = cv2.GaussianBlur(Ts * wgt, (0, 0), sig) / np.maximum(cv2.GaussianBlur(wgt, (0, 0), sig), 1e-3)
     d = Ts - bgm
     bands = th[THERMAL_MODES[mode][1]]
-    t0 = bands[0][0]
+    # detection threshold adapts to the surface's own thermal texture (asphalt/concrete mottling, sensor noise):
+    # an anomaly must exceed both the lowest band and k x robust spread of the residual inside the ROI
+    # spread measured on the surface itself, away from member edges / sun-shadow lines (strong gradients)
+    gm = cv2.magnitude(cv2.Sobel(Ts, cv2.CV_32F, 1, 0), cv2.Sobel(Ts, cv2.CV_32F, 0, 1)) / 8.0
+    flat = (roi > 0) & (dilate((gm > tc["civil_edge_grad_c_px"]).astype(np.uint8), int(sig)) == 0)
+    dv = d[flat] if flat.sum() > 200 else d[roi > 0]
+    spread = float(np.median(np.abs(dv - np.median(dv)))) * 1.4826 if dv.size else 0.0
+    stats["residual_sigma_c"] = round(spread, 2)
+    t0 = max(bands[0][0], tc["civil_noise_k"] * spread)
     if mode == "civil_warm":
         mask = d > t0
     elif mode == "seepage_cold":
@@ -1742,12 +2257,34 @@ def analyze_thermal(T, mode, cfg, gsd_mm, given_roi=None):
         mask = np.abs(d) > t0
     mask = mask & (roi > 0)
     mask = cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    # a defect is warmer (colder) than its whole surroundings; one side of a sun/shadow boundary or a deck
+    # edge next to cool water / sky only differs from the smoothed background, not from its own ring
+    rw = max(3, int(0.02 * max(H, W)))
+    gap = max(2, rw // 2)
+
+    def ring_contrast_ok(st, i, lab):
+        x, y, w, h, a = st
+        p = gap + rw + 1
+        x0, y0, x1, y1 = max(0, x - p), max(0, y - p), min(W, x + w + p), min(H, y + h + p)
+        comp = (lab[y0:y1, x0:x1] == i).astype(np.uint8)
+        ring = (dilate(comp, gap + rw) > 0) & (dilate(comp, gap) == 0) & (roi[y0:y1, x0:x1] > 0)
+        if ring.sum() < 8:
+            return True
+        t = Ts[y0:y1, x0:x1]
+        sgn = 1.0 if float(np.mean(d[y0:y1, x0:x1][comp > 0])) > 0 else -1.0
+        q = np.percentile(t[ring], 90 if sgn > 0 else 10)
+        return sgn * (float(np.median(t[comp > 0])) - q) > 0.5 * t0
+    mask = keep_components(mask, ring_contrast_ok)
     comps = thermal_components(mask, d, Ts, max(minpx, int(0.0005 * H * W)))
     for cpt in comps[:15]:
         sev = band(abs(cpt["dT"]), bands)
         if not sev:
             continue
         pct = 100.0 * cpt["area_px"] / (H * W)
+        if mode == "civil_warm" and pct > tc["civil_max_anomaly_pct"]:
+            # a frame-scale warm region is solar loading / sun-shadow pattern, not a delamination
+            stats["large_gradient_not_assessed"] = stats.get("large_gradient_not_assessed", 0) + 1
+            continue
         if pct > th["thermal_area_escalate_pct"]:
             sev = escalate(sev)
         cpt.update(severity=sev, area_pct=pct, pattern="warm" if cpt["dT"] > 0 else "cold")
@@ -1855,7 +2392,10 @@ class Engine:
         cfg, th, det = self.cfg, self.cfg["thresholds"], self.asset["detectors"]
         amap = self.asset.get("map", {})
         H0, W0 = bgr.shape[:2]
-        s = min(1.0, cfg["processing"]["max_process_side_px"] / max(H0, W0))
+        # crack-centric assets need full resolution; mapping-scale assets (PV, corridors, yards) are processed
+        # at a lighter resolution (their defects span many pixels; tuned detectors, 3-5x faster)
+        side = self.asset.get("max_process_side_px", cfg["processing"]["max_process_side_px"])
+        s = min(1.0, side / max(H0, W0))
         if s < 1:
             bgr = cv2.resize(bgr, (int(W0 * s), int(H0 * s)), interpolation=cv2.INTER_AREA)
         H, W = bgr.shape[:2]
@@ -1882,7 +2422,8 @@ class Engine:
             return
         # --- asset region of interest: defects are searched ONLY on the asset (or its defined buffer)
         rc = cfg["roi"]
-        scene = scene_masks(bgr, gsd, {**rc, "exg_min": th["vegetation"]["exg_min"]})
+        scene = scene_masks(bgr, gsd, {**rc, "exg_min": th["vegetation"]["exg_min"],
+                                       "grey_vehicles": self.asset.get("grey_vehicles", False)})
         R = asset_roi(self.asset, bgr, gsd, cfg, scene, find_manual_mask(path, self.in_dir, rc))
         roi, core, zone = R["roi"], R["core"], R["zone"]
         rec.update(roi_method=R["method"], roi_cover_pct=round(R["cover_pct"], 1))
@@ -1918,36 +2459,51 @@ class Engine:
         # --- PV: soiling & glass breakage on VERIFIED modules only
         if "solar" in det:
             panels = roi
-            soil = soiling_mask(bgr, erode(panels, 2))
-            _, brect = rectangularity(panels)
-            if brect is not None:   # inter-module gaps / frames show ground: remove strips thinner than ~5 % of table depth
-                dk = max(5, int(0.05 * min(brect[1]))) | 1
-                soil = cv2.morphologyEx(soil, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dk, dk)))
+            gmax = th["pv_glass"]["max_gsd_mm"]
+            brk = []
+            if gsd and gmax and gsd > gmax:
+                rec["flags"].append(f"module glass breakage not assessed: GSD {gsd:.1f} mm/px coarser than {gmax:g} mm/px")
+            else:
+                brk = pv_glass_breakage(gray, panels, th["crack"], th["pv_glass"]["min_off_axis_frac"])
+            pvc = cfg["pv"]
+            mod_px = pvc["module_length_m"] * pvc["module_width_m"] * (1000.0 / gsd) ** 2 if gsd else None
+            soil = soiling_mask(bgr, erode(panels, 2), th["soiling"], gsd, mod_px)
+            for bb, _ in brk:                     # shattered glass is reported as breakage, not as soiling
+                soil[bb[1]:bb[1] + bb[3], bb[0]:bb[0] + bb[2]] = 0
             spct = pct_roi(soil)
-            sev = band(spct, th["soiling"]["bands_pct"])
+            sev = band(spct, th["soiling"]["bands_pct"]) if soil.any() else None
             if sev:
                 overlay[soil > 0] = (0, 200, 255)
-                self.add("soiling_pv", sev, f"Soiling signature on {spct:.1f}% of verified module area", src, md,
-                         {"soiled_pct_of_modules": round(spct, 2)}, ann, bbox_of(soil), "Medium", {"area_m2": area_m2(soil.sum())})
-            brk = pv_glass_breakage(gray, panels, th["crack"])
+                self.add("soiling_pv", sev, f"Soiling / deposits on {spct:.1f}% of verified module area", src, md,
+                         {"soiled_pct_of_modules": round(spct, 2), "patches": int(cv2.connectedComponents(soil)[0] - 1)},
+                         ann, bbox_of(soil), "Medium", {"area_m2": area_m2(soil.sum())})
             if brk:
                 for bb, j in brk[:10]:
                     cv2.rectangle(ann, (bb[0], bb[1]), (bb[0] + bb[2], bb[1] + bb[3]), (255, 0, 255), 2)
                 b = max(brk, key=lambda t: t[1])[0]
                 self.add("pv_glass_damage", "High", f"{len(brk)} branched, off-grid fracture pattern(s) on module glass", src, md,
                          {"patterns": len(brk)}, ann, b, "Medium", {"modules": len(brk)})
+        sp = None
+        if "spall" in det:          # computed first: a spall's broken perimeter is part of the spall, not a crack
+            sp = spall_mask(gray, th["spall"], (veg | excl).astype(np.uint8),
+                            buffer_px(gsd, th["spall"].get("min_thickness_m", 0.04), 1.0, (H, W)), gsd) & core
         # --- cracks: core of ROI; straight joints / edges / shadow lines rejected
         if "crack" in det:
-            cr, _ = detect_cracks(gray, gsd, th["crack"], roi=core,
+            cr, _ = detect_cracks(gray, gsd, th["crack"], roi=core & (1 - dilate(veg, 2)),   # weeds/moss lines are not cracks
                                   straight_min_px=rc["straight_line_min_frac"] * max(H, W))
             n_lin = 0
             kept = []
+            sp_zone = dilate(sp, buffer_px(gsd, 0.05, 0.5, (H, W))) if sp is not None else None
             for c in cr:
                 x, y, comp = c["mask"]
                 if is_straight_line(c, (H, W), rc):
                     n_lin += 1
+                elif gsd and c["w_med_mm"] > th["crack"].get("max_crack_width_mm", 15.0):
+                    n_lin += 1                                # wider than any crack: joint gap, kerb/barrier edge, shadow
                 elif (comp & excl[y:y + comp.shape[0], x:x + comp.shape[1]]).sum() > 0.2 * comp.sum():
                     n_lin += 1
+                elif sp is not None and sp.any() and (comp & sp_zone[y:y + comp.shape[0], x:x + comp.shape[1]]).sum() > 0.5 * comp.sum():
+                    n_lin += 1                                # spall perimeter
                 else:
                     kept.append(c)
             cr = kept
@@ -1973,6 +2529,7 @@ class Engine:
                     metrics = {"count": len(cr), "total_length_m": round(tot_px * gsd / 1000, 3), "max_width_mm": round(wmax, 2),
                                "median_width_mm": round(float(np.median([c["w_med_mm"] for c in cr])), 2),
                                "orientation": orient, "pattern": pattern, "gsd_mm_px": round(gsd, 3)}
+                    metrics["width_uncertainty_mm"] = round(gsd, 2)        # +/- 1 px at this GSD
                     if bands[1][0] > 0 and gsd > bands[1][0]:
                         metrics["note"] = f"GSD {gsd:.2f} mm/px coarser than {bands[1][0]} mm band limit: finer cracks not resolvable"
                     qty = {"length_m": tot_px * gsd / 1000}
@@ -2009,15 +2566,15 @@ class Engine:
         # --- efflorescence
         if "efflorescence" in det:
             ef = efflorescence_mask(bgr, th["efflorescence"]) & roi & (1 - excl)
+            ef = mask_components(ef, max(30, int(th["efflorescence"]["min_area_m2"] * (1000.0 / gsd) ** 2) if gsd else 30))
             pct = pct_roi(ef)
-            sev = band(pct, th["efflorescence"]["bands_pct"])
+            sev = band(pct, th["efflorescence"]["bands_pct"]) if ef.any() else None
             if sev:
                 overlay[ef > 0] = (255, 255, 0)
                 self.add("efflorescence", sev, f"White deposits / leaching {pct:.2f}% of asset surface", src, md,
                          {"area_pct_of_asset": round(pct, 3)}, ann, bbox_of(ef), "Low", {"area_m2": area_m2(ef.sum())})
         # --- spalling / pothole
         if "spall" in det:
-            sp = spall_mask(gray, th["spall"], (veg | excl).astype(np.uint8)) & core
             pct = pct_roi(sp)
             if sp.any():
                 sev = band(pct, th["spall"]["bands_pct"], "Medium")
@@ -2033,30 +2590,43 @@ class Engine:
             rule = self.asset.get("veg_rule", "on_structure")
             if rule == "on_structure":
                 ring = int(np.clip(buffer_px(gsd, 0.1, 0.6, (H, W)), 3, 0.01 * min(H, W) + 3))   # thin ring, any GSD
-                vm = on_structure_vegetation(veg, roi, ring, rc["on_structure_ring_frac"])
+                vm = on_structure_vegetation(veg, roi, ring, rc["on_structure_ring_frac"],
+                                             buffer_px(gsd, rc.get("framed_opening_min_side_m", 0.3), 5.0, (H, W)))
                 ref_px, what = roi_px, "growing on the structure"
             elif rule == "zone_woody":
                 vm = scene["woody"] & zone
-                ref_px, what = max(int(zone.sum()), 1), "tree/shrub canopy (woody) in corridor"
+                ref_px, what = max(int(zone.sum()), 1), self.asset.get("veg_zone_label", "tree/shrub canopy (woody) in corridor")
             elif rule == "prism_all_berm_woody":
                 prism = R["extra"].get("prism", roi)
                 vm = (veg & prism) | (scene["woody"] & zone)
                 ref_px, what = max(int(zone.sum()), 1), "weeds in canal prism / woody growth on banks"
             else:   # zone_all - e.g. PV array zone (inter-row & perimeter), pavement + shoulder, pipe RoW
-                vm = veg & zone & (1 - roi)
-                ref_px, what = max(int(zone.sum()), 1), "vegetation within asset zone"
-            vm = mask_components(vm, max(20, int(0.0002 * H * W)))
+                vm = veg & zone              # incl. under-table / shadow strips and growth overlapping modules (shading)
+                ref_px, what = max(int(zone.sum()), 1), self.asset.get("veg_zone_label", "within the asset zone")
+            min_plant = int(th["vegetation"]["min_plant_m2"] * (1000.0 / gsd) ** 2) if gsd else int(0.00005 * H * W)
+            vm = mask_components(vm, max(12, min_plant))
             pct = 100.0 * vm.sum() / ref_px
-            sev = band(pct, th["vegetation"]["on_structure_bands_pct" if rule == "on_structure" else "bands_pct"]) if vm.any() else None
+            bkey = {"on_structure": "on_structure_bands_pct"}.get(rule, "zone_bands_pct")   # any growth in the asset zone = Low
+            sev = band(pct, th["vegetation"][bkey]) if vm.any() else None
             if sev:
                 overlay[vm > 0] = (0, 200, 0)
-                self.add(amap.get("vegetation", "vegetation_structure"), sev, f"Vegetation {what}: {pct:.1f}% of assessed zone", src, md,
+                self.add(amap.get("vegetation", "vegetation_structure"), sev, f"Vegetation - {what}: {pct:.1f}% of assessed zone", src, md,
                          {"vegetation_pct_of_zone": round(pct, 2), "rule": rule}, ann, bbox_of(vm), "High", {"area_m2": area_m2(vm.sum())})
         # --- moisture / wet patches
         if "moisture" in det:
-            mo = moisture_mask(bgr, th["moisture"], (veg | excl).astype(np.uint8)) & zone
+            # shadow casters: trees/shrubs (woody or compact vegetation clumps) and vehicles; extended turf/crops cast none
+            lo_c, hi_c = ((0.3 * (1000.0 / gsd) ** 2, 400 * (1000.0 / gsd) ** 2) if gsd else (0.00005 * H * W, 0.05 * H * W))
+
+            def clump(st, i, lab):
+                if not (lo_c <= st[4] <= hi_c):
+                    return False
+                _, rect_ = rectangularity(lab[st[1]:st[1] + st[3], st[0]:st[0] + st[2]] == i)
+                return rect_ is not None and max(rect_[1]) <= 3 * max(1.0, min(rect_[1]))
+            casters = scene["woody"] | excl | keep_components(veg, clump)
+            shade = dilate(casters.astype(np.uint8), buffer_px(gsd, 1.5, 1.0, (H, W)))
+            mo = moisture_mask(bgr, th["moisture"], (veg | excl | shade).astype(np.uint8), gsd) & zone
             pct = 100.0 * mo.sum() / max(int(zone.sum()), 1)
-            sev = band(pct, th["moisture"]["bands_pct"])
+            sev = band(pct, th["moisture"]["bands_pct"]) if mo.any() else None
             if sev:
                 overlay[mo > 0] = (255, 120, 0)
                 self.add("moisture", sev, f"Dark wet-patch-like regions {pct:.1f}% of asset zone (verify)", src, md,
@@ -2389,6 +2959,9 @@ class ReportBuilder:
                         (f"; GSD {min(gs):.2f}-{max(gs):.2f} mm/px (median {np.median(gs):.2f})" if gs else ""))
             if gs and self.e.asset_key in ("bridge", "building", "dam") and np.median(gs) > 1.0:
                 msgs.append("WARNING: median GSD > 1 mm/px - cracks < ~1 mm cannot be reliably resolved; fly closer / use zoom for crack mapping (target <= 0.3 mm/px for 0.2-0.3 mm cracks).")
+            if gs and self.e.asset_key in ("road", "canal") and np.median(gs) > 3.0:
+                msgs.append(f"WARNING: median GSD {np.median(gs):.1f} mm/px - cracks narrower than ~1 pixel ({np.median(gs):.0f} mm) are not reliably detected; "
+                            "pavement / lining crack surveys need <= 2-3 mm/px (fly lower or use a zoom payload). Potholes, panel damage and vegetation are still assessed.")
             if not gs:
                 msgs.append("WARNING: GSD unknown - crack widths/areas not quantified. Set camera preset, object distance or GSD override in Settings.")
         if th:
@@ -2486,7 +3059,8 @@ class ReportBuilder:
             f"Vegetation rule: {rule_txt.get(e.asset.get('veg_rule'), e.asset.get('veg_rule'))}. "
             "Percentages are of the asset surface/zone in frame, not the whole photo. Frames where the asset is not identified are not analysed "
             "(strict mode); a manual mask (<image>_mask.png or masks/<image>.png, white = asset) overrides the automatic zone. "
-            "PV modules are verified by rectangularity and a periodic cell/frame grid (vehicles, sheds and water fail this test). "
+            "PV modules are verified by rectangularity and a periodic cell/frame grid at module pitch (vehicles, corrugated sheds, parking rows and water fail this test). "
+            "Vehicles (any colour) and their shadows are excluded where vehicles use the asset (roads, decks, service roads, crests, PV tracks). "
             "Long straight lines (joints, member edges, lane markings, formwork and shadow lines) are removed before crack measurement.",
             "Duplicate control: the same defect type seen in overlapping frames within "
             f"{self.cfg['report']['dedupe_radius_projected_m']} m (ground-projected) / {self.cfg['report']['dedupe_radius_camera_m']} m (camera position) "
@@ -2495,9 +3069,12 @@ class ReportBuilder:
             "GSD = sensor width x distance / (focal length x image width); distance = user object distance, LRF, or relative altitude (slant-corrected by gimbal pitch).",
             f"Cracks: CLAHE + morphological black-hat (k={th['crack']['blackhat_kernel_px']} px), Otsu threshold, elongation & length filters, thinning skeleton; width = 2·d-1 from Euclidean distance transform (95th percentile). Bands (mm): {th['crack']['width_bands_mm']}; pavements {th['crack']['pavement_width_bands_mm']}.",
             f"Corrosion: HSV segmentation {th['corrosion']['hsv_lo']}-{th['corrosion']['hsv_hi']}, graded to ISO 4628-3 Ri (limits {th['corrosion']['ri_limits_pct']} % area).",
-            f"Vegetation: Excess-Green index (2g-r-b)/(r+g+b) > {th['vegetation']['exg_min']}; bands % frame {th['vegetation']['bands_pct']}.",
-            "Spall/void/pothole: local-contrast dark regions (box-filter background), solidity and aspect filters; escalated when adjacent to rust.",
-            "Efflorescence: low saturation / high value segmentation with sky suppression. Moisture: low value & saturation, vegetation excluded (low confidence).",
+            f"Vegetation: Excess-Green index (2g-r-b)/(r+g+b) > {th['vegetation']['exg_min']}, counted per the asset rule above; any growth in the asset zone is at least Low "
+            f"({th['vegetation']['zone_bands_pct']} % of zone; on structures {th['vegetation']['on_structure_bands_pct']} % of surface). Woody = textured canopy >= {cfg['roi']['woody_min_area_m2']} m2.",
+            f"Spall/void/pothole: dark region vs robust local background, darker than its own surroundings on all sides (ring 30th percentile >= {th['spall']['ring_drop']} grey levels), "
+            f">= {th['spall']['min_area_m2']} m2, not rectangular (drains, hatches, plates), not thin (shadow bars, strokes), not touching vehicles; escalated when adjacent to rust; spall perimeter is not double-counted as cracks.",
+            "Efflorescence: low-saturation / high-value deposits, irregular outline (white panels, AC units, markings rejected), sky suppressed. "
+            "Moisture/wet patch: irregular, non-elongated area clearly darker than its own surroundings, excluding cast shadows of trees, shrubs and vehicles (low confidence - corroborate with thermal).",
             "Thermal: radiometric data used where available (TIFF/CSV/dji_irp); palette images inverted via LUT using operator-entered scale (indicative).",
             {"electrical": f"Electrical thermal criteria NETA MTS Table 100.18 - component-to-component {th['thermal_electrical_c2c']}; over-ambient {th['thermal_electrical_amb']} (C), optional load correction.",
              "pv": f"PV thermal: dT vs robust array reference, bands {th['thermal_pv']} K; pattern by anomaly area / module area ({cfg['pv']['module_length_m']} x {cfg['pv']['module_width_m']} m); IEC TS 62446-3 CoA classes.",
@@ -2579,7 +3156,10 @@ class ReportBuilder:
         for t in ["Automated detections are screening-level candidates generated by classical computer-vision and radiometric algorithms; false positives (shadows, joints, stains, formwork marks, reflections) and false negatives (sub-GSD cracks, hidden faces) are expected. All Critical/High findings must be verified in the field by a competent engineer.",
                   "Crack widths below ~1-2 px of GSD are not measurable; widths are surface widths at time of survey.",
                   "Analysis is restricted to the automatically delineated asset zone (or the supplied manual mask). Unusual scenes (e.g. painted structures, coloured pavements, bifacial/frameless modules, dense urban clutter) can be under- or over-delineated - review the cyan (asset) and yellow (buffer zone) outlines on the annotated images and supply a manual mask where needed.",
-                  "Percentages are of the asset surface visible in each frame; true member-level extent requires orthomosaic / 3D model mapping. Thin soiling strips along module edges are suppressed together with inter-module gaps.",
+                  "Percentages are of the asset surface visible in each frame; true member-level extent requires orthomosaic / 3D model mapping. Thin soiling strips along module edges are suppressed together with inter-module gaps; individual bird droppings are only resolved on close-range imagery (<= 10 mm/px).",
+                  "Known look-alikes that colour/shape analysis cannot separate: graffiti strokes (may read as cracks) and orange paint (may read as rust); plants standing in front of vegetation seen behind the structure; turbid grey water next to concrete; oil stains vs. shallow potholes. Review such findings on the annotated image.",
+                  "Crack widths below ~1 pixel are sub-pixel estimates (flagged); the reported maximum is conservative (typically +0.1-0.3 mm at 0.4 mm/px). Width uncertainty is +/- 1 px at the stated GSD.",
+                  "Thermal-only frames (no paired visual image / mask) cannot separate the structure from warm or cool background (river banks, vegetation) in oblique views; supply the DJI wide image (_W/_V) or a mask. Sun/shadow boundaries larger than 4 % of the frame are not assessed as delamination.",
                   "Thermal temperatures from non-radiometric (palette) images are indicative; emissivity, reflected temperature, distance, humidity and wind affect radiometric accuracy.",
                   "This report supports, and does not replace, statutory inspections, NDT, structural assessment/load rating, or electrical testing."]:
             L.append(f"<li>{esc(t)}</li>")
