@@ -313,10 +313,16 @@ one and paste it in.
 **Publish says there is no permission.** The token needs *Contents: Read and
 write*, and this repository must be in its *Only select repositories* list.
 
-**After renaming the repository.** GitHub Pages moves the site to the new
-address (`https://<you>.github.io/<new-name>/writings/`) and the old one stops
-working. Your token keeps working, and when the site is opened at the new
-address it publishes to the renamed repository by itself.
+**"There isn't a GitHub Pages site here" (404).** That address is not the
+site. It lives at `https://penpaper0878.github.io/My-Writings/writings/`; the
+bare `penpaper0878.github.io`, the old `/instatements/` address and a
+lower-case `/my-writings/` belong to no site at all. The small repository
+`penpaper0878.github.io` exists only to catch those and forward them here,
+keeping the link to a single piece intact. Keep it. It looks the current name up
+from GitHub, so renaming this repository again needs no change there, and when
+the site is opened at its new address it publishes to the renamed repository by
+itself. Mistyped paths inside the site are caught by `404.html` at the
+repository root.
 
 **The site did not update after publishing.** GitHub Pages takes up to a minute.
 Check the **Actions** tab for the deployment, then hard-refresh.

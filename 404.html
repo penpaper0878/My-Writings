@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Opening the writings…</title>
+<style>
+  :root { --bg: #f6f1e7; --ink: #2b2620; --muted: #7a6f62; --accent: #a9662b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14110d; --ink: #efe7da; --muted: #a59a8b; --accent: #e0a066; }
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+  body { display: flex; align-items: center; justify-content: center; padding: 16px;
+         box-sizing: border-box; font: 17px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; }
+  main { max-width: 26rem; }
+  h1 { font: 600 1.4rem/1.3 Georgia, serif; margin: 0 0 .5rem; }
+  p { margin: .4rem 0; color: var(--muted); }
+  a { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Opening the writings…</h1>
+  <p>That page is not here. You will be taken to the writings in a moment.</p>
+  <p><a id="go" href="/My-Writings/writings/">Go to the writings</a></p>
+</main>
+<script>
+/* GitHub Pages shows this for any missing file in this repository's site —
+   a mistyped folder, an old link. Send the reader to the writings instead of
+   a dead end, keeping the #/e/… part so a shared piece still opens. */
+(function () {
+  var first = location.pathname.split('/')[1] || '';
+  var url = '/' + first + '/writings/' + location.hash;
+  var link = document.getElementById('go');
+  if (link) link.href = url;
+  if (url === location.pathname + location.hash) return;   // the writings themselves are missing
+  location.replace(url);
+})();
+</script>
+</body>
+</html>
